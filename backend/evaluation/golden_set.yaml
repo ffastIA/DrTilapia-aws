@@ -1,0 +1,532 @@
+# Conjunto de avaliação do RAG — DrTilápIA
+#
+# Todas as perguntas foram derivadas do CONTEÚDO REAL indexado na base vetorial,
+# não do comportamento observado do sistema. Cada `expected_passages` é um trecho
+# literal verificado como presente na base.
+#
+# Cobertura: os 4 documentos indexados.
+#   O `BIP 2024 publicado.pdf` foi reingerido em 2026-08-01 com um exemplar
+#   diferente do original (16 páginas, extração adequada pelo `pypdf` primário,
+#   646,9 palavras/página — ver openspec/changes/archive/.../fix-pdf-extraction-quality).
+#   O exemplar que causou a falha original (12 chunks, ~51 palavras/chunk) não
+#   foi retestado; a questão de saber se o resgate por OCR/Vision recupera
+#   tabelas de um PDF realmente quebrado permanece em aberto nessa mudança.
+#
+# Campos:
+#   id                   identificador estável (não renumerar ao inserir novas)
+#   question             a pergunta enviada ao RAG
+#   history              turnos anteriores [[pergunta, resposta], ...] (follow-ups)
+#   scope                in_corpus | out_of_corpus
+#   question_type        quantitative | conceptual | comparative | methodological
+#   expected_source_file arquivo que deveria fornecer a resposta
+#   expected_passages    trechos literais que a recuperação deve trazer
+#   must_mention         pontos que a resposta precisa conter
+
+version: 3
+# v2 (fix-rag-eval-harness-fidelity): adicionadas 7 perguntas fora do escopo
+# "adversariais" — que reusam vocabulário/entidades/métricas do corpus mas
+# pedem algo que não está nele. As 4 perguntas out_of_corpus originais são
+# lexicalmente distantes do corpus e não testam de verdade a capacidade de
+# recusa: o sistema pode acertar por sorte léxica, não por entender que não
+# sabe. Nenhuma entrada de v1 foi alterada ou removida — diff puramente aditivo.
+#
+# v3 (add-multi-query-retrieval-expansion): adicionadas 6 perguntas `col-*`
+# ("coloquiais") — cada uma irmã de uma pergunta `in_corpus` já existente
+# (mesmo expected_source_file/expected_passages/must_mention, já que testam
+# o mesmo fato), mas fraseadas sem nenhum termo técnico exato do corpus (FIS,
+# ROI, TIR, KV, RPL, payback etc.), do jeito que um usuário leigo perguntaria.
+# Nenhuma pergunta v1/v2 foi alterada — diff puramente aditivo. Motivação:
+# antes desta versão não havia nenhuma cobertura desse tipo de fraseado, então
+# não havia como medir se o sistema é tolerante a perguntas imprecisas.
+corpus_files_covered:
+  - "Genetic and phenotypic characterization of Nile tilapia.pdf"
+  - "BIA_RAG.pdf"
+  - "Indice volumetrico abate.pdf"
+  - "BIP 2024 publicado.pdf"
+corpus_files_excluded: []
+
+questions:
+
+  # ---------------------------------------------------------------- quantitativas
+  - id: gen-fis-extremos
+    question: "Quais populações de tilápia apresentaram o maior e o menor coeficiente de endogamia (FIS) no banco de germoplasma?"
+    scope: in_corpus
+    question_type: quantitative
+    expected_source_file: "Genetic and phenotypic characterization of Nile tilapia.pdf"
+    expected_passages:
+      - "Intrapopulation genetic diversity metrics for each tilapia stock"
+      - "SAW 9.6 (1.08) 2 (0.32) 1.50 (0.17) 0.44 (0.12) 0.13 (0.06) 0.29 (0.09) 0.44 (0.20)"
+    must_mention:
+      - "SAW com FIS mais alto (0,44)"
+      - "ILH com FIS mais baixo (0,05)"
+
+  - id: gen-area-file
+    question: "Qual estoque apresentou a maior área de filé medida por ultrassonografia, e qual valor?"
+    scope: in_corpus
+    question_type: quantitative
+    expected_source_file: "Genetic and phenotypic characterization of Nile tilapia.pdf"
+    expected_passages:
+      - "The ILH broodstock exhibited the highest mean fillet"
+      - "measuring 7.05, as assessed by ultrasonog"
+    must_mention:
+      - "ILH com 7,05"
+      - "SAL com o menor valor (3,04)"
+
+  - id: bia-roi-tir
+    question: "Quais são os valores de ROI e TIR projetados para o MVP do BIA?"
+    scope: in_corpus
+    question_type: quantitative
+    expected_source_file: "BIA_RAG.pdf"
+    expected_passages:
+      - "ROI (Retorno sobre investimento) “MVP: 58,07% ”"
+      - "TIR (Taxa Interna de Retorno)  MVP: 40,26% anual"
+    must_mention:
+      - "ROI de 58,07%"
+      - "TIR de 40,26% ao ano"
+
+  - id: bia-precos
+    question: "Qual o preço do equipamento BIA e o valor da mensalidade da assinatura?"
+    scope: in_corpus
+    question_type: quantitative
+    expected_source_file: "BIA_RAG.pdf"
+    expected_passages:
+      - "Preço Equipamento  = R$ 17.000 por unidade"
+      - "Mensalidade Assinatura  = R$ 400 por contrato"
+    must_mention:
+      - "R$ 17.000 por equipamento"
+      - "R$ 400 de mensalidade"
+
+  - id: bia-receita-semestres
+    question: "Como evoluiu a receita projetada do BIA ao longo dos quatro semestres?"
+    scope: in_corpus
+    question_type: quantitative
+    expected_source_file: "BIA_RAG.pdf"
+    expected_passages:
+      - "1º Semestre: R$ 758.800"
+      - "4º Semestre: R$ 12.280.000 (crescimento de 83%)"
+    must_mention:
+      - "758.800 no primeiro semestre"
+      - "12.280.000 no quarto semestre"
+
+  - id: bia-payback
+    question: "Qual o payback do BIA e como ele se compara à média do setor?"
+    scope: in_corpus
+    question_type: comparative
+    expected_source_file: "BIA_RAG.pdf"
+    expected_passages:
+      - "Payback BIA (21 meses) vs. Média Setor (36 -48 meses)"
+    must_mention:
+      - "21 meses"
+      - "média do setor de 36 a 48 meses"
+
+  - id: bip-rpl-extremos
+    question: "Quais tratamentos apresentaram o maior e o menor nível de proteção relativa (RPL) contra Aeromonas hydrophila no estudo do BIP 2024?"
+    scope: in_corpus
+    question_type: quantitative
+    expected_source_file: "BIP 2024 publicado.pdf"
+    expected_passages:
+      - "Treatments Relative protection level (%)"
+      - "PRO+MOS 64.10"
+    must_mention:
+      - "PRO+MOS com o maior RPL (64,10%)"
+      - "MOS com o menor RPL (21,02%)"
+
+  - id: bip-bacillus-colonizacao
+    question: "Qual foi a contagem de Bacillus (UFC) no intestino dos peixes alimentados com o probiótico PRO, comparada ao grupo controle, no estudo do BIP 2024?"
+    scope: in_corpus
+    question_type: quantitative
+    expected_source_file: "BIP 2024 publicado.pdf"
+    expected_passages:
+      - "PRO 3.5x105 b5.6x106 b"
+      - "Control 1.1x101 a1.9x102 a"
+    must_mention:
+      - "grupo PRO com cerca de 5,6x10⁶ UFC/g no intestino"
+      - "controle com apenas 1,9x10² UFC/g"
+
+  # ---------------------------------------------------------------- conceituais
+  - id: kv-definicao
+    question: "O que é o índice de condição volumétrico (KV) e como ele é calculado?"
+    scope: in_corpus
+    question_type: conceptual
+    expected_source_file: "Indice volumetrico abate.pdf"
+    expected_passages:
+      - "índice KV = massa corporal / volume elipsoidal"
+      - "aproximamos o corpo como um elipsoide"
+    must_mention:
+      - "massa corporal dividida pelo volume elipsoidal"
+      - "usa comprimento total, altura e largura"
+
+  - id: kv-vs-fulton
+    question: "Por que o fator de condição K de Fulton é considerado inadequado para tilápia?"
+    scope: in_corpus
+    question_type: comparative
+    expected_source_file: "Indice volumetrico abate.pdf"
+    expected_passages:
+      - "O fator de condição mais famoso é o K de Fulton , que relaciona peso com comprimento"
+      - "Isso faz o K subir com o tamanho, mesmo se a condição de carcaça não melhorar"
+    must_mention:
+      - "tilápia cresce de forma alométrica (muda de forma com o tamanho)"
+      - "o K favorece peixes grandes"
+
+  - id: kv-rendimento
+    question: "Qual a relação entre o KV e o rendimento de carcaça?"
+    scope: in_corpus
+    question_type: conceptual
+    expected_source_file: "Indice volumetrico abate.pdf"
+    expected_passages:
+      - "Lotes com KV mais alto apresentaram, em média, maior rendimento de carcaça"
+    must_mention:
+      - "KV mais alto associado a maior rendimento de carcaça"
+      - "índices viscerais não crescem na mesma proporção"
+
+  - id: bia-o-que-e
+    question: "O que é a tecnologia BIA e qual problema ela resolve na tilapicultura?"
+    scope: in_corpus
+    question_type: conceptual
+    expected_source_file: "BIA_RAG.pdf"
+    expected_passages:
+      - "monitoramento não invasivo de tilápias em tempo real, avaliando peso, tamanho e"
+    must_mention:
+      - "biometria não invasiva e submersa, sem manipulação"
+      - "reduz estresse e ajusta a alimentação"
+
+  - id: gen-por-que-banco
+    question: "Por que criar um banco de germoplasma de tilápia do Nilo no Brasil?"
+    scope: in_corpus
+    question_type: conceptual
+    expected_source_file: "Genetic and phenotypic characterization of Nile tilapia.pdf"
+    expected_passages:
+      - "the establishment of germ"
+      - "will ensure the long-"
+    must_mention:
+      - "preservar diversidade genética"
+      - "apoiar melhoramento e reduzir depressão endogâmica"
+
+  - id: gen-posicao-fao
+    question: "Qual a posição da tilápia do Nilo no ranking mundial de espécies mais cultivadas?"
+    scope: in_corpus
+    question_type: quantitative
+    expected_source_file: "Genetic and phenotypic characterization of Nile tilapia.pdf"
+    expected_passages:
+      - "Nile tilapia is the third"
+      - "most farmed fish species in the world behind grasscarp"
+    must_mention:
+      - "terceira espécie mais cultivada"
+      - "atrás da carpa capim e da carpa prateada"
+
+  - id: bip-mos-crescimento
+    question: "A suplementação com MOS, KAP e o probiótico PAS-TR causou efeito no crescimento ou nas variáveis hematológicas da tilápia no estudo do BIP 2024?"
+    scope: in_corpus
+    question_type: conceptual
+    expected_source_file: "BIP 2024 publicado.pdf"
+    expected_passages:
+      - "did not cause a beneficial or adverse effect on growth"
+      - "these treatments protected the fish from A. hydrophyla infection"
+    must_mention:
+      - "não houve efeito benéfico nem adverso no crescimento ou na hematologia"
+      - "mesmo assim os tratamentos protegeram os peixes contra a infecção por A. hydrophila"
+
+  # ---------------------------------------------------------------- metodológicas
+  - id: kv-como-medir
+    question: "Como o produtor deve coletar as medidas para calcular o KV na fazenda?"
+    scope: in_corpus
+    question_type: methodological
+    expected_source_file: "Indice volumetrico abate.pdf"
+    expected_passages:
+      - "A cada 3 –4 semanas, selecione 20 a 30 peixes representativos de cada tanque ou viveiro"
+    must_mention:
+      - "20 a 30 peixes a cada 3-4 semanas"
+      - "medir peso, comprimento total, altura máxima e largura"
+
+  - id: kv-ponto-abate
+    question: "Como usar o KV para decidir o ponto de abate de um lote?"
+    scope: in_corpus
+    question_type: methodological
+    expected_source_file: "Indice volumetrico abate.pdf"
+    expected_passages:
+      - "A melhor forma de usar KV é construir uma linha de base da própria fazenda"
+    must_mention:
+      - "construir linha de base da própria fazenda"
+      - "comparar o KV do lote novo com a referência"
+
+  - id: gen-etica-amostragem
+    question: "Qual foi a aprovação ética e a classificação de origem adotada no estudo do banco de germoplasma?"
+    scope: in_corpus
+    question_type: methodological
+    expected_source_file: "Genetic and phenotypic characterization of Nile tilapia.pdf"
+    expected_passages:
+      - "Animal Use (CEUA #01.0696.2022) of the Fisheries"
+      - "we adopted the FAO classification for pri-"
+    must_mention:
+      - "CEUA #01.0696.2022"
+      - "classificação FAO: captive propagated, strain-sourced, wild-sourced"
+
+  - id: bip-desafio-protocolo
+    question: "Como foi feito o desafio experimental com Aeromonas hydrophila no estudo do BIP 2024, e como o nível de proteção relativa (RPL) foi calculado?"
+    scope: in_corpus
+    question_type: methodological
+    expected_source_file: "BIP 2024 publicado.pdf"
+    expected_passages:
+      - "the 50% lethal dose (LD) was previously set at 1.26 x 108 CFU"
+      - "RPL (%) = 100"
+    must_mention:
+      - "dose letal (DL50) de 1,26 x 10⁸ UFC/mL"
+      - "RPL calculado comparando a mortalidade do tratamento com a do controle"
+
+  # ---------------------------------------------------------------- coloquiais (in_corpus)
+  # Irmãs de perguntas já existentes acima — mesmo fato, mesmo
+  # expected_source_file/expected_passages/must_mention, mas fraseadas sem
+  # nenhum termo técnico exato do corpus (FIS, ROI, TIR, KV, RPL, payback
+  # etc.), do jeito que um usuário leigo perguntaria. Ver
+  # openspec/changes/add-multi-query-retrieval-expansion.
+  - id: col-gen-fis-extremos
+    question: "Quais grupos de peixe reprodutor tinham mais parentesco entre si, tipo cruzamento de parentes, e quais tinham menos?"
+    scope: in_corpus
+    question_type: quantitative
+    expected_source_file: "Genetic and phenotypic characterization of Nile tilapia.pdf"
+    expected_passages:
+      - "Intrapopulation genetic diversity metrics for each tilapia stock"
+      - "SAW 9.6 (1.08) 2 (0.32) 1.50 (0.17) 0.44 (0.12) 0.13 (0.06) 0.29 (0.09) 0.44 (0.20)"
+    must_mention:
+      - "SAW com FIS mais alto (0,44)"
+      - "ILH com FIS mais baixo (0,05)"
+    # Irmã de gen-fis-extremos — evita "FIS", "endogamia", "germoplasma".
+
+  - id: col-bia-roi-tir
+    question: "Esse aparelho de acompanhar os peixes compensa financeiramente? Quanto ele rende de volta comparado ao que se gasta pra comprar?"
+    scope: in_corpus
+    question_type: quantitative
+    expected_source_file: "BIA_RAG.pdf"
+    expected_passages:
+      - "ROI (Retorno sobre investimento) “MVP: 58,07% ”"
+      - "TIR (Taxa Interna de Retorno)  MVP: 40,26% anual"
+    must_mention:
+      - "ROI de 58,07%"
+      - "TIR de 40,26% ao ano"
+    # Irmã de bia-roi-tir — evita "ROI", "TIR", "BIA", "MVP".
+
+  - id: col-kv-definicao
+    question: "Tem como saber se um peixe tá com bastante carne só olhando o tamanho dele, sem precisar cortar?"
+    scope: in_corpus
+    question_type: conceptual
+    expected_source_file: "Indice volumetrico abate.pdf"
+    expected_passages:
+      - "índice KV = massa corporal / volume elipsoidal"
+      - "aproximamos o corpo como um elipsoide"
+    must_mention:
+      - "massa corporal dividida pelo volume elipsoidal"
+      - "usa comprimento total, altura e largura"
+    # Irmã de kv-definicao — evita "KV", "índice de condição volumétrico".
+
+  - id: col-bip-mos-crescimento
+    question: "Botar aqueles aditivos extras na ração fez os peixes crescerem mais rápido ou mudou alguma coisa no sangue deles no teste que fizeram?"
+    scope: in_corpus
+    question_type: conceptual
+    expected_source_file: "BIP 2024 publicado.pdf"
+    expected_passages:
+      - "did not cause a beneficial or adverse effect on growth"
+      - "these treatments protected the fish from A. hydrophyla infection"
+    must_mention:
+      - "não houve efeito benéfico nem adverso no crescimento ou na hematologia"
+      - "mesmo assim os tratamentos protegeram os peixes contra a infecção por A. hydrophila"
+    # Irmã de bip-mos-crescimento — evita "MOS", "KAP", "PAS-TR", "hematológicas".
+
+  - id: col-bia-payback
+    question: "Em quanto tempo esse equipamento se paga, e isso é rápido ou devagar perto do que as outras empresas do setor costumam levar?"
+    scope: in_corpus
+    question_type: comparative
+    expected_source_file: "BIA_RAG.pdf"
+    expected_passages:
+      - "Payback BIA (21 meses) vs. Média Setor (36 -48 meses)"
+    must_mention:
+      - "21 meses"
+      - "média do setor de 36 a 48 meses"
+    # Irmã de bia-payback — evita "payback", "BIA".
+
+  - id: col-kv-ponto-abate
+    question: "Como eu uso aquele número que mostra a condição do peixe pra decidir a hora certa de tirar o lote pra vender?"
+    scope: in_corpus
+    question_type: methodological
+    expected_source_file: "Indice volumetrico abate.pdf"
+    expected_passages:
+      - "A melhor forma de usar KV é construir uma linha de base da própria fazenda"
+    must_mention:
+      - "construir linha de base da própria fazenda"
+      - "comparar o KV do lote novo com a referência"
+    # Irmã de kv-ponto-abate — evita "KV".
+
+  # ---------------------------------------------------------------- fora do escopo
+  # Plausíveis para o domínio, mas ausentes da base. O sistema DEVE recusar.
+  - id: oos-doenca-estreptococose
+    question: "Qual o protocolo de tratamento recomendado para estreptococose em tilápias?"
+    scope: out_of_corpus
+    question_type: methodological
+    expected_source_file: null
+    expected_passages: []
+    must_mention: []
+
+  - id: oos-qualidade-agua-amonia
+    question: "Qual o nível máximo tolerável de amônia não ionizada para tilápia do Nilo em viveiro?"
+    scope: out_of_corpus
+    question_type: quantitative
+    expected_source_file: null
+    expected_passages: []
+    must_mention: []
+
+  - id: oos-custo-racao
+    question: "Qual o custo médio por tonelada de ração extrusada para tilápia no Brasil em 2024?"
+    scope: out_of_corpus
+    question_type: quantitative
+    expected_source_file: null
+    expected_passages: []
+    must_mention: []
+
+  - id: oos-reversao-sexual
+    question: "Qual a dosagem de hormônio usada na reversão sexual de alevinos de tilápia?"
+    scope: out_of_corpus
+    question_type: methodological
+    expected_source_file: null
+    expected_passages: []
+    must_mention: []
+
+  # ------------------------------------------------------- fora do escopo (adversariais)
+  # As 4 acima são lexicalmente distantes do corpus — o sistema pode recusar
+  # por sorte, não por entender que não sabe. Estas reusam vocabulário,
+  # métricas ou entidades reais do corpus, trocando só o elemento que torna
+  # a pergunta irrespondível. O sistema DEVE recusar todas.
+  - id: oos-dieta-restritiva
+    question: "Como se comporta a tilápia do nilo com dieta restritiva?"
+    scope: out_of_corpus
+    question_type: conceptual
+    expected_source_file: null
+    expected_passages: []
+    must_mention: []
+    # A falha observada ao vivo nesta investigação: o sistema não recusou,
+    # respondeu com um esqueleto de seções vazias e citou os 4 documentos
+    # da base com quase todo o intervalo de páginas.
+
+  - id: oos-fis-carpa
+    question: "Qual o coeficiente de endogamia FIS das populações de carpa capim no banco de germoplasma?"
+    scope: out_of_corpus
+    question_type: quantitative
+    expected_source_file: null
+    expected_passages: []
+    must_mention: []
+    # Troca de entidade mantendo vocabulário técnico idêntico ao do corpus
+    # (FIS, endogamia, banco de germoplasma, populações) — o corpus fala de
+    # tilápia do Nilo, não carpa capim. Alta similaridade de cosseno esperada.
+
+  - id: oos-rpl-streptococcus
+    question: "Qual o RPL dos tratamentos contra Streptococcus agalactiae no estudo do BIP 2024?"
+    scope: out_of_corpus
+    question_type: quantitative
+    expected_source_file: null
+    expected_passages: []
+    must_mention: []
+    # Estudo real, métrica real (RPL), mas o patógeno do desafio experimental
+    # no BIP 2024 é Aeromonas hydrophila, não Streptococcus agalactiae.
+
+  - id: oos-roi-2030
+    question: "Qual o ROI projetado do BIA para o ano de 2030?"
+    scope: out_of_corpus
+    question_type: quantitative
+    expected_source_file: null
+    expected_passages: []
+    must_mention: []
+    # Entidade e métrica do corpus (BIA, ROI), mas o horizonte projetado no
+    # documento é por semestre do MVP, não um valor específico para 2030.
+
+  - id: oos-kv-tambaqui
+    question: "Qual o KV médio de tambaqui no momento do abate?"
+    scope: out_of_corpus
+    question_type: quantitative
+    expected_source_file: null
+    expected_passages: []
+    must_mention: []
+    # Índice do corpus (KV), espécie fora do corpus (o documento trata só
+    # de tilápia).
+
+  - id: oos-densidade-estocagem
+    question: "Qual a densidade de estocagem recomendada para tilápia em tanque-rede?"
+    scope: out_of_corpus
+    question_type: methodological
+    expected_source_file: null
+    expected_passages: []
+    must_mention: []
+    # Pergunta plausível de domínio, genuinamente ausente do corpus.
+
+  - id: oos-temperatura-otima
+    question: "Qual a faixa de temperatura ótima para o crescimento da tilápia do Nilo?"
+    scope: out_of_corpus
+    question_type: quantitative
+    expected_source_file: null
+    expected_passages: []
+    must_mention: []
+    # Mesmo padrão — plausível, ausente do corpus, mas pode pontuar em zona
+    # intermediária de similaridade por reusar "tilápia do Nilo"/"crescimento".
+
+  # ---------------------------------------------------------------- follow-ups
+  # A última pergunta é incompleta sem o histórico. Mede condensação de consulta.
+  - id: fu-kv-medidas
+    question: "E quais medidas eu preciso tirar?"
+    history:
+      - ["O que é o índice de condição volumétrico (KV)?", "O KV é um índice que relaciona a massa corporal do peixe ao volume estimado do seu corpo, aproximado como um elipsoide."]
+    scope: in_corpus
+    question_type: methodological
+    expected_source_file: "Indice volumetrico abate.pdf"
+    expected_passages:
+      - "Comprimento total (CT) – cm"
+      - "Altura máxima do corpo (H) – cm"
+    must_mention:
+      - "comprimento total, altura máxima e largura/espessura"
+
+  - id: fu-gen-menor-valor
+    question: "E qual teve o menor?"
+    history:
+      - ["Qual estoque apresentou a maior área de filé por ultrassonografia?", "O estoque ILH apresentou a maior área média de filé, com valor de 7,05."]
+    scope: in_corpus
+    question_type: quantitative
+    expected_source_file: "Genetic and phenotypic characterization of Nile tilapia.pdf"
+    expected_passages:
+      - "the SAL stock recorded the low-"
+    must_mention:
+      - "SAL com 3,04"
+
+  - id: fu-bia-margem
+    question: "E qual a margem por unidade?"
+    history:
+      - ["Qual o preço do equipamento BIA?", "O equipamento BIA é vendido a R$ 17.000 por unidade."]
+    scope: in_corpus
+    question_type: quantitative
+    expected_source_file: "BIA_RAG.pdf"
+    expected_passages:
+      - "Margem Bruta  = 56,47% por equipamento"
+      - "Custo Unitário: R$ 7.400"
+    must_mention:
+      - "margem bruta de 56,47%"
+      - "custo unitário de R$ 7.400"
+
+  - id: fu-kv-por-que-importa
+    question: "E por que isso importa para o produtor?"
+    history:
+      - ["O que o KV mede?", "O KV mede quanta carne o peixe tem por unidade de volume do corpo."]
+    scope: in_corpus
+    question_type: conceptual
+    expected_source_file: "Indice volumetrico abate.pdf"
+    expected_passages:
+      - "Mais carcaça por quilo de peixe  – KV alto está associado a maior rendimento de carcaça"
+    must_mention:
+      - "mais rendimento de carcaça"
+      - "melhor uso da ração"
+
+  - id: fu-bip-rpl-menor
+    question: "E qual teve o menor?"
+    history:
+      - ["Qual tratamento teve o maior nível de proteção relativa (RPL) contra Aeromonas hydrophila no estudo do BIP 2024?", "O tratamento PRO+MOS apresentou o maior RPL, com 64,10%."]
+    scope: in_corpus
+    question_type: quantitative
+    expected_source_file: "BIP 2024 publicado.pdf"
+    expected_passages:
+      - "MOS 21.02"
+    must_mention:
+      - "MOS com 21,02%"

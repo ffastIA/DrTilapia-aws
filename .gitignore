@@ -1,0 +1,66 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments (MUITO IMPORTANTE)
+env/
+venv/
+.env
+.venv/
+xxx.env
+*.env
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# IDE specific settings (Opcional, mas recomendado)
+.vscode/
+.idea/
+
+# IDE specific settings (Opcional, mas recomendado)
+.pdf
+.docx
+
+# Claude Code — ferramental local (settings, skills, comandos), específico da
+# máquina e não parte do projeto. O settings.local.json ainda pode conter
+# credenciais, então nunca commitar nada daqui.
+.claude/
+
+# CodeGraph — índice local do código, regenerável com `codegraph init`
+.codegraph/
+
+# Logs e arquivos temporários do backend
+backend/app/logs/
+backend/uvicorn.log
+backend/login_response.json
+backend/test_*.py
+backend/videos/
+
+# Scripts de diagnóstico pontuais
+backend/scripts/
+
+# Arquivos de análise/chat gerados localmente
+Chat*.pdf
+Chat*.docx
+Codigo*.pdf
+Diretorios*.pdf
+Supabase*.pdf
+htmlHub.txt
+Teste_url.py
+
+# Instaladores e binários
+Tesseract/
+
+# PDFs dos documentos da base RAG (arquivos grandes — manter fora do repositório)
+backend/docs/*.pdf
+
+# CA bundle local gerado a partir do repositório de certificados do Windows
+# (necessário só em ambientes atrás de proxy de inspeção TLS — ver SSL_CERT_FILE
+# em backend/.env.example). Específico da máquina, nunca commitar.
+backend/ca-bundle-windows.pem
+
+# Cache incremental do compilador TypeScript (regenerado a cada build)
+frontend/tsconfig.tsbuildinfo

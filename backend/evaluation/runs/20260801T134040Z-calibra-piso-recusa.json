@@ -1,0 +1,522 @@
+{
+  "run_id": "20260801T134040Z",
+  "label": "calibra-piso-recusa",
+  "mode": "retrieval-only",
+  "k": 40,
+  "llm_expansion": true,
+  "golden_set_version": 1,
+  "config": {
+    "embedding_model": "text-embedding-3-large",
+    "embedding_dimensions": 1536,
+    "chunk_size": 1600,
+    "chunk_overlap": 200,
+    "similarity_threshold": 0.5,
+    "llm_model": "gpt-4o-mini"
+  },
+  "cost": {
+    "llm_calls": 28,
+    "llm_prompt_tokens": 4306,
+    "llm_completion_tokens": 1258,
+    "llm_cost_usd": 0.0014,
+    "embedding_calls_estimated": 28,
+    "note": "Custo de embeddings não incluído (callback do LangChain cobre só chat)."
+  },
+  "results": [
+    {
+      "id": "gen-fis-extremos",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "Quais populações de tilápia apresentaram o maior e o menor coeficiente de endogamia (FIS) no banco de germoplasma?",
+      "retrieval": {
+        "retrieved_count": 40,
+        "top_similarity": 0.697408623539248,
+        "min_similarity": 0.522230728225372,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 13,
+        "missed_passages": [],
+        "retrieval_seconds": 7.793
+      }
+    },
+    {
+      "id": "gen-area-file",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "Qual estoque apresentou a maior área de filé medida por ultrassonografia, e qual valor?",
+      "retrieval": {
+        "retrieved_count": 14,
+        "top_similarity": 0.604877059777931,
+        "min_similarity": 0.505112318557337,
+        "expected_total": 2,
+        "expected_found": 0,
+        "recall": 0.0,
+        "first_hit_rank": null,
+        "missed_passages": [
+          "The ILH broodstock exhibited the highest mean fillet",
+          "measuring 7.05, as assessed by ultrasonog"
+        ],
+        "retrieval_seconds": 2.328
+      }
+    },
+    {
+      "id": "bia-roi-tir",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "Quais são os valores de ROI e TIR projetados para o MVP do BIA?",
+      "retrieval": {
+        "retrieved_count": 9,
+        "top_similarity": 0.690683535060126,
+        "min_similarity": 0.501324075172149,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 1.752
+      }
+    },
+    {
+      "id": "bia-precos",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "Qual o preço do equipamento BIA e o valor da mensalidade da assinatura?",
+      "retrieval": {
+        "retrieved_count": 5,
+        "top_similarity": 0.705340556863979,
+        "min_similarity": 0.50743414023011,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 1,
+        "missed_passages": [],
+        "retrieval_seconds": 1.472
+      }
+    },
+    {
+      "id": "bia-receita-semestres",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "Como evoluiu a receita projetada do BIA ao longo dos quatro semestres?",
+      "retrieval": {
+        "retrieved_count": 6,
+        "top_similarity": 0.625300335443179,
+        "min_similarity": 0.530017212339427,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 1.415
+      }
+    },
+    {
+      "id": "bia-payback",
+      "scope": "in_corpus",
+      "question_type": "comparative",
+      "question": "Qual o payback do BIA e como ele se compara à média do setor?",
+      "retrieval": {
+        "retrieved_count": 7,
+        "top_similarity": 0.630913953615796,
+        "min_similarity": 0.522665605203055,
+        "expected_total": 1,
+        "expected_found": 1,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 1.404
+      }
+    },
+    {
+      "id": "bip-rpl-extremos",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "Quais tratamentos apresentaram o maior e o menor nível de proteção relativa (RPL) contra Aeromonas hydrophila no estudo do BIP 2024?",
+      "retrieval": {
+        "retrieved_count": 40,
+        "top_similarity": 0.670376604429123,
+        "min_similarity": 0.503567745304834,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 5,
+        "missed_passages": [],
+        "retrieval_seconds": 2.858
+      }
+    },
+    {
+      "id": "bip-bacillus-colonizacao",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "Qual foi a contagem de Bacillus (UFC) no intestino dos peixes alimentados com o probiótico PRO, comparada ao grupo controle, no estudo do BIP 2024?",
+      "retrieval": {
+        "retrieved_count": 40,
+        "top_similarity": 0.723361099358027,
+        "min_similarity": 0.532904550055289,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 4,
+        "missed_passages": [],
+        "retrieval_seconds": 1.735
+      }
+    },
+    {
+      "id": "kv-definicao",
+      "scope": "in_corpus",
+      "question_type": "conceptual",
+      "question": "O que é o índice de condição volumétrico (KV) e como ele é calculado?",
+      "retrieval": {
+        "retrieved_count": 6,
+        "top_similarity": 0.798200228874259,
+        "min_similarity": 0.646721970332307,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 1,
+        "missed_passages": [],
+        "retrieval_seconds": 1.37
+      }
+    },
+    {
+      "id": "kv-vs-fulton",
+      "scope": "in_corpus",
+      "question_type": "comparative",
+      "question": "Por que o fator de condição K de Fulton é considerado inadequado para tilápia?",
+      "retrieval": {
+        "retrieved_count": 6,
+        "top_similarity": 0.677967355300486,
+        "min_similarity": 0.519548176162747,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 1.681
+      }
+    },
+    {
+      "id": "kv-rendimento",
+      "scope": "in_corpus",
+      "question_type": "conceptual",
+      "question": "Qual a relação entre o KV e o rendimento de carcaça?",
+      "retrieval": {
+        "retrieved_count": 6,
+        "top_similarity": 0.78586713444089,
+        "min_similarity": 0.63539658682568,
+        "expected_total": 1,
+        "expected_found": 1,
+        "recall": 1.0,
+        "first_hit_rank": 1,
+        "missed_passages": [],
+        "retrieval_seconds": 1.52
+      }
+    },
+    {
+      "id": "bia-o-que-e",
+      "scope": "in_corpus",
+      "question_type": "conceptual",
+      "question": "O que é a tecnologia BIA e qual problema ela resolve na tilapicultura?",
+      "retrieval": {
+        "retrieved_count": 4,
+        "top_similarity": 0.770728849514753,
+        "min_similarity": 0.504112438285258,
+        "expected_total": 1,
+        "expected_found": 1,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 1.465
+      }
+    },
+    {
+      "id": "gen-por-que-banco",
+      "scope": "in_corpus",
+      "question_type": "conceptual",
+      "question": "Por que criar um banco de germoplasma de tilápia do Nilo no Brasil?",
+      "retrieval": {
+        "retrieved_count": 35,
+        "top_similarity": 0.738618703413178,
+        "min_similarity": 0.503444429681002,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 1.792
+      }
+    },
+    {
+      "id": "gen-posicao-fao",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "Qual a posição da tilápia do Nilo no ranking mundial de espécies mais cultivadas?",
+      "retrieval": {
+        "retrieved_count": 5,
+        "top_similarity": 0.601141802917826,
+        "min_similarity": 0.500471258305041,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 1.457
+      }
+    },
+    {
+      "id": "bip-mos-crescimento",
+      "scope": "in_corpus",
+      "question_type": "conceptual",
+      "question": "A suplementação com MOS, KAP e o probiótico PAS-TR causou efeito no crescimento ou nas variáveis hematológicas da tilápia no estudo do BIP 2024?",
+      "retrieval": {
+        "retrieved_count": 40,
+        "top_similarity": 0.815689518662225,
+        "min_similarity": 0.598717502240508,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 1.797
+      }
+    },
+    {
+      "id": "kv-como-medir",
+      "scope": "in_corpus",
+      "question_type": "methodological",
+      "question": "Como o produtor deve coletar as medidas para calcular o KV na fazenda?",
+      "retrieval": {
+        "retrieved_count": 6,
+        "top_similarity": 0.730334544519357,
+        "min_similarity": 0.557176041541695,
+        "expected_total": 1,
+        "expected_found": 1,
+        "recall": 1.0,
+        "first_hit_rank": 2,
+        "missed_passages": [],
+        "retrieval_seconds": 1.422
+      }
+    },
+    {
+      "id": "kv-ponto-abate",
+      "scope": "in_corpus",
+      "question_type": "methodological",
+      "question": "Como usar o KV para decidir o ponto de abate de um lote?",
+      "retrieval": {
+        "retrieved_count": 6,
+        "top_similarity": 0.789869341873151,
+        "min_similarity": 0.702172903293136,
+        "expected_total": 1,
+        "expected_found": 1,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 1.662
+      }
+    },
+    {
+      "id": "gen-etica-amostragem",
+      "scope": "in_corpus",
+      "question_type": "methodological",
+      "question": "Qual foi a aprovação ética e a classificação de origem adotada no estudo do banco de germoplasma?",
+      "retrieval": {
+        "retrieved_count": 1,
+        "top_similarity": 0.538845353600881,
+        "min_similarity": 0.538845353600881,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 1.213
+      }
+    },
+    {
+      "id": "bip-desafio-protocolo",
+      "scope": "in_corpus",
+      "question_type": "methodological",
+      "question": "Como foi feito o desafio experimental com Aeromonas hydrophila no estudo do BIP 2024, e como o nível de proteção relativa (RPL) foi calculado?",
+      "retrieval": {
+        "retrieved_count": 34,
+        "top_similarity": 0.694085531611685,
+        "min_similarity": 0.505403573461481,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 2,
+        "missed_passages": [],
+        "retrieval_seconds": 1.426
+      }
+    },
+    {
+      "id": "oos-doenca-estreptococose",
+      "scope": "out_of_corpus",
+      "question_type": "methodological",
+      "question": "Qual o protocolo de tratamento recomendado para estreptococose em tilápias?",
+      "retrieval": {
+        "retrieved_count": 36,
+        "top_similarity": 0.628761009548535,
+        "min_similarity": 0.501323831777299,
+        "expected_total": 0,
+        "expected_found": 0,
+        "recall": null,
+        "first_hit_rank": null,
+        "missed_passages": [],
+        "retrieval_seconds": 1.577
+      }
+    },
+    {
+      "id": "oos-qualidade-agua-amonia",
+      "scope": "out_of_corpus",
+      "question_type": "quantitative",
+      "question": "Qual o nível máximo tolerável de amônia não ionizada para tilápia do Nilo em viveiro?",
+      "retrieval": {
+        "retrieved_count": 8,
+        "top_similarity": 0.557586032723391,
+        "min_similarity": 0.503172620136428,
+        "expected_total": 0,
+        "expected_found": 0,
+        "recall": null,
+        "first_hit_rank": null,
+        "missed_passages": [],
+        "retrieval_seconds": 1.67
+      }
+    },
+    {
+      "id": "oos-custo-racao",
+      "scope": "out_of_corpus",
+      "question_type": "quantitative",
+      "question": "Qual o custo médio por tonelada de ração extrusada para tilápia no Brasil em 2024?",
+      "retrieval": {
+        "retrieved_count": 2,
+        "top_similarity": 0.511625786446243,
+        "min_similarity": 0.501876759077281,
+        "expected_total": 0,
+        "expected_found": 0,
+        "recall": null,
+        "first_hit_rank": null,
+        "missed_passages": [],
+        "retrieval_seconds": 1.475
+      }
+    },
+    {
+      "id": "oos-reversao-sexual",
+      "scope": "out_of_corpus",
+      "question_type": "methodological",
+      "question": "Qual a dosagem de hormônio usada na reversão sexual de alevinos de tilápia?",
+      "retrieval": {
+        "retrieved_count": 6,
+        "top_similarity": 0.539743819795002,
+        "min_similarity": 0.502529115860528,
+        "expected_total": 0,
+        "expected_found": 0,
+        "recall": null,
+        "first_hit_rank": null,
+        "missed_passages": [],
+        "retrieval_seconds": 1.741
+      }
+    },
+    {
+      "id": "fu-kv-medidas",
+      "scope": "in_corpus",
+      "question_type": "methodological",
+      "question": "E quais medidas eu preciso tirar?",
+      "retrieval": {
+        "retrieved_count": 21,
+        "top_similarity": 0.600750330447877,
+        "min_similarity": 0.502519228836055,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 13,
+        "missed_passages": [],
+        "retrieval_seconds": 1.206
+      }
+    },
+    {
+      "id": "fu-gen-menor-valor",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "E qual teve o menor?",
+      "retrieval": {
+        "retrieved_count": 7,
+        "top_similarity": 0.544488764372748,
+        "min_similarity": 0.501523838570431,
+        "expected_total": 1,
+        "expected_found": 0,
+        "recall": 0.0,
+        "first_hit_rank": null,
+        "missed_passages": [
+          "the SAL stock recorded the low-"
+        ],
+        "retrieval_seconds": 1.242
+      }
+    },
+    {
+      "id": "fu-bia-margem",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "E qual a margem por unidade?",
+      "retrieval": {
+        "retrieved_count": 6,
+        "top_similarity": 0.589881994317967,
+        "min_similarity": 0.512462206773916,
+        "expected_total": 2,
+        "expected_found": 0,
+        "recall": 0.0,
+        "first_hit_rank": null,
+        "missed_passages": [
+          "Margem Bruta  = 56,47% por equipamento",
+          "Custo Unitário: R$ 7.400"
+        ],
+        "retrieval_seconds": 1.379
+      }
+    },
+    {
+      "id": "fu-kv-por-que-importa",
+      "scope": "in_corpus",
+      "question_type": "conceptual",
+      "question": "E por que isso importa para o produtor?",
+      "retrieval": {
+        "retrieved_count": 13,
+        "top_similarity": 0.578800347613348,
+        "min_similarity": 0.500796716556782,
+        "expected_total": 1,
+        "expected_found": 0,
+        "recall": 0.0,
+        "first_hit_rank": null,
+        "missed_passages": [
+          "Mais carcaça por quilo de peixe  – KV alto está associado a maior rendimento de carcaça"
+        ],
+        "retrieval_seconds": 1.107
+      }
+    },
+    {
+      "id": "fu-bip-rpl-menor",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "E qual teve o menor?",
+      "retrieval": {
+        "retrieved_count": 1,
+        "top_similarity": 0.506569554420501,
+        "min_similarity": 0.506569554420501,
+        "expected_total": 1,
+        "expected_found": 0,
+        "recall": 0.0,
+        "first_hit_rank": null,
+        "missed_passages": [
+          "MOS 21.02"
+        ],
+        "retrieval_seconds": 1.327
+      }
+    }
+  ],
+  "summary": {
+    "questions_total": 28,
+    "questions_in_corpus": 24,
+    "questions_out_of_corpus": 4,
+    "mean_recall": 0.792,
+    "perfect_recall_rate": 0.792,
+    "mean_top_similarity": 0.655
+  }
+}

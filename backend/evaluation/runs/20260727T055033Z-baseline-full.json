@@ -1,0 +1,629 @@
+{
+  "run_id": "20260727T055033Z",
+  "label": "baseline-full",
+  "mode": "full",
+  "k": 20,
+  "llm_expansion": false,
+  "golden_set_version": 1,
+  "config": {
+    "embedding_model": "text-embedding-ada-002",
+    "embedding_dimensions": null,
+    "chunk_size": 4000,
+    "chunk_overlap": 500,
+    "similarity_threshold": 0.5,
+    "llm_model": "gpt-4o-mini"
+  },
+  "results": [
+    {
+      "id": "gen-fis-extremos",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "Quais populações de tilápia apresentaram o maior e o menor coeficiente de endogamia (FIS) no banco de germoplasma?",
+      "retrieval": {
+        "retrieved_count": 20,
+        "top_similarity": 0.84021962887641,
+        "min_similarity": 0.810994282005946,
+        "expected_total": 2,
+        "expected_found": 0,
+        "recall": 0.0,
+        "first_hit_rank": null,
+        "missed_passages": [
+          "Intrapopulation genetic diversity metrics for each tilapia stock",
+          "SAW 9.6 (1.08) 2 (0.32) 1.50 (0.17) 0.44 (0.12) 0.13 (0.06) 0.29 (0.09) 0.44 (0.20)"
+        ],
+        "retrieval_seconds": 1.172
+      },
+      "generation": {
+        "answer_chars": 1013,
+        "refused": false,
+        "refusal_correct": true,
+        "mention_coverage": 0.0,
+        "generation_seconds": 5.736,
+        "answer": "**Dados do Estudo:**\n  • Coeficiente de endogamia FIS (ILH): 0.05 — mais baixo do estudo\n  • Coeficiente de endogamia FIS (SAW): 0.83 — mais alto do estudo\n\n**Interpretação:**\nO estudo encontrou que a população de tilápia ILH apresentou o menor coeficiente de endogamia (FIS) de 0.05, indicando um nível relativamente baixo de endogamia e, portanto, uma maior diversidade genética. Em contraste, a população SAW teve o maior coeficiente de endogamia (FIS) de 0.83, sugerindo um alto nível de endogamia, o que pode resultar em uma redução da variabilidade genética e potencialmente afetar negativamente a performance e a saúde da população.\n\n**Implicações / Recomendações:**\nO estudo recomenda a criação de um banco de germoplasma para conservar a diversidade genética das populações de tilápia, especialmente considerando os altos níveis de endogamia observados em algumas populações, como a SAW. Isso pode ajudar a melhorar a resistência a doenças e a adaptação a mudanças ambientais nas práticas de aquicultura.",
+        "groundedness": 0.0
+      }
+    },
+    {
+      "id": "gen-area-file",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "Qual estoque apresentou a maior área de filé medida por ultrassonografia, e qual valor?",
+      "retrieval": {
+        "retrieved_count": 20,
+        "top_similarity": 0.80985756302328,
+        "min_similarity": 0.758667602618481,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 4,
+        "missed_passages": [],
+        "retrieval_seconds": 0.33
+      },
+      "generation": {
+        "answer_chars": 773,
+        "refused": false,
+        "refusal_correct": true,
+        "mention_coverage": 0.5,
+        "generation_seconds": 7.847,
+        "answer": "**Dados do Estudo:**\n  • Área de filé por ultrassom (ILH): 7.05 (cm²) — maior valor do estudo\n  • Área de filé por ultrassom (SAL): 3.04 (cm²) — menor valor do estudo\n\n**Interpretação:**\nO estudo encontrou que o estoque ILH apresentou a maior área de filé, medindo 7.05 cm², em comparação ao estoque SAL, que teve a menor área de filé, de 3.04 cm². Isso sugere que o estoque ILH, que é derivado da linhagem GIFT, pode ter um desempenho superior em termos de rendimento de filé em relação ao estoque SAL, que pertence à linhagem Thai-Chitralada, conhecida por seu crescimento mais lento.\n\n**Implicações / Recomendações:**\nO estudo recomenda o uso do estoque ILH para programas de melhoramento genético e seleção, visando aumentar a eficiência na produção de filé de tilápia.",
+        "groundedness": 100.0
+      }
+    },
+    {
+      "id": "bia-roi-tir",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "Quais são os valores de ROI e TIR projetados para o MVP do BIA?",
+      "retrieval": {
+        "retrieved_count": 20,
+        "top_similarity": 0.884484197045663,
+        "min_similarity": 0.72063685163575,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 0.378
+      },
+      "generation": {
+        "answer_chars": 749,
+        "refused": false,
+        "refusal_correct": true,
+        "mention_coverage": 1.0,
+        "generation_seconds": 22.937,
+        "answer": "**Dados do Estudo:**\n  • ROI (MVP): 58,07% \n  • TIR (MVP): 40,26% anual \n\n**Interpretação:**\nO estudo apresenta um ROI (Retorno sobre Investimento) de 58,07% para o MVP (Produto Mínimo Viável) do projeto de Biometria por Inteligência Artificial (BIA), indicando um retorno excelente para a validação de mercado. Além disso, a TIR (Taxa Interna de Retorno) projetada para o MVP é de 40,26% ao ano, o que é considerado muito superior à média do mercado, sugerindo que o investimento no MVP é financeiramente atrativo e promissor.\n\n**Implicações / Recomendações:**\nAs recomendações explícitas do estudo incluem a validação do MVP com um retorno excelente e a consideração da TIR alta como um indicativo de viabilidade e potencial de sucesso do projeto.",
+        "groundedness": 100.0
+      }
+    },
+    {
+      "id": "bia-precos",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "Qual o preço do equipamento BIA e o valor da mensalidade da assinatura?",
+      "retrieval": {
+        "retrieved_count": 20,
+        "top_similarity": 0.870034575462341,
+        "min_similarity": 0.715786474002215,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 0.29
+      },
+      "generation": {
+        "answer_chars": 921,
+        "refused": false,
+        "refusal_correct": true,
+        "mention_coverage": 1.0,
+        "generation_seconds": 4.764,
+        "answer": "**Dados do Estudo:**\n• Preço Equipamento: R$ 17.000 (unidade)  \n• Mensalidade Assinatura: R$ 400 (contrato)  \n\n**Interpretação:**\nO estudo indica que o preço do equipamento de Biometria por Inteligência Artificial (BIA) é de R$ 17.000 por unidade, o que representa um investimento inicial significativo para os aquicultores que desejam adotar essa tecnologia. Além disso, a mensalidade da assinatura para acesso à plataforma de análise é de R$ 400, o que proporciona uma opção de custo recorrente que pode ser mais acessível para alguns produtores, permitindo o uso contínuo da tecnologia sem a necessidade de um investimento inicial elevado.\n\n**Implicações / Recomendações:**\nO estudo recomenda que os aquicultores considerem a adoção do equipamento BIA e a assinatura mensal como uma forma de otimizar a produção e reduzir custos operacionais, dado o potencial de eficiência e sustentabilidade que a tecnologia oferece.",
+        "groundedness": 100.0
+      }
+    },
+    {
+      "id": "bia-receita-semestres",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "Como evoluiu a receita projetada do BIA ao longo dos quatro semestres?",
+      "retrieval": {
+        "retrieved_count": 20,
+        "top_similarity": 0.828318616352252,
+        "min_similarity": 0.736072035304071,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 0.321
+      },
+      "generation": {
+        "answer_chars": 1434,
+        "refused": false,
+        "refusal_correct": true,
+        "mention_coverage": 1.0,
+        "generation_seconds": 6.193,
+        "answer": "**Dados do Estudo:**\n• Receita Bruta Total (1º Semestre): R$ 758.800  \n• Receita Bruta Total (2º Semestre): R$ 2.943.200 (crescimento de 288%)  \n• Receita Bruta Total (3º Semestre): R$ 6.726.000 (crescimento de 128%)  \n• Receita Bruta Total (4º Semestre): R$ 12.280.000 (crescimento de 83%)  \n\n**Interpretação:**\nO estudo mostra que a receita projetada do BIA evoluiu significativamente ao longo dos quatro semestres. No primeiro semestre, a receita foi de R$ 758.800, que já apresentou um aumento considerável no segundo semestre, alcançando R$ 2.943.200, o que representa um crescimento de 288%. No terceiro semestre, a receita continuou a crescer, atingindo R$ 6.726.000, com um aumento de 128% em relação ao semestre anterior. Finalmente, no quarto semestre, a receita chegou a R$ 12.280.000, refletindo um crescimento de 83% em comparação ao terceiro semestre. Essa evolução demonstra um aumento contínuo na aceitação e na demanda pela tecnologia BIA, indicando um potencial de mercado crescente e uma boa aceitação entre os aquicultores.\n\n**Implicações / Recomendações:**\nO estudo recomenda que os aquicultores adotem a tecnologia BIA, dada a sua capacidade de otimizar a produção e a eficiência econômica, refletida no aumento significativo da receita ao longo do tempo. Além disso, a análise sugere que a continuidade do crescimento da receita pode ser sustentada por uma maior adoção da tecnologia e pela expansão do mercado.",
+        "groundedness": 100.0
+      }
+    },
+    {
+      "id": "bia-payback",
+      "scope": "in_corpus",
+      "question_type": "comparative",
+      "question": "Qual o payback do BIA e como ele se compara à média do setor?",
+      "retrieval": {
+        "retrieved_count": 20,
+        "top_similarity": 0.844282664231619,
+        "min_similarity": 0.720354263814214,
+        "expected_total": 1,
+        "expected_found": 1,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 0.291
+      },
+      "generation": {
+        "answer_chars": 734,
+        "refused": false,
+        "refusal_correct": true,
+        "mention_coverage": 1.0,
+        "generation_seconds": 4.793,
+        "answer": "**Dados do Estudo:**\n• Payback BIA: 21 meses  \n• Média do setor (Payback): 36 - 48 meses  \n\n**Interpretação:**\nO estudo encontrou que o payback do modelo de Biometria por Inteligência Artificial (BIA) é de 21 meses, o que é 43% mais rápido em comparação à média do setor, que varia entre 36 e 48 meses. Isso indica que o BIA proporciona uma recuperação do investimento significativamente mais rápida, o que pode ser um fator atrativo para aquicultores que buscam eficiência financeira em suas operações.\n\n**Implicações / Recomendações:**\nO BIA representa uma oportunidade de investimento com um payback mais rápido do que a média do setor, sugerindo que sua adoção pode ser vantajosa para aquicultores em termos de retorno financeiro.",
+        "groundedness": 100.0
+      }
+    },
+    {
+      "id": "kv-definicao",
+      "scope": "in_corpus",
+      "question_type": "conceptual",
+      "question": "O que é o índice de condição volumétrico (KV) e como ele é calculado?",
+      "retrieval": {
+        "retrieved_count": 20,
+        "top_similarity": 0.913838708214279,
+        "min_similarity": 0.717250935375925,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 2,
+        "missed_passages": [],
+        "retrieval_seconds": 0.29
+      },
+      "generation": {
+        "answer_chars": 1175,
+        "refused": false,
+        "refusal_correct": true,
+        "mention_coverage": 1.0,
+        "generation_seconds": 5.703,
+        "answer": "**Dados do Estudo:**\n• Comprimento total (CT): cm (unidade não especificada)  \n• Altura máxima do corpo (H): cm (unidade não especificada)  \n• Largura/espessura (W): cm (unidade não especificada)  \n• KV = massa corporal / volume elipsoidal\n\n**Interpretação:**\nO índice de condição volumétrico (KV) é uma métrica que avalia a condição corporal dos peixes, especialmente a tilápia, utilizando medidas simples como comprimento total (CT), altura máxima do corpo (H) e largura/espessura (W). O KV é calculado aproximando o corpo do peixe como um elipsoide, onde o volume é determinado a partir dessas três dimensões. A fórmula para o KV é dada pela relação entre a massa corporal e o volume elipsoidal, permitindo que se avalie quanta carne (massa) está presente em relação ao volume do corpo do peixe. Quanto maior o KV, mais \"cheio de músculo\" o peixe está para aquele tamanho externo.\n\n**Implicações / Recomendações:**\nO estudo recomenda o uso do KV como uma ferramenta prática para os produtores, pois ele permite identificar lotes mais eficientes, corrigir manejos inadequados e definir o ponto de abate com base na condição volumétrica dos peixes, em vez de apenas no peso.",
+        "groundedness": 100.0
+      }
+    },
+    {
+      "id": "kv-vs-fulton",
+      "scope": "in_corpus",
+      "question_type": "comparative",
+      "question": "Por que o fator de condição K de Fulton é considerado inadequado para tilápia?",
+      "retrieval": {
+        "retrieved_count": 20,
+        "top_similarity": 0.853947656209558,
+        "min_similarity": 0.758149198459169,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 1,
+        "missed_passages": [],
+        "retrieval_seconds": 0.301
+      },
+      "generation": {
+        "answer_chars": 1567,
+        "refused": false,
+        "refusal_correct": true,
+        "mention_coverage": 1.0,
+        "generation_seconds": 7.134,
+        "answer": "**Dados do Estudo:**\n• Índice de condição volumétrico elipsoidal (KV): melhor aproximação do peso real do peixe\n• Índice de condição K de Fulton: favorece peixes grandes, não necessariamente indicando mais carne útil\n• Variação de KV com o peso: mínima, permitindo comparação entre lotes de diferentes tamanhos\n• Lotes com KV mais alto: maior rendimento de carcaça em média\n\n**Interpretação:**\nO estudo encontrou que o índice de condição K de Fulton é inadequado para tilápias porque ele tende a favorecer peixes maiores, o que pode não refletir a real condição de carcaça desses peixes. Isso significa que um peixe grande pode ter um K elevado, mas isso pode ser apenas uma mudança de forma, sem um aumento proporcional na quantidade de carne útil. Em contraste, o índice volumétrico elipsoidal (KV) é mais eficaz, pois descreve melhor o \"tamanho real\" do peixe e é quase independente do tamanho, permitindo comparações justas entre lotes de diferentes idades e tamanhos. Além disso, lotes com KV mais alto apresentaram, em média, maior rendimento de carcaça, indicando que um KV elevado está associado a peixes com mais carne e menos vísceras.\n\n**Implicações / Recomendações:**\nO estudo recomenda a adoção do índice volumétrico elipsoidal (KV) em vez do K de Fulton para avaliar a condição dos peixes, pois o KV fornece uma medida mais precisa da eficiência de conversão alimentar e do rendimento de carcaça. Isso pode ajudar os produtores a identificar lotes mais eficientes e a definir o ponto de abate com base na quantidade de carne útil que cada peixe carrega.",
+        "groundedness": 100.0
+      }
+    },
+    {
+      "id": "kv-rendimento",
+      "scope": "in_corpus",
+      "question_type": "conceptual",
+      "question": "Qual a relação entre o KV e o rendimento de carcaça?",
+      "retrieval": {
+        "retrieved_count": 20,
+        "top_similarity": 0.884387454202036,
+        "min_similarity": 0.741868138313299,
+        "expected_total": 1,
+        "expected_found": 1,
+        "recall": 1.0,
+        "first_hit_rank": 1,
+        "missed_passages": [],
+        "retrieval_seconds": 0.387
+      },
+      "generation": {
+        "answer_chars": 1241,
+        "refused": false,
+        "refusal_correct": true,
+        "mention_coverage": 0.5,
+        "generation_seconds": 5.476,
+        "answer": "**Dados do Estudo:**\n• Área de filé por ultrassom (ILH): 7.05 vs SAL: 3.04  \n• KV elipsoidal: maior r² e reta mais próxima da linha 1:1 entre peso calculado e peso medido.  \n• Lotes com KV mais alto apresentaram, em média, maior rendimento de carcaça.  \n\n**Interpretação:**\nO estudo encontrou que o índice volumétrico elipsoidal (KV) se relaciona diretamente com o rendimento de carcaça. Especificamente, os lotes de tilápia que apresentaram um KV mais alto também mostraram um rendimento de carcaça superior. Isso sugere que um KV elevado indica que o peixe possui mais carne em relação ao seu volume, resultando em uma maior eficiência na conversão de peso em carne útil. Por exemplo, a tilápia da linhagem ILH, que teve uma área de filé média de 7.05, provavelmente apresenta um rendimento de carcaça melhor em comparação com a linhagem SAL, que teve uma área de filé de 3.04.\n\n**Implicações / Recomendações:**\n- Recomenda-se que os produtores de tilápia considerem o KV como um indicador importante para avaliar a condição corporal dos peixes e, consequentemente, o rendimento de carcaça.\n- A adoção do KV pode ajudar na identificação de lotes mais eficientes e na definição do ponto de abate, visando maximizar a produção de carne útil.",
+        "groundedness": 100.0
+      }
+    },
+    {
+      "id": "bia-o-que-e",
+      "scope": "in_corpus",
+      "question_type": "conceptual",
+      "question": "O que é a tecnologia BIA e qual problema ela resolve na tilapicultura?",
+      "retrieval": {
+        "retrieved_count": 20,
+        "top_similarity": 0.855423825332668,
+        "min_similarity": 0.752162382135567,
+        "expected_total": 1,
+        "expected_found": 1,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 0.332
+      },
+      "generation": {
+        "answer_chars": 1541,
+        "refused": false,
+        "refusal_correct": true,
+        "mention_coverage": 0.5,
+        "generation_seconds": 7.616,
+        "answer": "**Dados do Estudo:**\n• Produção anual de tilápia: 180 toneladas  \n• Valor aproximado da produção: R$ 190 mil por ano  \n• Economia proporcionada pela BIA: R$ 145 mil por ano  \n• Aumento na taxa de sobrevivência dos peixes: R$ 45 mil por ano  \n• Tempo de payback: 21 meses  \n• Margem líquida: 15,79%  \n\n**Interpretação:**\nO estudo apresenta a Biometria por Inteligência Artificial (BIA) como uma tecnologia inovadora que permite o monitoramento não invasivo de tilápias em tempo real, avaliando peso, tamanho e comportamento dos peixes. A BIA resolve problemas comuns na tilapicultura, como a superalimentação e a subalimentação, que podem levar a desperdício de ração e à produção de peixes abaixo do peso ideal para venda. A economia de R$ 145 mil por ano, resultante da otimização do uso de ração, demonstra a eficiência da BIA em reduzir custos operacionais. Além disso, o aumento na taxa de sobrevivência dos peixes, que gera um acréscimo de R$ 45 mil por ano, indica que a tecnologia também contribui para a saúde e bem-estar dos peixes, minimizando o estresse associado a métodos tradicionais de biometria.\n\n**Implicações / Recomendações:**\n- A BIA representa um avanço significativo na aquicultura, promovendo maior sustentabilidade e eficiência produtiva.\n- A tecnologia deve ser adotada para otimizar a densidade populacional, planejamento de vendas e logística, além de evitar superpopulação.\n- O modelo de negócios SaaS (Software as a Service) da BIA oferece opções acessíveis para aquicultores, facilitando a adoção da tecnologia.",
+        "groundedness": 100.0
+      }
+    },
+    {
+      "id": "gen-por-que-banco",
+      "scope": "in_corpus",
+      "question_type": "conceptual",
+      "question": "Por que criar um banco de germoplasma de tilápia do Nilo no Brasil?",
+      "retrieval": {
+        "retrieved_count": 20,
+        "top_similarity": 0.897473676066667,
+        "min_similarity": 0.8074000340939,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 4,
+        "missed_passages": [],
+        "retrieval_seconds": 0.313
+      },
+      "generation": {
+        "answer_chars": 1832,
+        "refused": false,
+        "refusal_correct": true,
+        "mention_coverage": 0.5,
+        "generation_seconds": 8.527,
+        "answer": "**Dados do Estudo:**\n• Coeficiente de endogamia FIS (média): 0.243 — indica um nível significativo de endogamia\n• Distância genética DEST: 0.00–0.818 (variação entre pares) — sugere diferenciação genética moderada a alta\n• Área de filé por ultrassom (ILH): 7.05 vs SAL: 3.04 — ILH apresenta maior rendimento de filé\n\n**Interpretação:**\nO estudo encontrou que a criação de um banco de germoplasma para a tilápia do Nilo (Oreochromis niloticus) no Brasil é essencial para preservar a diversidade genética e melhorar a aquicultura no país. O coeficiente de endogamia FIS médio de 0.243 indica um nível significativo de endogamia, o que pode levar a uma redução na variabilidade genética e, consequentemente, a uma diminuição no desempenho dos peixes. A distância genética DEST variando de 0.00 a 0.818 sugere que há uma diferenciação genética moderada a alta entre as populações, refletindo a necessidade de um banco de germoplasma para manter e explorar essa diversidade. Além disso, a área de filé por ultrassom foi significativamente maior na linhagem ILH (7.05) em comparação com a linhagem SAL (3.04), indicando que a preservação e o uso de linhagens geneticamente superiores podem aumentar a produtividade e a eficiência na aquicultura.\n\n**Implicações / Recomendações:**\n- A criação de um banco de germoplasma é recomendada para garantir a disponibilidade de linhagens geneticamente diversas, o que pode melhorar a resistência a doenças e a adaptação a mudanças ambientais.\n- O banco de germoplasma deve ser utilizado para desenvolver programas de melhoramento genético que atendam às condições locais, aumentando a produtividade e a segurança alimentar no Brasil.\n- É importante monitorar continuamente a diversidade genética e incluir novos materiais genéticos para evitar a perda de variabilidade e promover a adaptação local.",
+        "groundedness": 100.0
+      }
+    },
+    {
+      "id": "gen-posicao-fao",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "Qual a posição da tilápia do Nilo no ranking mundial de espécies mais cultivadas?",
+      "retrieval": {
+        "retrieved_count": 20,
+        "top_similarity": 0.891904856704508,
+        "min_similarity": 0.785698367017617,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 6,
+        "missed_passages": [],
+        "retrieval_seconds": 0.313
+      },
+      "generation": {
+        "answer_chars": 824,
+        "refused": false,
+        "refusal_correct": true,
+        "mention_coverage": 1.0,
+        "generation_seconds": 5.118,
+        "answer": "**Dados do Estudo:**\n• Posição da tilápia do Nilo (Oreochromis niloticus) no ranking mundial: 3ª — mais cultivada\n• Espécies mais cultivadas acima da tilápia do Nilo: 1. Carpa-grass (Ctenopharyngodon idellus), 2. Carpa-prateada (Hypophthalmichthys molitrix)\n\n**Interpretação:**\nO estudo indica que a tilápia do Nilo (Oreochromis niloticus) ocupa a terceira posição no ranking mundial de espécies mais cultivadas, atrás da carpa-grass (Ctenopharyngodon idellus) e da carpa-prateada (Hypophthalmichthys molitrix). Isso demonstra a importância da tilápia do Nilo na aquicultura global, refletindo sua ampla aceitação e adaptabilidade em diversas condições de cultivo.\n\n**Implicações / Recomendações:**\nO estudo não apresenta recomendações ou implicações específicas relacionadas à posição da tilápia do Nilo no ranking mundial.",
+        "groundedness": 100.0
+      }
+    },
+    {
+      "id": "kv-como-medir",
+      "scope": "in_corpus",
+      "question_type": "methodological",
+      "question": "Como o produtor deve coletar as medidas para calcular o KV na fazenda?",
+      "retrieval": {
+        "retrieved_count": 20,
+        "top_similarity": 0.885105225887758,
+        "min_similarity": 0.722369101329936,
+        "expected_total": 1,
+        "expected_found": 1,
+        "recall": 1.0,
+        "first_hit_rank": 2,
+        "missed_passages": [],
+        "retrieval_seconds": 0.374
+      },
+      "generation": {
+        "answer_chars": 955,
+        "refused": false,
+        "refusal_correct": true,
+        "mention_coverage": 0.0,
+        "generation_seconds": 6.437,
+        "answer": "**Dados do Estudo:**\nDados numéricos não disponíveis no contexto.\n\n**Interpretação:**\nO contexto não fornece dados numéricos específicos sobre as medidas necessárias para calcular o índice de condição volumétrico (KV) na fazenda. No entanto, menciona que o KV é calculado utilizando três medidas principais: comprimento total (CT), altura máxima do corpo (H) e largura/espessura (W). O KV é uma relação entre a massa corporal e o volume elipsoidal do peixe, que é estimado a partir dessas três dimensões.\n\n**Implicações / Recomendações:**\nO estudo recomenda que o produtor deve coletar as seguintes medidas em cada peixe:\n- Peso (g)\n- Comprimento total (cm)\n- Altura máxima (cm)\n- Largura/espessura (cm), sempre no mesmo ponto do corpo (por exemplo, na altura do início da nadadeira dorsal). \n\nEssas medições devem ser registradas em uma planilha para o cálculo do KV, que é fundamental para avaliar a condição do peixe e otimizar o manejo na aquicultura.",
+        "groundedness": 100.0
+      }
+    },
+    {
+      "id": "kv-ponto-abate",
+      "scope": "in_corpus",
+      "question_type": "methodological",
+      "question": "Como usar o KV para decidir o ponto de abate de um lote?",
+      "retrieval": {
+        "retrieved_count": 20,
+        "top_similarity": 0.909799423873598,
+        "min_similarity": 0.709632304420382,
+        "expected_total": 1,
+        "expected_found": 1,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 0.369
+      },
+      "generation": {
+        "answer_chars": 1511,
+        "refused": false,
+        "refusal_correct": true,
+        "mention_coverage": 0.0,
+        "generation_seconds": 8.175,
+        "answer": "**Dados do Estudo:**\n• KV médio (lote de referência): X (valor não especificado)\n• KV alto: associado a maior rendimento de carcaça\n• KV baixo: sinal de que o peixe está crescendo em comprimento, mas não em \"cheio de carne\"\n• Rendimento de carcaça: maior em lotes com KV mais alto\n• Índices viscerais: não cresceram na mesma proporção que o KV; em alguns casos, diminuíram com KV\n\n**Interpretação:**\nO estudo sugere que o uso do índice volumétrico (KV) é uma ferramenta eficaz para determinar o ponto de abate de lotes de tilápia. Quando um novo lote apresenta um KV abaixo da linha de base estabelecida a partir de um lote de referência, isso indica que os peixes estão se desenvolvendo em comprimento, mas não estão \"cheios de carne\", o que pode resultar em menor rendimento de carcaça. Por outro lado, se o KV do lote estiver igual ou acima do valor de referência, isso indica que os peixes estão em uma condição volumétrica adequada, sugerindo que é um bom momento para o abate. Além disso, lotes com KV mais alto tendem a apresentar maior rendimento de carcaça, enquanto os índices viscerais não aumentam na mesma proporção, indicando que um KV elevado está associado a peixes com mais carne e menos vísceras.\n\n**Implicações / Recomendações:**\n- Usar o KV médio de um lote de referência para definir critérios práticos de abate.\n- Considerar o KV como um indicador de eficiência na utilização da ração e rendimento de carcaça.\n- Monitorar o KV regularmente para ajustar manejos e otimizar o ponto de abate.",
+        "groundedness": 100.0
+      }
+    },
+    {
+      "id": "gen-etica-amostragem",
+      "scope": "in_corpus",
+      "question_type": "methodological",
+      "question": "Qual foi a aprovação ética e a classificação de origem adotada no estudo do banco de germoplasma?",
+      "retrieval": {
+        "retrieved_count": 20,
+        "top_similarity": 0.815034930418412,
+        "min_similarity": 0.765510233105454,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 0.738
+      },
+      "generation": {
+        "answer_chars": 1702,
+        "refused": false,
+        "refusal_correct": true,
+        "mention_coverage": 1.0,
+        "generation_seconds": 7.533,
+        "answer": "**Dados do Estudo:**\n• Aprovação do Comitê de Ética em Uso de Animais (CEUA): #01.0696.2022  \n• Classificação de origem adotada: FAO (Organização das Nações Unidas para Agricultura e Alimentação)  \n• Tipos de tilápia classificados:  \n  • Captive Propagated (CP): tipos cultivados com ciclo de vida fechado em cativeiro por pelo menos uma geração  \n  • Strain-sourced: tipos cultivados com características consistentes que os distinguem de outros organismos da mesma espécie  \n  • Wild-sourced: tipos provenientes de populações selvagens  \n\n**Interpretação:**\nO estudo obteve aprovação ética do CEUA com o número #01.0696.2022, garantindo que a manipulação e uso de animais para a criação do banco de germoplasma seguissem as recomendações do Conselho Nacional de Controle de Experimentação Animal no Brasil. A classificação de origem adotada foi a da FAO, que categoriza as tilápias em três tipos: \"Captive Propagated\" (CP), que se refere a tilápias cultivadas em cativeiro com um ciclo de vida fechado; \"Strain-sourced\", que abrange tipos cultivados com características distintivas; e \"Wild-sourced\", que inclui tilápias provenientes de populações selvagens. Essa classificação é fundamental para entender a diversidade genética e as características adaptativas das tilápias no contexto da aquicultura.\n\n**Implicações / Recomendações:**\nO estudo recomenda a criação de um banco de germoplasma representativo para as populações de tilápia no Brasil, visando a conservação da diversidade genética e a melhoria dos programas de seleção. A adoção de práticas de manejo ético e a classificação adequada das origens das tilápias são essenciais para garantir a sustentabilidade e a eficiência na aquicultura.",
+        "groundedness": 100.0
+      }
+    },
+    {
+      "id": "oos-doenca-estreptococose",
+      "scope": "out_of_corpus",
+      "question_type": "methodological",
+      "question": "Qual o protocolo de tratamento recomendado para estreptococose em tilápias?",
+      "retrieval": {
+        "retrieved_count": 20,
+        "top_similarity": 0.816825509071356,
+        "min_similarity": 0.749431833590976,
+        "expected_total": 0,
+        "expected_found": 0,
+        "recall": null,
+        "first_hit_rank": null,
+        "missed_passages": [],
+        "retrieval_seconds": 0.411
+      },
+      "generation": {
+        "answer_chars": 1436,
+        "refused": false,
+        "refusal_correct": false,
+        "mention_coverage": null,
+        "generation_seconds": 12.926,
+        "answer": "**EXPERIMENTAL DESIGN:**\n- O estudo foi realizado com nove populações de tilápia do Nilo (Oreochromis niloticus) provenientes de diferentes regiões do Brasil. As amostras foram coletadas em cinco estados: Santa Catarina, Paraná, São Paulo, Minas Gerais e Ceará. Cada população foi considerada um grupo distinto, totalizando nove grupos. A replicação não foi especificada (n=).\n\n**PROCEDURES:**\n- Os peixes foram transportados para um centro de pesquisa onde passaram por um período de quarentena. Após a quarentena, foram identificados com microchips e alojados em gaiolas flutuantes em um tanque de concreto. A alimentação foi realizada com ração comercial contendo 32% de proteína, duas vezes ao dia até a saciedade aparente. O estudo incluiu a coleta de dados morfométricos e a avaliação genética.\n\n**MEASUREMENTS:**\n- As variáveis medidas incluíram peso corporal (BW), comprimento total (TL), altura máxima do corpo (H) e largura/espessura (W). A frequência das medições não foi especificada. Para a avaliação genética, foram utilizados marcadores microssatélites, e a diversidade genética foi analisada usando software apropriado.\n\n**STATISTICAL ANALYSIS:**\n- A análise estatística incluiu o uso de índices de diferenciação genética (DEST e FST) e a análise de componentes principais discriminantes (DAPC). O nível de significância não foi especificado, mas os testes foram realizados utilizando software R e pacotes como ADEGENET."
+      }
+    },
+    {
+      "id": "oos-qualidade-agua-amonia",
+      "scope": "out_of_corpus",
+      "question_type": "quantitative",
+      "question": "Qual o nível máximo tolerável de amônia não ionizada para tilápia do Nilo em viveiro?",
+      "retrieval": {
+        "retrieved_count": 20,
+        "top_similarity": 0.870797649526882,
+        "min_similarity": 0.782548956263336,
+        "expected_total": 0,
+        "expected_found": 0,
+        "recall": null,
+        "first_hit_rank": null,
+        "missed_passages": [],
+        "retrieval_seconds": 0.47
+      },
+      "generation": {
+        "answer_chars": 492,
+        "refused": false,
+        "refusal_correct": false,
+        "mention_coverage": null,
+        "generation_seconds": 4.356,
+        "answer": "**Dados do Estudo:**\nDados numéricos não disponíveis no contexto.\n\n**Interpretação:**\nO contexto não fornece informações específicas sobre o nível máximo tolerável de amônia não ionizada para tilápia do Nilo em viveiro. Portanto, não é possível interpretar ou relacionar dados relevantes a essa questão.\n\n**Implicações / Recomendações:**\nNão há conclusões ou recomendações explícitas sobre o nível máximo tolerável de amônia não ionizada para tilápia do Nilo em viveiro no contexto fornecido."
+      }
+    },
+    {
+      "id": "oos-custo-racao",
+      "scope": "out_of_corpus",
+      "question_type": "quantitative",
+      "question": "Qual o custo médio por tonelada de ração extrusada para tilápia no Brasil em 2024?",
+      "retrieval": {
+        "retrieved_count": 20,
+        "top_similarity": 0.826385382769376,
+        "min_similarity": 0.773332349459059,
+        "expected_total": 0,
+        "expected_found": 0,
+        "recall": null,
+        "first_hit_rank": null,
+        "missed_passages": [],
+        "retrieval_seconds": 0.276
+      },
+      "generation": {
+        "answer_chars": 455,
+        "refused": false,
+        "refusal_correct": false,
+        "mention_coverage": null,
+        "generation_seconds": 4.762,
+        "answer": "**Dados do Estudo:**\nDados numéricos não disponíveis no contexto.\n\n**Interpretação:**\nNão há informações específicas sobre o custo médio por tonelada de ração extrusada para tilápia no Brasil em 2024 no contexto fornecido. Portanto, não é possível interpretar ou analisar dados relacionados a esse custo.\n\n**Implicações / Recomendações:**\nNão há conclusões ou recomendações explícitas sobre o custo da ração extrusada para tilápia no contexto apresentado."
+      }
+    },
+    {
+      "id": "oos-reversao-sexual",
+      "scope": "out_of_corpus",
+      "question_type": "methodological",
+      "question": "Qual a dosagem de hormônio usada na reversão sexual de alevinos de tilápia?",
+      "retrieval": {
+        "retrieved_count": 20,
+        "top_similarity": 0.832010149955755,
+        "min_similarity": 0.765115587101509,
+        "expected_total": 0,
+        "expected_found": 0,
+        "recall": null,
+        "first_hit_rank": null,
+        "missed_passages": [],
+        "retrieval_seconds": 0.321
+      },
+      "generation": {
+        "answer_chars": 480,
+        "refused": false,
+        "refusal_correct": false,
+        "mention_coverage": null,
+        "generation_seconds": 11.458,
+        "answer": "**Dados do Estudo:**\nDados numéricos não disponíveis no contexto.\n\n**Interpretação:**\nNão há informações específicas sobre a dosagem de hormônio utilizada na reversão sexual de alevinos de tilápia no contexto fornecido. Portanto, não é possível interpretar ou discutir dados relacionados a essa questão.\n\n**Implicações / Recomendações:**\nNão há conclusões ou recomendações explícitas sobre a dosagem de hormônio para reversão sexual de alevinos de tilápia no contexto apresentado."
+      }
+    },
+    {
+      "id": "fu-kv-medidas",
+      "scope": "in_corpus",
+      "question_type": "methodological",
+      "question": "E quais medidas eu preciso tirar?",
+      "retrieval": {
+        "retrieved_count": 20,
+        "top_similarity": 0.77182557918721,
+        "min_similarity": 0.699421721731323,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 1,
+        "missed_passages": [],
+        "retrieval_seconds": 0.66
+      },
+      "generation": {
+        "answer_chars": 1357,
+        "refused": false,
+        "refusal_correct": true,
+        "mention_coverage": 1.0,
+        "generation_seconds": 7.057,
+        "answer": "**Dados do Estudo:**\n• Comprimento total (CT): [não disponível no contexto]\n• Altura máxima do corpo (H): [não disponível no contexto]\n• Largura/espessura (W): [não disponível no contexto]\n• Peso (M): [não disponível no contexto]\n• Volume elipsoidal: [não disponível no contexto]\n• KV (índice volumétrico): [não disponível no contexto]\n\n**Interpretação:**\nOs dados numéricos específicos sobre as medidas necessárias para calcular o índice de condição volumétrico (KV) não estão disponíveis no contexto. No entanto, o KV é calculado utilizando três medidas: comprimento total (CT), altura máxima do corpo (H) e largura/espessura (W). O KV é uma relação entre a massa corporal e o volume elipsoidal do peixe, e quanto maior o KV, mais \"cheio de músculo\" o peixe está para aquele tamanho externo.\n\n**Implicações / Recomendações:**\nPara calcular o KV, recomenda-se que o produtor:\n1. Selecione uma amostra de 20 a 30 peixes representativos de cada tanque ou viveiro a cada 3-4 semanas.\n2. Meça o peso (g), comprimento total (cm), altura máxima (cm) e largura/espessura (cm) dos peixes.\n3. Monte uma planilha com as colunas necessárias e utilize fórmulas para calcular o volume elipsoidal e o KV.\n4. Utilize o KV para decidir o ponto de abate, comparando com uma linha de base estabelecida a partir de lotes anteriores que apresentaram bom rendimento de carcaça.",
+        "groundedness": 80.0
+      }
+    },
+    {
+      "id": "fu-gen-menor-valor",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "E qual teve o menor?",
+      "retrieval": {
+        "retrieved_count": 20,
+        "top_similarity": 0.738134443759939,
+        "min_similarity": 0.691917699093693,
+        "expected_total": 1,
+        "expected_found": 0,
+        "recall": 0.0,
+        "first_hit_rank": null,
+        "missed_passages": [
+          "the SAL stock recorded the low-"
+        ],
+        "retrieval_seconds": 0.351
+      },
+      "generation": {
+        "answer_chars": 1229,
+        "refused": false,
+        "refusal_correct": true,
+        "mention_coverage": 1.0,
+        "generation_seconds": 12.282,
+        "answer": "**Dados do Estudo:**\n  • Área de filé por ultrassonografia (ILH): 7.05 (cm²) — maior área de filé\n  • Área de filé por ultrassonografia (SAL): 3.04 (cm²) — menor área de filé\n\n**Interpretação:**\nO estudo encontrou que o estoque ILH apresentou a maior área média de filé, medindo 7,05 cm², o que indica um potencial superior de rendimento de filé em comparação com outros estoques. Em contraste, o estoque SAL teve a menor área de filé, com 3,04 cm², sugerindo que este estoque pode ter um desempenho inferior em termos de rendimento de carne em relação ao ILH. Essa diferença pode ser atribuída ao fato de que o estoque ILH é originário da linhagem GIFT, que é conhecida por programas de melhoramento genético focados em crescimento e resistência ao frio, enquanto o estoque SAL, associado à linhagem Thai-Chitralada, demonstrou um desempenho de crescimento mais lento.\n\n**Implicações / Recomendações:**\nO estudo sugere que a seleção de estoques com maior área de filé, como o ILH, pode ser benéfica para aumentar a eficiência produtiva na aquicultura de tilápia. Além disso, recomenda-se considerar o uso de tecnologias como ultrassonografia para avaliar características de carcaça e otimizar programas de melhoramento genético.",
+        "groundedness": 0.0
+      }
+    },
+    {
+      "id": "fu-bia-margem",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "E qual a margem por unidade?",
+      "retrieval": {
+        "retrieved_count": 20,
+        "top_similarity": 0.806920672700538,
+        "min_similarity": 0.717563268339514,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 0.341
+      },
+      "generation": {
+        "answer_chars": 918,
+        "refused": false,
+        "refusal_correct": true,
+        "mention_coverage": 1.0,
+        "generation_seconds": 7.621,
+        "answer": "**Dados do Estudo:**\n• Preço do equipamento BIA: R$ 17.000 por unidade  \n• Custo unitário do equipamento: R$ 7.400  \n• Margem bruta por equipamento: 56,47%  \n\n**Interpretação:**\nO estudo indica que o preço de venda do equipamento BIA é de R$ 17.000 por unidade, enquanto o custo para produzir cada unidade é de R$ 7.400. Isso resulta em uma margem bruta de 56,47%, o que significa que, após cobrir os custos de produção, a empresa retém uma parte significativa da receita como lucro bruto. Essa margem é um indicador importante da viabilidade financeira do produto e sugere que o equipamento pode ser uma opção lucrativa para os produtores de tilápia.\n\n**Implicações / Recomendações:**\nO estudo recomenda que a margem bruta de 56,47% é um sinal positivo para a sustentabilidade financeira do projeto BIA, indicando que o modelo de negócios é viável e pode gerar lucros significativos para os investidores e produtores.",
+        "groundedness": 100.0
+      }
+    },
+    {
+      "id": "fu-kv-por-que-importa",
+      "scope": "in_corpus",
+      "question_type": "conceptual",
+      "question": "E por que isso importa para o produtor?",
+      "retrieval": {
+        "retrieved_count": 20,
+        "top_similarity": 0.789084958379566,
+        "min_similarity": 0.718498893142031,
+        "expected_total": 1,
+        "expected_found": 1,
+        "recall": 1.0,
+        "first_hit_rank": 1,
+        "missed_passages": [],
+        "retrieval_seconds": 0.427
+      },
+      "generation": {
+        "answer_chars": 1624,
+        "refused": false,
+        "refusal_correct": true,
+        "mention_coverage": 0.5,
+        "generation_seconds": 8.691,
+        "answer": "**Dados do Estudo:**\n• Área de filé por ultrassom (ILH): 7.05 (cm²) — mais alto do estudo  \n• Área de filé por ultrassom (SAL): 3.04 (cm²) — mais baixo do estudo  \n• Coeficiente de endogamia FIS: 0.243 (média)  \n• Distância genética DEST: 0.00–0.818 (variação entre pares)  \n\n**Interpretação:**\nO estudo encontrou que a área de filé por ultrassom do estoque ILH, que é derivado da linhagem GIFT, é significativamente maior (7.05 cm²) em comparação ao estoque SAL (3.04 cm²), que pertence à linhagem Thai-Chitralada. Isso sugere que o estoque ILH tem um potencial superior de rendimento de carne, o que é crucial para a eficiência econômica na aquicultura. Além disso, o coeficiente de endogamia FIS médio de 0.243 indica um nível moderado de isolamento entre as populações, o que pode afetar a diversidade genética e, consequentemente, a resiliência e a produtividade dos estoques. A distância genética DEST variando de 0.00 a 0.818 mostra que há uma considerável variação genética entre as populações, o que pode ser explorado em programas de melhoramento genético.\n\n**Implicações / Recomendações:**\n- É recomendado que os produtores considerem a utilização do estoque ILH devido ao seu maior rendimento de filé, o que pode resultar em melhores retornos financeiros.\n- A gestão cuidadosa da diversidade genética é essencial para evitar problemas associados à endogamia e para garantir a sustentabilidade a longo prazo da aquicultura de tilápia.\n- A implementação de programas de melhoramento genético deve ser baseada na caracterização das populações, aproveitando a variação genética identificada para otimizar a produção.",
+        "groundedness": 70.0
+      }
+    }
+  ],
+  "summary": {
+    "questions_total": 23,
+    "questions_in_corpus": 19,
+    "questions_out_of_corpus": 4,
+    "mean_recall": 0.895,
+    "perfect_recall_rate": 0.895,
+    "mean_top_similarity": 0.845,
+    "refusal_correct_rate": 0.826,
+    "out_of_corpus_refusal_rate": 0.0,
+    "mean_groundedness": 86.8,
+    "mean_mention_coverage": 0.711
+  }
+}

@@ -1,0 +1,322 @@
+{
+  "label": "pos-ajuste-alimentar",
+  "timestamp": "20260802T165502Z",
+  "accuracy": 0.9428571428571428,
+  "results": [
+    {
+      "id": "gen-fis-extremos",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "selected_count": 12,
+      "top_similarity_raw": 0.684226224544737,
+      "verdict": "sufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "gen-area-file",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "selected_count": 11,
+      "top_similarity_raw": 0.603906316903399,
+      "verdict": "insufficient",
+      "matches_expected": false
+    },
+    {
+      "id": "bia-roi-tir",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "selected_count": 8,
+      "top_similarity_raw": 0.690683535060126,
+      "verdict": "sufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "bia-precos",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "selected_count": 9,
+      "top_similarity_raw": 0.699459610247396,
+      "verdict": "sufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "bia-receita-semestres",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "selected_count": 8,
+      "top_similarity_raw": 0.626730540577747,
+      "verdict": "sufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "bia-payback",
+      "scope": "in_corpus",
+      "question_type": "comparative",
+      "selected_count": 8,
+      "top_similarity_raw": 0.660706636500017,
+      "verdict": "sufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "bip-rpl-extremos",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "selected_count": 14,
+      "top_similarity_raw": 0.676212804029405,
+      "verdict": "sufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "bip-bacillus-colonizacao",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "selected_count": 11,
+      "top_similarity_raw": 0.723361099358027,
+      "verdict": "sufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "kv-definicao",
+      "scope": "in_corpus",
+      "question_type": "conceptual",
+      "selected_count": 8,
+      "top_similarity_raw": 0.789477291979989,
+      "verdict": "sufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "kv-vs-fulton",
+      "scope": "in_corpus",
+      "question_type": "comparative",
+      "selected_count": 8,
+      "top_similarity_raw": 0.677967355300486,
+      "verdict": "sufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "kv-rendimento",
+      "scope": "in_corpus",
+      "question_type": "conceptual",
+      "selected_count": 8,
+      "top_similarity_raw": 0.757294149647627,
+      "verdict": "sufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "bia-o-que-e",
+      "scope": "in_corpus",
+      "question_type": "conceptual",
+      "selected_count": 11,
+      "top_similarity_raw": 0.770728849514753,
+      "verdict": "sufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "gen-por-que-banco",
+      "scope": "in_corpus",
+      "question_type": "conceptual",
+      "selected_count": 11,
+      "top_similarity_raw": 0.742047564227096,
+      "verdict": "sufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "gen-posicao-fao",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "selected_count": 11,
+      "top_similarity_raw": 0.605776881610239,
+      "verdict": "sufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "bip-mos-crescimento",
+      "scope": "in_corpus",
+      "question_type": "conceptual",
+      "selected_count": 11,
+      "top_similarity_raw": 0.815585952503772,
+      "verdict": "sufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "kv-como-medir",
+      "scope": "in_corpus",
+      "question_type": "methodological",
+      "selected_count": 8,
+      "top_similarity_raw": 0.709042778779921,
+      "verdict": "sufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "kv-ponto-abate",
+      "scope": "in_corpus",
+      "question_type": "methodological",
+      "selected_count": 8,
+      "top_similarity_raw": 0.780716792396643,
+      "verdict": "sufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "gen-etica-amostragem",
+      "scope": "in_corpus",
+      "question_type": "methodological",
+      "selected_count": 8,
+      "top_similarity_raw": 0.538845353600881,
+      "verdict": "sufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "bip-desafio-protocolo",
+      "scope": "in_corpus",
+      "question_type": "methodological",
+      "selected_count": 8,
+      "top_similarity_raw": 0.691788092872997,
+      "verdict": "sufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "oos-doenca-estreptococose",
+      "scope": "out_of_corpus",
+      "question_type": "methodological",
+      "selected_count": 9,
+      "top_similarity_raw": 0.624449516647327,
+      "verdict": "insufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "oos-qualidade-agua-amonia",
+      "scope": "out_of_corpus",
+      "question_type": "quantitative",
+      "selected_count": 15,
+      "top_similarity_raw": 0.55771744840425,
+      "verdict": "insufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "oos-custo-racao",
+      "scope": "out_of_corpus",
+      "question_type": "quantitative",
+      "selected_count": 0,
+      "top_similarity_raw": 0.513658387004987,
+      "verdict": "insufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "oos-reversao-sexual",
+      "scope": "out_of_corpus",
+      "question_type": "methodological",
+      "selected_count": 0,
+      "top_similarity_raw": 0.50812773708163,
+      "verdict": "insufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "oos-dieta-restritiva",
+      "scope": "out_of_corpus",
+      "question_type": "conceptual",
+      "selected_count": 15,
+      "top_similarity_raw": 0.605535482677653,
+      "verdict": "insufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "oos-fis-carpa",
+      "scope": "out_of_corpus",
+      "question_type": "quantitative",
+      "selected_count": 11,
+      "top_similarity_raw": 0.625675815620115,
+      "verdict": "insufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "oos-rpl-streptococcus",
+      "scope": "out_of_corpus",
+      "question_type": "quantitative",
+      "selected_count": 14,
+      "top_similarity_raw": 0.610219070787354,
+      "verdict": "insufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "oos-roi-2030",
+      "scope": "out_of_corpus",
+      "question_type": "quantitative",
+      "selected_count": 9,
+      "top_similarity_raw": 0.676811752358616,
+      "verdict": "insufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "oos-kv-tambaqui",
+      "scope": "out_of_corpus",
+      "question_type": "quantitative",
+      "selected_count": 8,
+      "top_similarity_raw": 0.64228812332091,
+      "verdict": "insufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "oos-densidade-estocagem",
+      "scope": "out_of_corpus",
+      "question_type": "methodological",
+      "selected_count": 13,
+      "top_similarity_raw": 0.561375122288707,
+      "verdict": "insufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "oos-temperatura-otima",
+      "scope": "out_of_corpus",
+      "question_type": "quantitative",
+      "selected_count": 15,
+      "top_similarity_raw": 0.571287236291768,
+      "verdict": "insufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "fu-kv-medidas",
+      "scope": "in_corpus",
+      "question_type": "methodological",
+      "selected_count": 8,
+      "top_similarity_raw": 0.825152607084831,
+      "verdict": "sufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "fu-gen-menor-valor",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "selected_count": 15,
+      "top_similarity_raw": 0.59831567814767,
+      "verdict": "insufficient",
+      "matches_expected": false
+    },
+    {
+      "id": "fu-bia-margem",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "selected_count": 8,
+      "top_similarity_raw": 0.643562961331871,
+      "verdict": "sufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "fu-kv-por-que-importa",
+      "scope": "in_corpus",
+      "question_type": "conceptual",
+      "selected_count": 8,
+      "top_similarity_raw": 0.804310957011911,
+      "verdict": "sufficient",
+      "matches_expected": true
+    },
+    {
+      "id": "fu-bip-rpl-menor",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "selected_count": 14,
+      "top_similarity_raw": 0.673738440736293,
+      "verdict": "sufficient",
+      "matches_expected": true
+    }
+  ]
+}

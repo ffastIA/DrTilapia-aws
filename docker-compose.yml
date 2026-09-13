@@ -1,0 +1,11 @@
+frontend:
+  build:
+    context: .
+    dockerfile: frontend.Dockerfile
+  ports:
+    - "3000:3000"
+  # Remover porta 8001 (Reflex backend)
+  volumes:
+    - ./frontend:/app
+  environment:
+    - NEXT_PUBLIC_BACKEND_URL=http://localhost:8000

@@ -1,0 +1,1981 @@
+{
+  "run_id": "20260802T040813Z",
+  "label": "pos-fase-a-sentinel-fix",
+  "mode": "full",
+  "k": 40,
+  "llm_expansion": true,
+  "golden_set_version": 2,
+  "config": {
+    "embedding_model": "text-embedding-3-large",
+    "embedding_dimensions": 1536,
+    "chunk_size": 1600,
+    "chunk_overlap": 200,
+    "similarity_threshold": 0.65,
+    "generation_model": "gpt-4o",
+    "utility_model": "gpt-4o-mini",
+    "llm_model": "gpt-4o",
+    "retrieval_k": 40,
+    "use_llm_expansion": true
+  },
+  "cost": {
+    "llm_calls": 167,
+    "llm_prompt_tokens": 316020,
+    "llm_completion_tokens": 9024,
+    "llm_cost_usd": 0.4454,
+    "embedding_calls_estimated": 105,
+    "note": "Custo de embeddings não incluído (callback do LangChain cobre só chat)."
+  },
+  "results": [
+    {
+      "id": "gen-fis-extremos",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "Quais populações de tilápia apresentaram o maior e o menor coeficiente de endogamia (FIS) no banco de germoplasma?",
+      "retrieval": {
+        "retrieved_count": 9,
+        "top_similarity": 0.684226224544737,
+        "min_similarity": 0.609462633277886,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 7,
+        "missed_passages": [],
+        "retrieval_seconds": 2.264,
+        "retrieval_query": "Quais populações de tilápia apresentaram o maior e o menor coeficiente de endogamia (FIS) no banco de germoplasma?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.684226224544737,
+        "selected_count": 9,
+        "context_chars": 11872,
+        "selection_reason": "relative_window"
+      },
+      "generation": {
+        "answer_chars": 436,
+        "refused": false,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": 0.5,
+        "generation_seconds": 3.338,
+        "answer": "No banco de germoplasma, a população de Salesopolis Wild (SAW) apresentou o maior coeficiente de endogamia (FIS), com um valor de 0.44. Por outro lado, a população do National Department of Works Against Droughts (DNOCS) apresentou o menor coeficiente de endogamia, com um valor de 0.01. Esses valores indicam que a população SAW tem um nível mais alto de endogamia, enquanto a população DNC apresenta um nível significativamente menor.",
+        "sources": [
+          {
+            "file": "Genetic and phenotypic characterization of Nile tilapia.pdf",
+            "pages": [
+              1,
+              2,
+              3,
+              9,
+              11,
+              12,
+              13,
+              14
+            ]
+          }
+        ],
+        "cited_files": [
+          "Genetic and phenotypic characterization of Nile tilapia.pdf"
+        ],
+        "citation_file_count": 1,
+        "citation_precision": 1.0,
+        "groundedness": 0.0,
+        "answers_question": 95.0
+      }
+    },
+    {
+      "id": "gen-area-file",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "Qual estoque apresentou a maior área de filé medida por ultrassonografia, e qual valor?",
+      "retrieval": {
+        "retrieved_count": 16,
+        "top_similarity": 0.577239603221576,
+        "min_similarity": 0.480957485882767,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 9,
+        "missed_passages": [],
+        "retrieval_seconds": 1.425,
+        "retrieval_query": "Qual estoque apresentou a maior área de filé medida por ultrassonografia, e qual valor?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.554233523992188,
+        "selected_count": 16,
+        "context_chars": 21624,
+        "selection_reason": "relative_window"
+      },
+      "generation": {
+        "answer_chars": 198,
+        "refused": false,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": 0.5,
+        "generation_seconds": 2.388,
+        "answer": "Os documentos disponíveis não abordam diretamente a questão, mas a informação mais próxima indica que o estoque ILH apresentou a maior área de filé medida por ultrassonografia, com um valor de 7,05.",
+        "sources": [
+          {
+            "file": "Genetic and phenotypic characterization of Nile tilapia.pdf",
+            "pages": [
+              1,
+              3,
+              4,
+              6,
+              7,
+              8,
+              9,
+              11,
+              13,
+              14
+            ]
+          },
+          {
+            "file": "Indice volumetrico abate.pdf",
+            "pages": [
+              0,
+              1,
+              2
+            ]
+          }
+        ],
+        "cited_files": [
+          "Genetic and phenotypic characterization of Nile tilapia.pdf",
+          "Indice volumetrico abate.pdf"
+        ],
+        "citation_file_count": 2,
+        "citation_precision": 0.5,
+        "groundedness": 100.0,
+        "answers_question": 90.0
+      }
+    },
+    {
+      "id": "bia-roi-tir",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "Quais são os valores de ROI e TIR projetados para o MVP do BIA?",
+      "retrieval": {
+        "retrieved_count": 8,
+        "top_similarity": 0.690683535060126,
+        "min_similarity": 0.472763902918551,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 1.416,
+        "retrieval_query": "Quais são os valores de ROI e TIR projetados para o MVP do BIA?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.664582897742923,
+        "selected_count": 8,
+        "context_chars": 10453,
+        "selection_reason": "min_fill"
+      },
+      "generation": {
+        "answer_chars": 445,
+        "refused": false,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": 1.0,
+        "generation_seconds": 3.36,
+        "answer": "O estudo apresenta os valores de ROI e TIR projetados para o MVP (Produto Mínimo Viável) do BIA (Biometria por Inteligência Artificial). O ROI para o MVP é de 58,07%, indicando um retorno excelente para a validação de mercado. Já a TIR projetada para o MVP é de 40,26% ao ano, o que é considerado muito superior à média do mercado. Esses indicadores refletem a atratividade e a competitividade do projeto no contexto de aquicultura e tecnologia.",
+        "sources": [
+          {
+            "file": "BIA_RAG.pdf",
+            "pages": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ]
+          },
+          {
+            "file": "BIP 2024 publicado.pdf",
+            "pages": [
+              0
+            ]
+          }
+        ],
+        "cited_files": [
+          "BIA_RAG.pdf",
+          "BIP 2024 publicado.pdf"
+        ],
+        "citation_file_count": 2,
+        "citation_precision": 0.5,
+        "groundedness": 100.0,
+        "answers_question": 100.0
+      }
+    },
+    {
+      "id": "bia-precos",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "Qual o preço do equipamento BIA e o valor da mensalidade da assinatura?",
+      "retrieval": {
+        "retrieved_count": 8,
+        "top_similarity": 0.698670246150783,
+        "min_similarity": 0.435573936360019,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 1,
+        "missed_passages": [],
+        "retrieval_seconds": 1.664,
+        "retrieval_query": "Qual o preço do equipamento BIA e o valor da mensalidade da assinatura?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.698670246150783,
+        "selected_count": 8,
+        "context_chars": 10057,
+        "selection_reason": "min_fill"
+      },
+      "generation": {
+        "answer_chars": 126,
+        "refused": false,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": 1.0,
+        "generation_seconds": 2.244,
+        "answer": "O preço do equipamento BIA é de R$ 17.000 por unidade, enquanto o valor da mensalidade da assinatura é de R$ 400 por contrato.",
+        "sources": [
+          {
+            "file": "BIA_RAG.pdf",
+            "pages": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ]
+          },
+          {
+            "file": "BIP 2024 publicado.pdf",
+            "pages": [
+              0
+            ]
+          },
+          {
+            "file": "Indice volumetrico abate.pdf",
+            "pages": [
+              0
+            ]
+          }
+        ],
+        "cited_files": [
+          "BIA_RAG.pdf",
+          "BIP 2024 publicado.pdf",
+          "Indice volumetrico abate.pdf"
+        ],
+        "citation_file_count": 3,
+        "citation_precision": 0.3333333333333333,
+        "groundedness": 100.0,
+        "answers_question": 100.0
+      }
+    },
+    {
+      "id": "bia-receita-semestres",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "Como evoluiu a receita projetada do BIA ao longo dos quatro semestres?",
+      "retrieval": {
+        "retrieved_count": 8,
+        "top_similarity": 0.613046079249307,
+        "min_similarity": 0.484131156550398,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 1.417,
+        "retrieval_query": "Como evoluiu a receita projetada do BIA ao longo dos quatro semestres?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.613046079249307,
+        "selected_count": 8,
+        "context_chars": 9351,
+        "selection_reason": "min_fill"
+      },
+      "generation": {
+        "answer_chars": 720,
+        "refused": false,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": 1.0,
+        "generation_seconds": 3.643,
+        "answer": "Os documentos disponíveis não abordam diretamente a evolução da receita projetada do BIA ao longo dos quatro semestres, mas a informação mais próxima indica que a receita bruta total projetada para os quatro semestres é de R$ 22.708.000. A evolução semestral da receita é descrita da seguinte forma: no primeiro semestre, a receita foi de R$ 758.800; no segundo semestre, houve um crescimento de 288%, resultando em R$ 2.943.200; no terceiro semestre, a receita cresceu 128%, alcançando R$ 6.726.000; e no quarto semestre, a receita aumentou 83%, totalizando R$ 12.280.000. Essa progressão demonstra um crescimento significativo e contínuo ao longo dos semestres, refletindo a expansão e aceitação do projeto no mercado.",
+        "sources": [
+          {
+            "file": "BIA_RAG.pdf",
+            "pages": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ]
+          }
+        ],
+        "cited_files": [
+          "BIA_RAG.pdf"
+        ],
+        "citation_file_count": 1,
+        "citation_precision": 1.0,
+        "groundedness": 100.0,
+        "answers_question": 95.0
+      }
+    },
+    {
+      "id": "bia-payback",
+      "scope": "in_corpus",
+      "question_type": "comparative",
+      "question": "Qual o payback do BIA e como ele se compara à média do setor?",
+      "retrieval": {
+        "retrieved_count": 8,
+        "top_similarity": 0.656144957784157,
+        "min_similarity": 0.494399619430334,
+        "expected_total": 1,
+        "expected_found": 1,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 1.325,
+        "retrieval_query": "Qual o payback do BIA e como ele se compara à média do setor?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.643819798102696,
+        "selected_count": 8,
+        "context_chars": 10139,
+        "selection_reason": "min_fill"
+      },
+      "generation": {
+        "answer_chars": 463,
+        "refused": false,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": 1.0,
+        "generation_seconds": 2.624,
+        "answer": "Os documentos disponíveis não abordam diretamente a questão, mas a informação mais próxima indica que o payback do projeto Biometria por Inteligência Artificial (BIA) é de 21 meses. Este período de recuperação do investimento é significativamente mais rápido do que a média do setor, que varia entre 36 e 48 meses. Assim, o payback do BIA é 43% mais rápido em comparação com a média setorial, destacando-se como uma vantagem competitiva importante para o projeto.",
+        "sources": [
+          {
+            "file": "BIA_RAG.pdf",
+            "pages": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ]
+          },
+          {
+            "file": "Indice volumetrico abate.pdf",
+            "pages": [
+              0
+            ]
+          }
+        ],
+        "cited_files": [
+          "BIA_RAG.pdf",
+          "Indice volumetrico abate.pdf"
+        ],
+        "citation_file_count": 2,
+        "citation_precision": 0.5,
+        "groundedness": 100.0,
+        "answers_question": 95.0
+      }
+    },
+    {
+      "id": "bip-rpl-extremos",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "Quais tratamentos apresentaram o maior e o menor nível de proteção relativa (RPL) contra Aeromonas hydrophila no estudo do BIP 2024?",
+      "retrieval": {
+        "retrieved_count": 12,
+        "top_similarity": 0.680221423392017,
+        "min_similarity": 0.596961975665773,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 5,
+        "missed_passages": [],
+        "retrieval_seconds": 2.994,
+        "retrieval_query": "Quais tratamentos apresentaram o maior e o menor nível de proteção relativa (RPL) contra Aeromonas hydrophila no estudo do BIP 2024?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.67387145803485,
+        "selected_count": 12,
+        "context_chars": 18448,
+        "selection_reason": "relative_window"
+      },
+      "generation": {
+        "answer_chars": 268,
+        "refused": false,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": 1.0,
+        "generation_seconds": 3.27,
+        "answer": "No estudo do BIP 2024, o tratamento que apresentou o maior nível de proteção relativa (RPL) contra Aeromonas hydrophila foi o PRO+MOS, com um RPL de 64,10%. Por outro lado, o tratamento que apresentou o menor nível de proteção relativa foi o MOS, com um RPL de 21,02%.",
+        "sources": [
+          {
+            "file": "BIP 2024 publicado.pdf",
+            "pages": [
+              0,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              10,
+              14
+            ]
+          }
+        ],
+        "cited_files": [
+          "BIP 2024 publicado.pdf"
+        ],
+        "citation_file_count": 1,
+        "citation_precision": 1.0,
+        "groundedness": 100.0,
+        "answers_question": 100.0
+      }
+    },
+    {
+      "id": "bip-bacillus-colonizacao",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "Qual foi a contagem de Bacillus (UFC) no intestino dos peixes alimentados com o probiótico PRO, comparada ao grupo controle, no estudo do BIP 2024?",
+      "retrieval": {
+        "retrieved_count": 8,
+        "top_similarity": 0.7307507356689,
+        "min_similarity": 0.608245406384762,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 4,
+        "missed_passages": [],
+        "retrieval_seconds": 1.826,
+        "retrieval_query": "Qual foi a contagem de Bacillus (UFC) no intestino dos peixes alimentados com o probiótico PRO, comparada ao grupo controle, no estudo do BIP 2024?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.7307507356689,
+        "selected_count": 8,
+        "context_chars": 11920,
+        "selection_reason": "min_fill"
+      },
+      "generation": {
+        "answer_chars": 372,
+        "refused": false,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": 0.0,
+        "generation_seconds": 2.983,
+        "answer": "No estudo do BIP 2024, a contagem de Bacillus sp. no intestino dos peixes alimentados com o probiótico PRO foi de 5,6x10^6 UFC·mL^-1, enquanto no grupo controle foi de 1,9x10^2 UFC·mL^-1. Isso demonstra uma colonização significativamente maior de Bacillus sp. no intestino dos peixes que receberam a dieta suplementada com o probiótico PRO em comparação ao grupo controle.",
+        "sources": [
+          {
+            "file": "BIP 2024 publicado.pdf",
+            "pages": [
+              0,
+              2,
+              3,
+              5,
+              6,
+              8,
+              9
+            ]
+          }
+        ],
+        "cited_files": [
+          "BIP 2024 publicado.pdf"
+        ],
+        "citation_file_count": 1,
+        "citation_precision": 1.0,
+        "groundedness": 100.0,
+        "answers_question": 100.0
+      }
+    },
+    {
+      "id": "kv-definicao",
+      "scope": "in_corpus",
+      "question_type": "conceptual",
+      "question": "O que é o índice de condição volumétrico (KV) e como ele é calculado?",
+      "retrieval": {
+        "retrieved_count": 8,
+        "top_similarity": 0.789477291979989,
+        "min_similarity": 0.380568241452928,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 1,
+        "missed_passages": [],
+        "retrieval_seconds": 1.344,
+        "retrieval_query": "O que é o índice de condição volumétrico (KV) e como ele é calculado?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.789477291979989,
+        "selected_count": 8,
+        "context_chars": 9732,
+        "selection_reason": "min_fill"
+      },
+      "generation": {
+        "answer_chars": 1115,
+        "refused": false,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": 1.0,
+        "generation_seconds": 4.058,
+        "answer": "O índice de condição volumétrico (KV) é uma ferramenta utilizada na aquicultura para avaliar a condição corporal dos peixes, especificamente a tilápia, de forma mais precisa do que os métodos tradicionais. O KV é calculado a partir de três medidas simples do peixe: comprimento total (CT), altura máxima do corpo (H) e largura ou espessura (W). Com essas dimensões, o corpo do peixe é aproximado a um elipsoide, e o volume elipsoidal é calculado. O índice KV é então determinado pela razão entre a massa corporal do peixe e o volume elipsoidal calculado.\n\nA ideia central do KV é mostrar quanta carne o peixe possui por unidade de volume do corpo. Um KV mais alto indica que o peixe está mais \"cheio de músculo\" para o seu tamanho externo, o que é desejável para aumentar o rendimento de carcaça e a eficiência no uso da ração. O KV é quase independente do tamanho do peixe, permitindo comparações mais justas entre lotes de diferentes tamanhos, sem que o peso influencie indevidamente o índice. Além disso, lotes com KV mais alto tendem a apresentar maior rendimento de carcaça, com menos peso perdido em vísceras.",
+        "sources": [
+          {
+            "file": "Indice volumetrico abate.pdf",
+            "pages": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
+          },
+          {
+            "file": "BIP 2024 publicado.pdf",
+            "pages": [
+              4
+            ]
+          },
+          {
+            "file": "Genetic and phenotypic characterization of Nile tilapia.pdf",
+            "pages": [
+              9
+            ]
+          }
+        ],
+        "cited_files": [
+          "Indice volumetrico abate.pdf",
+          "BIP 2024 publicado.pdf",
+          "Genetic and phenotypic characterization of Nile tilapia.pdf"
+        ],
+        "citation_file_count": 3,
+        "citation_precision": 0.3333333333333333,
+        "groundedness": 100.0,
+        "answers_question": 95.0
+      }
+    },
+    {
+      "id": "kv-vs-fulton",
+      "scope": "in_corpus",
+      "question_type": "comparative",
+      "question": "Por que o fator de condição K de Fulton é considerado inadequado para tilápia?",
+      "retrieval": {
+        "retrieved_count": 8,
+        "top_similarity": 0.680142358229893,
+        "min_similarity": 0.473581749696166,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 1.178,
+        "retrieval_query": "Por que o fator de condição K de Fulton é considerado inadequado para tilápia?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.680142358229893,
+        "selected_count": 8,
+        "context_chars": 10908,
+        "selection_reason": "min_fill"
+      },
+      "generation": {
+        "answer_chars": 1069,
+        "refused": false,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": 1.0,
+        "generation_seconds": 4.296,
+        "answer": "O fator de condição K de Fulton é considerado inadequado para tilápia porque ele se baseia na relação entre peso e comprimento, assumindo que o peixe mantém uma forma constante ao crescer, semelhante a um \"charuto\". No entanto, a tilápia não cresce dessa forma. À medida que a tilápia cresce, ela se torna mais alta e mais espessa, o que significa que sua forma muda de maneira alométrica. Isso faz com que o K de Fulton não seja neutro, favorecendo peixes maiores, pois o índice tende a aumentar com o tamanho do peixe, mesmo que a condição de carcaça não melhore na mesma proporção. Na prática, isso significa que peixes grandes podem parecer \"melhores\" no índice K, mas essa percepção pode ser apenas uma mudança de forma, não necessariamente indicando mais carne útil. Portanto, o K de Fulton não é um indicador confiável da condição corporal ou do rendimento de carcaça em tilápias, levando à necessidade de índices que considerem o volume, como o índice volumétrico elipsoidal (KV), que descreve melhor o \"tamanho real\" do peixe e é quase independente do tamanho.",
+        "sources": [
+          {
+            "file": "Indice volumetrico abate.pdf",
+            "pages": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
+          },
+          {
+            "file": "BIP 2024 publicado.pdf",
+            "pages": [
+              0
+            ]
+          },
+          {
+            "file": "Genetic and phenotypic characterization of Nile tilapia.pdf",
+            "pages": [
+              14
+            ]
+          }
+        ],
+        "cited_files": [
+          "Indice volumetrico abate.pdf",
+          "BIP 2024 publicado.pdf",
+          "Genetic and phenotypic characterization of Nile tilapia.pdf"
+        ],
+        "citation_file_count": 3,
+        "citation_precision": 0.3333333333333333,
+        "groundedness": 100.0,
+        "answers_question": 95.0
+      }
+    },
+    {
+      "id": "kv-rendimento",
+      "scope": "in_corpus",
+      "question_type": "conceptual",
+      "question": "Qual a relação entre o KV e o rendimento de carcaça?",
+      "retrieval": {
+        "retrieved_count": 8,
+        "top_similarity": 0.753685672820029,
+        "min_similarity": 0.495540890339735,
+        "expected_total": 1,
+        "expected_found": 1,
+        "recall": 1.0,
+        "first_hit_rank": 1,
+        "missed_passages": [],
+        "retrieval_seconds": 1.492,
+        "retrieval_query": "Qual a relação entre o KV e o rendimento de carcaça?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.733992685454287,
+        "selected_count": 8,
+        "context_chars": 10927,
+        "selection_reason": "min_fill"
+      },
+      "generation": {
+        "answer_chars": 805,
+        "refused": false,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": 1.0,
+        "generation_seconds": 3.485,
+        "answer": "O estudo encontrou uma relação direta entre o índice volumétrico elipsoidal (KV) e o rendimento de carcaça em tilápias. Lotes de peixes que apresentaram um KV mais alto também mostraram, em média, um maior rendimento de carcaça. Isso significa que peixes com um KV elevado têm mais carne em relação ao seu volume corporal total, resultando em menos peso perdido nas vísceras durante o processamento. Além disso, os índices viscerais, como o peso das vísceras e a gordura visceral, não aumentaram na mesma proporção que o KV; em alguns casos, esses índices até diminuíram à medida que o KV aumentava. Portanto, um KV alto indica que o peixe está mais \"cheio de músculo\" e menos peso é desperdiçado em partes não comestíveis, o que é vantajoso para o produtor em termos de eficiência e rendimento econômico.",
+        "sources": [
+          {
+            "file": "Indice volumetrico abate.pdf",
+            "pages": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
+          },
+          {
+            "file": "Genetic and phenotypic characterization of Nile tilapia.pdf",
+            "pages": [
+              14
+            ]
+          }
+        ],
+        "cited_files": [
+          "Indice volumetrico abate.pdf",
+          "Genetic and phenotypic characterization of Nile tilapia.pdf"
+        ],
+        "citation_file_count": 2,
+        "citation_precision": 0.5,
+        "groundedness": 100.0,
+        "answers_question": 95.0
+      }
+    },
+    {
+      "id": "bia-o-que-e",
+      "scope": "in_corpus",
+      "question_type": "conceptual",
+      "question": "O que é a tecnologia BIA e qual problema ela resolve na tilapicultura?",
+      "retrieval": {
+        "retrieved_count": 8,
+        "top_similarity": 0.772413691324821,
+        "min_similarity": 0.469217649950886,
+        "expected_total": 1,
+        "expected_found": 1,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 1.185,
+        "retrieval_query": "O que é a tecnologia BIA e qual problema ela resolve na tilapicultura?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.772413691324821,
+        "selected_count": 8,
+        "context_chars": 12047,
+        "selection_reason": "min_fill"
+      },
+      "generation": {
+        "answer_chars": 1607,
+        "refused": false,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": 1.0,
+        "generation_seconds": 5.517,
+        "answer": "A tecnologia de Biometria por Inteligência Artificial (BIA) é uma inovação que permite o monitoramento não invasivo de tilápias em tempo real, avaliando aspectos como peso, tamanho e comportamento dos peixes. Este monitoramento é realizado de forma submersa, dentro do corpo de água onde os peixes são criados, sem a necessidade de manipulação direta. Isso reduz o estresse nos peixes e minimiza os riscos associados aos métodos tradicionais de biometria, que geralmente envolvem a captura e manipulação dos animais.\n\nA BIA resolve vários problemas na tilapicultura. Primeiramente, ela permite um ajuste preciso das necessidades alimentares dos peixes, evitando tanto a superalimentação, que pode levar ao desperdício e poluição, quanto a subalimentação, que resulta em peixes abaixo do peso ideal para venda. Além disso, a tecnologia possibilita a detecção de anormalidades no crescimento e sinais de estresse, o que é crucial para a saúde e bem-estar dos peixes. A BIA também é uma ferramenta valiosa para a análise de programas de melhoria genética, ajudando a otimizar a densidade populacional, o planejamento de vendas e a logística, além de evitar a superpopulação.\n\nEm termos econômicos, os testes iniciais da BIA em ambientes de produção indicam benefícios significativos, como uma economia de R$ 145 mil por ano em ração e um aumento na taxa de sobrevivência dos peixes, gerando um acréscimo de R$ 45 mil por ano para um produtor médio com uma produção anual de 180 toneladas. Assim, a BIA representa um avanço significativo na aquicultura, promovendo maior sustentabilidade e eficiência produtiva.",
+        "sources": [
+          {
+            "file": "BIA_RAG.pdf",
+            "pages": [
+              0
+            ]
+          },
+          {
+            "file": "Genetic and phenotypic characterization of Nile tilapia.pdf",
+            "pages": [
+              1,
+              2,
+              9,
+              11,
+              14
+            ]
+          },
+          {
+            "file": "Indice volumetrico abate.pdf",
+            "pages": [
+              0
+            ]
+          }
+        ],
+        "cited_files": [
+          "BIA_RAG.pdf",
+          "Genetic and phenotypic characterization of Nile tilapia.pdf",
+          "Indice volumetrico abate.pdf"
+        ],
+        "citation_file_count": 3,
+        "citation_precision": 0.3333333333333333,
+        "groundedness": 100.0,
+        "answers_question": 100.0
+      }
+    },
+    {
+      "id": "gen-por-que-banco",
+      "scope": "in_corpus",
+      "question_type": "conceptual",
+      "question": "Por que criar um banco de germoplasma de tilápia do Nilo no Brasil?",
+      "retrieval": {
+        "retrieved_count": 10,
+        "top_similarity": 0.741139937540783,
+        "min_similarity": 0.655625021637986,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 1.464,
+        "retrieval_query": "Por que criar um banco de germoplasma de tilápia do Nilo no Brasil?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.732937784357706,
+        "selected_count": 10,
+        "context_chars": 14362,
+        "selection_reason": "relative_window"
+      },
+      "generation": {
+        "answer_chars": 1747,
+        "refused": false,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": 0.5,
+        "generation_seconds": 5.362,
+        "answer": "A criação de um banco de germoplasma de tilápia do Nilo no Brasil é uma estratégia essencial para a conservação e melhoramento genético dessa espécie, que desempenha um papel significativo na economia brasileira. O estudo destaca que a tilápia do Nilo, introduzida no Brasil há mais de 50 anos, é uma importante fonte de alimento e contribui para a segurança alimentar, a renda rural e a diversificação do agronegócio nacional. A formação de um banco de germoplasma visa garantir a disponibilidade a longo prazo de linhagens geneticamente diversas, o que é crucial para melhorar programas de reprodução, aumentar a resistência a doenças e facilitar a adaptação a mudanças ambientais.\n\nAlém disso, o banco de germoplasma serve como um recurso valioso para a conservação dos recursos genéticos e o aprimoramento da aquicultura brasileira. Ele permite o desenvolvimento de peixes adaptados a condições locais específicas, como resistência ao frio no sul do país ou tolerância ao calor e salinidade no nordeste. Isso não apenas visa aumentar a produtividade, mas também tem o potencial de reduzir custos para os agricultores, melhorar a segurança alimentar e mitigar riscos ecológicos.\n\nA pesquisa também revelou uma diversidade genética moderada a alta entre as populações de tilápia, com preocupantes níveis de endogamia, especialmente nas linhagens mais antigas, como a Thai-Chitralada. Isso ressalta os riscos associados a práticas de reprodução não gerenciadas e os benefícios potenciais de recursos genéticos cuidadosamente curados. Portanto, o banco de germoplasma não só preserva a diversidade genética atual, mas também estabelece uma base sólida para uma indústria de tilápia mais resiliente, sustentável e competitiva globalmente no Brasil.",
+        "sources": [
+          {
+            "file": "Genetic and phenotypic characterization of Nile tilapia.pdf",
+            "pages": [
+              1,
+              2,
+              3,
+              9,
+              11,
+              12
+            ]
+          }
+        ],
+        "cited_files": [
+          "Genetic and phenotypic characterization of Nile tilapia.pdf"
+        ],
+        "citation_file_count": 1,
+        "citation_precision": 1.0,
+        "groundedness": 100.0,
+        "answers_question": 95.0
+      }
+    },
+    {
+      "id": "gen-posicao-fao",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "Qual a posição da tilápia do Nilo no ranking mundial de espécies mais cultivadas?",
+      "retrieval": {
+        "retrieved_count": 8,
+        "top_similarity": 0.597379904408491,
+        "min_similarity": 0.44244498579016,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 1.406,
+        "retrieval_query": "Qual a posição da tilápia do Nilo no ranking mundial de espécies mais cultivadas?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.597379904408491,
+        "selected_count": 8,
+        "context_chars": 12481,
+        "selection_reason": "min_fill"
+      },
+      "generation": {
+        "answer_chars": 291,
+        "refused": false,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": 1.0,
+        "generation_seconds": 4.193,
+        "answer": "Os documentos disponíveis não abordam diretamente essa questão, mas a informação mais próxima indica que a tilápia do Nilo é a terceira espécie de peixe mais cultivada no mundo, ficando atrás apenas da carpa capim (Ctenopharyngodon idellus) e da carpa prateada (Hypophthalmichthys molitrix).",
+        "sources": [
+          {
+            "file": "Genetic and phenotypic characterization of Nile tilapia.pdf",
+            "pages": [
+              0,
+              1,
+              2,
+              3,
+              9,
+              11,
+              13
+            ]
+          }
+        ],
+        "cited_files": [
+          "Genetic and phenotypic characterization of Nile tilapia.pdf"
+        ],
+        "citation_file_count": 1,
+        "citation_precision": 1.0,
+        "groundedness": 100.0,
+        "answers_question": 90.0
+      }
+    },
+    {
+      "id": "bip-mos-crescimento",
+      "scope": "in_corpus",
+      "question_type": "conceptual",
+      "question": "A suplementação com MOS, KAP e o probiótico PAS-TR causou efeito no crescimento ou nas variáveis hematológicas da tilápia no estudo do BIP 2024?",
+      "retrieval": {
+        "retrieved_count": 8,
+        "top_similarity": 0.815689518662225,
+        "min_similarity": 0.743183888333975,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 1.477,
+        "retrieval_query": "A suplementação com MOS, KAP e o probiótico PAS-TR causou efeito no crescimento ou nas variáveis hematológicas da tilápia no estudo do BIP 2024?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.815689518662225,
+        "selected_count": 8,
+        "context_chars": 11311,
+        "selection_reason": "relative_window"
+      },
+      "generation": {
+        "answer_chars": 736,
+        "refused": false,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": 0.5,
+        "generation_seconds": 3.217,
+        "answer": "No estudo publicado no Boletim do Instituto de Pesca em 2024, a suplementação com mananoligossacarídeos (MOS), Kappaphycus alvarezii (KAP) e o probiótico PAS-TR não causou efeito benéfico ou adverso no crescimento ou nas variáveis hematológicas da tilápia do Nilo. Durante os 63 dias de alimentação, não houve diferença significativa nas variáveis de desempenho de crescimento entre os tratamentos. Além disso, a análise hematológica mostrou que a alimentação com dietas contendo probióticos, prebióticos e simbióticos não afetou as variáveis hematimétricas, contagens de leucócitos e valores do trombograma. Portanto, a suplementação com esses aditivos não influenciou o crescimento ou os parâmetros hematológicos dos peixes no estudo.",
+        "sources": [
+          {
+            "file": "BIP 2024 publicado.pdf",
+            "pages": [
+              0,
+              1,
+              3,
+              5,
+              6,
+              7,
+              8
+            ]
+          }
+        ],
+        "cited_files": [
+          "BIP 2024 publicado.pdf"
+        ],
+        "citation_file_count": 1,
+        "citation_precision": 1.0,
+        "groundedness": 100.0,
+        "answers_question": 100.0
+      }
+    },
+    {
+      "id": "kv-como-medir",
+      "scope": "in_corpus",
+      "question_type": "methodological",
+      "question": "Como o produtor deve coletar as medidas para calcular o KV na fazenda?",
+      "retrieval": {
+        "retrieved_count": 8,
+        "top_similarity": 0.727881303191951,
+        "min_similarity": 0.48036163011444,
+        "expected_total": 1,
+        "expected_found": 1,
+        "recall": 1.0,
+        "first_hit_rank": 2,
+        "missed_passages": [],
+        "retrieval_seconds": 1.323,
+        "retrieval_query": "Como o produtor deve coletar as medidas para calcular o KV na fazenda?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.72499303444853,
+        "selected_count": 8,
+        "context_chars": 10966,
+        "selection_reason": "min_fill"
+      },
+      "generation": {
+        "answer_chars": 1377,
+        "refused": false,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": 0.5,
+        "generation_seconds": 4.378,
+        "answer": "Para calcular o índice volumétrico elipsoidal (KV) na fazenda, o produtor deve seguir um procedimento específico de coleta de medidas. Primeiramente, é necessário selecionar uma amostra representativa de peixes a cada 3 a 4 semanas, escolhendo entre 20 a 30 peixes de cada tanque ou viveiro. Em seguida, para cada peixe selecionado, devem ser registradas as seguintes medidas:\n\n1. **Peso (M)**: O peso do peixe deve ser medido em gramas utilizando uma balança adequada.\n\n2. **Comprimento Total (CT)**: Medido em centímetros, do ponto mais anterior do peixe (a ponta da boca) até o final da cauda, utilizando uma régua.\n\n3. **Altura Máxima (H)**: A altura máxima do corpo do peixe deve ser medida em centímetros no ponto mais alto do corpo, utilizando um paquímetro.\n\n4. **Largura/Espessura (W)**: A largura ou espessura do peixe deve ser medida em centímetros, sempre no mesmo ponto do corpo, como na altura do início da nadadeira dorsal, também utilizando um paquímetro.\n\nApós a coleta dessas medidas, o produtor deve inserir os dados em uma planilha, como no Excel, onde uma fórmula pré-programada calculará o volume elipsoidal do peixe. O índice KV é então calculado dividindo a massa corporal (peso) pelo volume elipsoidal obtido. Este procedimento permite ao produtor avaliar a condição volumétrica dos peixes e tomar decisões informadas sobre o manejo e o ponto de abate.",
+        "sources": [
+          {
+            "file": "Indice volumetrico abate.pdf",
+            "pages": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
+          },
+          {
+            "file": "BIA_RAG.pdf",
+            "pages": [
+              0
+            ]
+          },
+          {
+            "file": "Genetic and phenotypic characterization of Nile tilapia.pdf",
+            "pages": [
+              3
+            ]
+          }
+        ],
+        "cited_files": [
+          "Indice volumetrico abate.pdf",
+          "BIA_RAG.pdf",
+          "Genetic and phenotypic characterization of Nile tilapia.pdf"
+        ],
+        "citation_file_count": 3,
+        "citation_precision": 0.3333333333333333,
+        "groundedness": 100.0,
+        "answers_question": 100.0
+      }
+    },
+    {
+      "id": "kv-ponto-abate",
+      "scope": "in_corpus",
+      "question_type": "methodological",
+      "question": "Como usar o KV para decidir o ponto de abate de um lote?",
+      "retrieval": {
+        "retrieved_count": 8,
+        "top_similarity": 0.76210357408782,
+        "min_similarity": 0.459578803144879,
+        "expected_total": 1,
+        "expected_found": 1,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 2.306,
+        "retrieval_query": "Como usar o KV para decidir o ponto de abate de um lote?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.76210357408782,
+        "selected_count": 8,
+        "context_chars": 10972,
+        "selection_reason": "min_fill"
+      },
+      "generation": {
+        "answer_chars": 1445,
+        "refused": false,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": 0.0,
+        "generation_seconds": 4.522,
+        "answer": "Para decidir o ponto de abate de um lote de tilápias utilizando o índice de condição volumétrico elipsoidal (KV), é necessário seguir um processo que envolve a construção de uma linha de base específica para a fazenda. O primeiro passo é escolher um lote que tenha apresentado um ótimo rendimento de carcaça e calcular o KV médio desse lote nas idades ou pesos para os quais se tem dados disponíveis. Esses valores servirão como referência para avaliar novos lotes.\n\nSe um novo lote apresentar um KV abaixo dessa linha de base, isso indica que os peixes estão crescendo em comprimento, mas não estão \"cheios de carne\". Por outro lado, se o KV estiver igual ou acima da linha de base, o lote está em uma condição volumétrica adequada para o sistema de produção em questão.\n\nCom base nesses dados, é possível definir critérios práticos, como estabelecer um valor de KV médio que, ao ser atingido por um lote, indica que é o momento de considerar o abate. Esse valor de KV deve ser aquele associado ao melhor rendimento de carcaça na realidade da fazenda.\n\nO uso do KV oferece várias vantagens, como a possibilidade de obter mais carcaça por quilo de peixe, melhorar o uso da ração e permitir uma comparação justa entre lotes de diferentes idades, já que o KV depende pouco do tamanho do peixe. Além disso, o KV pode ser integrado a sistemas de automação, utilizando câmeras e visão computacional, para facilitar o monitoramento contínuo dos lotes.",
+        "sources": [
+          {
+            "file": "Indice volumetrico abate.pdf",
+            "pages": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
+          },
+          {
+            "file": "Genetic and phenotypic characterization of Nile tilapia.pdf",
+            "pages": [
+              14
+            ]
+          },
+          {
+            "file": "BIP 2024 publicado.pdf",
+            "pages": [
+              0
+            ]
+          }
+        ],
+        "cited_files": [
+          "Indice volumetrico abate.pdf",
+          "Genetic and phenotypic characterization of Nile tilapia.pdf",
+          "BIP 2024 publicado.pdf"
+        ],
+        "citation_file_count": 3,
+        "citation_precision": 0.3333333333333333,
+        "groundedness": 100.0,
+        "answers_question": 90.0
+      }
+    },
+    {
+      "id": "gen-etica-amostragem",
+      "scope": "in_corpus",
+      "question_type": "methodological",
+      "question": "Qual foi a aprovação ética e a classificação de origem adotada no estudo do banco de germoplasma?",
+      "retrieval": {
+        "retrieved_count": 8,
+        "top_similarity": 0.538845353600881,
+        "min_similarity": 0.445088171148744,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 1.391,
+        "retrieval_query": "Qual foi a aprovação ética e a classificação de origem adotada no estudo do banco de germoplasma?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.538845353600881,
+        "selected_count": 8,
+        "context_chars": 12229,
+        "selection_reason": "min_fill"
+      },
+      "generation": {
+        "answer_chars": 993,
+        "refused": false,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": 0.5,
+        "generation_seconds": 3.472,
+        "answer": "Os documentos disponíveis não abordam diretamente a questão, mas a informação mais próxima indica que o estudo do banco de germoplasma de tilápias foi conduzido em conformidade com as normas éticas estabelecidas pelo Conselho Nacional de Controle de Experimentação Animal (CONCEA) no Brasil. A pesquisa recebeu aprovação do Comitê de Ética no Uso de Animais (CEUA), sob o número de protocolo #01.0696.2022, do Instituto de Pesca em São Paulo.\n\nAlém disso, para classificar a origem das tilápias, o estudo adotou a classificação da FAO para os tipos primários de cultivo: propagadas em cativeiro (CP), originadas de linhagens, e originadas de populações selvagens. A categoria CP refere-se a tipos cultivados com ciclo de vida fechado em cativeiro por pelo menos uma geração. Já a categoria de linhagens refere-se a tipos cultivados de espécies aquáticas com características consistentes que os distinguem de outros organismos da mesma espécie no país, permitindo sua manutenção por propagação.",
+        "sources": [
+          {
+            "file": "Genetic and phenotypic characterization of Nile tilapia.pdf",
+            "pages": [
+              2,
+              3,
+              6,
+              8,
+              9,
+              11,
+              12,
+              13
+            ]
+          }
+        ],
+        "cited_files": [
+          "Genetic and phenotypic characterization of Nile tilapia.pdf"
+        ],
+        "citation_file_count": 1,
+        "citation_precision": 1.0,
+        "groundedness": 100.0,
+        "answers_question": 95.0
+      }
+    },
+    {
+      "id": "bip-desafio-protocolo",
+      "scope": "in_corpus",
+      "question_type": "methodological",
+      "question": "Como foi feito o desafio experimental com Aeromonas hydrophila no estudo do BIP 2024, e como o nível de proteção relativa (RPL) foi calculado?",
+      "retrieval": {
+        "retrieved_count": 14,
+        "top_similarity": 0.689172802246441,
+        "min_similarity": 0.526021084543528,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 1,
+        "missed_passages": [],
+        "retrieval_seconds": 1.289,
+        "retrieval_query": "Como foi feito o desafio experimental com Aeromonas hydrophila no estudo do BIP 2024, e como o nível de proteção relativa (RPL) foi calculado?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.592547667140866,
+        "selected_count": 14,
+        "context_chars": 21269,
+        "selection_reason": "relative_window"
+      },
+      "generation": {
+        "answer_chars": 991,
+        "refused": false,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": 0.5,
+        "generation_seconds": 9.363,
+        "answer": "Os documentos disponíveis não abordam diretamente a questão, mas a informação mais próxima indica que o desafio experimental com Aeromonas hydrophila foi realizado da seguinte forma: 180 tilápias do Nilo machos, com peso médio de 8,86 ± 3,22 g, foram distribuídas em 18 aquários, cada um com volume de 40 litros e densidade de 10 peixes por unidade experimental. Os peixes foram alimentados com dietas experimentais por 21 dias, três vezes ao dia, antes de serem infectados via injeção intraperitoneal com 0,10 mL de A. hydrophila. A dose letal média (LD50) foi previamente estabelecida em 1,26 x 10^8 UFC·mL-1. Após a infecção, os peixes foram observados por 15 dias para detectar alterações patológicas e mortalidade.\n\nO nível de proteção relativa (RPL) foi calculado usando a fórmula: RPL (%) = 100 – (% de mortalidade do tratamento / % de mortalidade do controle) x 100. Essa fórmula permite avaliar a eficácia dos tratamentos em reduzir a mortalidade em comparação com o grupo controle.",
+        "sources": [
+          {
+            "file": "BIP 2024 publicado.pdf",
+            "pages": [
+              0,
+              2,
+              4,
+              6,
+              7,
+              8,
+              10,
+              11,
+              12,
+              14
+            ]
+          }
+        ],
+        "cited_files": [
+          "BIP 2024 publicado.pdf"
+        ],
+        "citation_file_count": 1,
+        "citation_precision": 1.0,
+        "groundedness": 100.0,
+        "answers_question": 100.0
+      }
+    },
+    {
+      "id": "oos-doenca-estreptococose",
+      "scope": "out_of_corpus",
+      "question_type": "methodological",
+      "question": "Qual o protocolo de tratamento recomendado para estreptococose em tilápias?",
+      "retrieval": {
+        "retrieved_count": 14,
+        "top_similarity": 0.632728403754631,
+        "min_similarity": 0.554671330155362,
+        "expected_total": 0,
+        "expected_found": 0,
+        "recall": null,
+        "first_hit_rank": null,
+        "missed_passages": [],
+        "retrieval_seconds": 1.425,
+        "retrieval_query": "Qual o protocolo de tratamento recomendado para estreptococose em tilápias?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.61285173831537,
+        "selected_count": 14,
+        "context_chars": 21983,
+        "selection_reason": "relative_window"
+      },
+      "generation": {
+        "answer_chars": 510,
+        "refused": false,
+        "skeleton": false,
+        "refusal_correct": false,
+        "mention_coverage": null,
+        "generation_seconds": 11.244,
+        "answer": "Os documentos disponíveis não abordam diretamente o protocolo de tratamento recomendado para estreptococose em tilápias. No entanto, a informação mais próxima relacionada indica que o estudo avaliou o uso de probióticos e prebióticos na dieta de juvenis de tilápia do Nilo para promover proteção imunológica contra infecções, especificamente contra Aeromonas hydrophila, e não menciona a estreptococose. Portanto, não há dados específicos sobre o tratamento da estreptococose em tilápias no contexto fornecido.",
+        "sources": [
+          {
+            "file": "BIP 2024 publicado.pdf",
+            "pages": [
+              0,
+              1,
+              2,
+              4,
+              6,
+              7,
+              8,
+              10,
+              13,
+              14,
+              15
+            ]
+          }
+        ],
+        "cited_files": [
+          "BIP 2024 publicado.pdf"
+        ],
+        "citation_file_count": 1,
+        "citation_precision": null,
+        "answers_question": 10.0
+      }
+    },
+    {
+      "id": "oos-qualidade-agua-amonia",
+      "scope": "out_of_corpus",
+      "question_type": "quantitative",
+      "question": "Qual o nível máximo tolerável de amônia não ionizada para tilápia do Nilo em viveiro?",
+      "retrieval": {
+        "retrieved_count": 14,
+        "top_similarity": 0.549898363232361,
+        "min_similarity": 0.470215267046015,
+        "expected_total": 0,
+        "expected_found": 0,
+        "recall": null,
+        "first_hit_rank": null,
+        "missed_passages": [],
+        "retrieval_seconds": 1.682,
+        "retrieval_query": "Qual o nível máximo tolerável de amônia não ionizada para tilápia do Nilo em viveiro?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.548436039088186,
+        "selected_count": 14,
+        "context_chars": 21565,
+        "selection_reason": "relative_window"
+      },
+      "generation": {
+        "answer_chars": 206,
+        "refused": true,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": null,
+        "generation_seconds": 12.396,
+        "answer": "Não encontrei informações suficientes na base de documentos disponível para responder a essa pergunta com confiança. Posso ajudar com outra pergunta relacionada aos temas cobertos pela base de conhecimento?",
+        "sources": [],
+        "cited_files": [],
+        "citation_file_count": 0,
+        "citation_precision": null
+      }
+    },
+    {
+      "id": "oos-custo-racao",
+      "scope": "out_of_corpus",
+      "question_type": "quantitative",
+      "question": "Qual o custo médio por tonelada de ração extrusada para tilápia no Brasil em 2024?",
+      "retrieval": {
+        "retrieved_count": 0,
+        "top_similarity": 0.0,
+        "min_similarity": 0.0,
+        "expected_total": 0,
+        "expected_found": 0,
+        "recall": null,
+        "first_hit_rank": null,
+        "missed_passages": [],
+        "retrieval_seconds": 1.427,
+        "retrieval_query": "Qual o custo médio por tonelada de ração extrusada para tilápia no Brasil em 2024?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.479268525306419,
+        "selected_count": 0,
+        "context_chars": 0,
+        "selection_reason": "refused"
+      },
+      "generation": {
+        "answer_chars": 206,
+        "refused": true,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": null,
+        "generation_seconds": 1.475,
+        "answer": "Não encontrei informações suficientes na base de documentos disponível para responder a essa pergunta com confiança. Posso ajudar com outra pergunta relacionada aos temas cobertos pela base de conhecimento?",
+        "sources": [],
+        "cited_files": [],
+        "citation_file_count": 0,
+        "citation_precision": null
+      }
+    },
+    {
+      "id": "oos-reversao-sexual",
+      "scope": "out_of_corpus",
+      "question_type": "methodological",
+      "question": "Qual a dosagem de hormônio usada na reversão sexual de alevinos de tilápia?",
+      "retrieval": {
+        "retrieved_count": 0,
+        "top_similarity": 0.0,
+        "min_similarity": 0.0,
+        "expected_total": 0,
+        "expected_found": 0,
+        "recall": null,
+        "first_hit_rank": null,
+        "missed_passages": [],
+        "retrieval_seconds": 1.592,
+        "retrieval_query": "Qual a dosagem de hormônio usada na reversão sexual de alevinos de tilápia?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.499381064658387,
+        "selected_count": 0,
+        "context_chars": 0,
+        "selection_reason": "refused"
+      },
+      "generation": {
+        "answer_chars": 206,
+        "refused": true,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": null,
+        "generation_seconds": 1.48,
+        "answer": "Não encontrei informações suficientes na base de documentos disponível para responder a essa pergunta com confiança. Posso ajudar com outra pergunta relacionada aos temas cobertos pela base de conhecimento?",
+        "sources": [],
+        "cited_files": [],
+        "citation_file_count": 0,
+        "citation_precision": null
+      }
+    },
+    {
+      "id": "oos-dieta-restritiva",
+      "scope": "out_of_corpus",
+      "question_type": "conceptual",
+      "question": "Como se comporta a tilápia do nilo com dieta restritiva?",
+      "retrieval": {
+        "retrieved_count": 14,
+        "top_similarity": 0.593148054247536,
+        "min_similarity": 0.492247176885039,
+        "expected_total": 0,
+        "expected_found": 0,
+        "recall": null,
+        "first_hit_rank": null,
+        "missed_passages": [],
+        "retrieval_seconds": 1.279,
+        "retrieval_query": "Como se comporta a tilápia do nilo com dieta restritiva?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.548299567110784,
+        "selected_count": 14,
+        "context_chars": 21391,
+        "selection_reason": "relative_window"
+      },
+      "generation": {
+        "answer_chars": 668,
+        "refused": false,
+        "skeleton": false,
+        "refusal_correct": false,
+        "mention_coverage": null,
+        "generation_seconds": 8.453,
+        "answer": "Os documentos disponíveis não abordam diretamente o comportamento da tilápia do Nilo sob uma dieta restritiva. No entanto, o estudo mais próximo relacionado à alimentação de tilápias do Nilo investigou o uso de probióticos, prebióticos e algas marinhas na dieta de juvenis de tilápia, mas não mencionou dietas restritivas. Os resultados indicaram que os aditivos alimentares testados não causaram efeito benéfico ou adverso no crescimento ou nas variáveis hematológicas avaliadas, mas proporcionaram proteção imunológica contra infecções por Aeromonas hydrophila. Portanto, qualquer inferência sobre dietas restritivas não pode ser feita com base nos dados fornecidos.",
+        "sources": [
+          {
+            "file": "BIP 2024 publicado.pdf",
+            "pages": [
+              0,
+              2,
+              5,
+              6,
+              7,
+              9,
+              13,
+              15
+            ]
+          },
+          {
+            "file": "Genetic and phenotypic characterization of Nile tilapia.pdf",
+            "pages": [
+              0,
+              1,
+              2
+            ]
+          }
+        ],
+        "cited_files": [
+          "BIP 2024 publicado.pdf",
+          "Genetic and phenotypic characterization of Nile tilapia.pdf"
+        ],
+        "citation_file_count": 2,
+        "citation_precision": null,
+        "answers_question": 15.0
+      }
+    },
+    {
+      "id": "oos-fis-carpa",
+      "scope": "out_of_corpus",
+      "question_type": "quantitative",
+      "question": "Qual o coeficiente de endogamia FIS das populações de carpa capim no banco de germoplasma?",
+      "retrieval": {
+        "retrieved_count": 8,
+        "top_similarity": 0.617049136285422,
+        "min_similarity": 0.508190048966657,
+        "expected_total": 0,
+        "expected_found": 0,
+        "recall": null,
+        "first_hit_rank": null,
+        "missed_passages": [],
+        "retrieval_seconds": 1.578,
+        "retrieval_query": "Qual o coeficiente de endogamia FIS das populações de carpa capim no banco de germoplasma?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.602574766515601,
+        "selected_count": 8,
+        "context_chars": 11293,
+        "selection_reason": "min_fill"
+      },
+      "generation": {
+        "answer_chars": 206,
+        "refused": true,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": null,
+        "generation_seconds": 6.467,
+        "answer": "Não encontrei informações suficientes na base de documentos disponível para responder a essa pergunta com confiança. Posso ajudar com outra pergunta relacionada aos temas cobertos pela base de conhecimento?",
+        "sources": [],
+        "cited_files": [],
+        "citation_file_count": 0,
+        "citation_precision": null
+      }
+    },
+    {
+      "id": "oos-rpl-streptococcus",
+      "scope": "out_of_corpus",
+      "question_type": "quantitative",
+      "question": "Qual o RPL dos tratamentos contra Streptococcus agalactiae no estudo do BIP 2024?",
+      "retrieval": {
+        "retrieved_count": 14,
+        "top_similarity": 0.618111737885376,
+        "min_similarity": 0.54509598733125,
+        "expected_total": 0,
+        "expected_found": 0,
+        "recall": null,
+        "first_hit_rank": null,
+        "missed_passages": [],
+        "retrieval_seconds": 1.586,
+        "retrieval_query": "Qual o RPL dos tratamentos contra Streptococcus agalactiae no estudo do BIP 2024?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.590865764741951,
+        "selected_count": 14,
+        "context_chars": 21942,
+        "selection_reason": "relative_window"
+      },
+      "generation": {
+        "answer_chars": 454,
+        "refused": false,
+        "skeleton": false,
+        "refusal_correct": false,
+        "mention_coverage": null,
+        "generation_seconds": 13.517,
+        "answer": "Os documentos disponíveis não abordam diretamente o RPL dos tratamentos contra Streptococcus agalactiae no estudo do BIP 2024. A informação mais próxima disponível refere-se ao nível de proteção relativa (RPL) contra Aeromonas hydrophila, onde o tratamento PRO+MOS apresentou o maior nível de proteção relativa, 64,10%, seguido por KAP com 56,92%, PRO+KAP com 53,18%, e PRO com 35,39%. No entanto, não há dados específicos sobre Streptococcus agalactiae.",
+        "sources": [
+          {
+            "file": "BIP 2024 publicado.pdf",
+            "pages": [
+              0,
+              1,
+              2,
+              4,
+              5,
+              6,
+              7,
+              8,
+              10,
+              14,
+              15
+            ]
+          }
+        ],
+        "cited_files": [
+          "BIP 2024 publicado.pdf"
+        ],
+        "citation_file_count": 1,
+        "citation_precision": null,
+        "answers_question": 20.0
+      }
+    },
+    {
+      "id": "oos-roi-2030",
+      "scope": "out_of_corpus",
+      "question_type": "quantitative",
+      "question": "Qual o ROI projetado do BIA para o ano de 2030?",
+      "retrieval": {
+        "retrieved_count": 8,
+        "top_similarity": 0.680231749784903,
+        "min_similarity": 0.483847650422155,
+        "expected_total": 0,
+        "expected_found": 0,
+        "recall": null,
+        "first_hit_rank": null,
+        "missed_passages": [],
+        "retrieval_seconds": 1.527,
+        "retrieval_query": "Qual o ROI projetado do BIA para o ano de 2030?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.680231749784903,
+        "selected_count": 8,
+        "context_chars": 10419,
+        "selection_reason": "min_fill"
+      },
+      "generation": {
+        "answer_chars": 206,
+        "refused": true,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": null,
+        "generation_seconds": 4.883,
+        "answer": "Não encontrei informações suficientes na base de documentos disponível para responder a essa pergunta com confiança. Posso ajudar com outra pergunta relacionada aos temas cobertos pela base de conhecimento?",
+        "sources": [],
+        "cited_files": [],
+        "citation_file_count": 0,
+        "citation_precision": null
+      }
+    },
+    {
+      "id": "oos-kv-tambaqui",
+      "scope": "out_of_corpus",
+      "question_type": "quantitative",
+      "question": "Qual o KV médio de tambaqui no momento do abate?",
+      "retrieval": {
+        "retrieved_count": 8,
+        "top_similarity": 0.651853920493162,
+        "min_similarity": 0.415571711564082,
+        "expected_total": 0,
+        "expected_found": 0,
+        "recall": null,
+        "first_hit_rank": null,
+        "missed_passages": [],
+        "retrieval_seconds": 2.09,
+        "retrieval_query": "Qual o KV médio de tambaqui no momento do abate?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.651853920493162,
+        "selected_count": 8,
+        "context_chars": 10935,
+        "selection_reason": "min_fill"
+      },
+      "generation": {
+        "answer_chars": 206,
+        "refused": true,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": null,
+        "generation_seconds": 5.725,
+        "answer": "Não encontrei informações suficientes na base de documentos disponível para responder a essa pergunta com confiança. Posso ajudar com outra pergunta relacionada aos temas cobertos pela base de conhecimento?",
+        "sources": [],
+        "cited_files": [],
+        "citation_file_count": 0,
+        "citation_precision": null
+      }
+    },
+    {
+      "id": "oos-densidade-estocagem",
+      "scope": "out_of_corpus",
+      "question_type": "methodological",
+      "question": "Qual a densidade de estocagem recomendada para tilápia em tanque-rede?",
+      "retrieval": {
+        "retrieved_count": 13,
+        "top_similarity": 0.561375122288707,
+        "min_similarity": 0.482058874953235,
+        "expected_total": 0,
+        "expected_found": 0,
+        "recall": null,
+        "first_hit_rank": null,
+        "missed_passages": [],
+        "retrieval_seconds": 1.263,
+        "retrieval_query": "Qual a densidade de estocagem recomendada para tilápia em tanque-rede?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.561375122288707,
+        "selected_count": 13,
+        "context_chars": 18190,
+        "selection_reason": "relative_window"
+      },
+      "generation": {
+        "answer_chars": 206,
+        "refused": true,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": null,
+        "generation_seconds": 11.829,
+        "answer": "Não encontrei informações suficientes na base de documentos disponível para responder a essa pergunta com confiança. Posso ajudar com outra pergunta relacionada aos temas cobertos pela base de conhecimento?",
+        "sources": [],
+        "cited_files": [],
+        "citation_file_count": 0,
+        "citation_precision": null
+      }
+    },
+    {
+      "id": "oos-temperatura-otima",
+      "scope": "out_of_corpus",
+      "question_type": "quantitative",
+      "question": "Qual a faixa de temperatura ótima para o crescimento da tilápia do Nilo?",
+      "retrieval": {
+        "retrieved_count": 14,
+        "top_similarity": 0.571268990550472,
+        "min_similarity": 0.476419851466386,
+        "expected_total": 0,
+        "expected_found": 0,
+        "recall": null,
+        "first_hit_rank": null,
+        "missed_passages": [],
+        "retrieval_seconds": 1.455,
+        "retrieval_query": "Qual a faixa de temperatura ótima para o crescimento da tilápia do Nilo?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.553940583180996,
+        "selected_count": 14,
+        "context_chars": 21412,
+        "selection_reason": "relative_window"
+      },
+      "generation": {
+        "answer_chars": 608,
+        "refused": false,
+        "skeleton": false,
+        "refusal_correct": false,
+        "mention_coverage": null,
+        "generation_seconds": 13.338,
+        "answer": "Os documentos disponíveis não abordam diretamente a faixa de temperatura ótima para o crescimento da tilápia do Nilo. No entanto, a informação mais próxima relacionada ao tema indica que, em um experimento, a temperatura da água foi controlada a 26°C durante o estudo de desempenho de crescimento de juvenis de tilápia do Nilo. Essa temperatura foi mantida constante para garantir condições adequadas de cultivo, sugerindo que está dentro de uma faixa considerada apropriada para o crescimento da espécie. Contudo, essa informação não especifica a faixa ótima, mas apenas uma condição experimental utilizada.",
+        "sources": [
+          {
+            "file": "BIP 2024 publicado.pdf",
+            "pages": [
+              0,
+              2,
+              6,
+              7,
+              13,
+              15
+            ]
+          },
+          {
+            "file": "Genetic and phenotypic characterization of Nile tilapia.pdf",
+            "pages": [
+              0,
+              1,
+              2,
+              12,
+              13
+            ]
+          },
+          {
+            "file": "Indice volumetrico abate.pdf",
+            "pages": [
+              0
+            ]
+          }
+        ],
+        "cited_files": [
+          "BIP 2024 publicado.pdf",
+          "Genetic and phenotypic characterization of Nile tilapia.pdf",
+          "Indice volumetrico abate.pdf"
+        ],
+        "citation_file_count": 3,
+        "citation_precision": null,
+        "answers_question": 70.0
+      }
+    },
+    {
+      "id": "fu-kv-medidas",
+      "scope": "in_corpus",
+      "question_type": "methodological",
+      "question": "E quais medidas eu preciso tirar?",
+      "retrieval": {
+        "retrieved_count": 8,
+        "top_similarity": 0.812847328541559,
+        "min_similarity": 0.502961477363912,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 2.298,
+        "retrieval_query": "Quais medidas eu preciso tirar para calcular o índice de condição volumétrico (KV), que relaciona a massa corporal do peixe ao volume estimado do seu corpo?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.784639118862206,
+        "selected_count": 8,
+        "context_chars": 10268,
+        "selection_reason": "min_fill"
+      },
+      "generation": {
+        "answer_chars": 631,
+        "refused": false,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": 1.0,
+        "generation_seconds": 5.603,
+        "answer": "Para calcular o índice de condição volumétrico elipsoidal (KV), você precisa coletar as seguintes medidas de cada peixe:\n\n1. **Comprimento total (CT)**: medido em centímetros, do ponto mais anterior do peixe até o final da cauda.\n2. **Altura máxima do corpo (H)**: também em centímetros, medida no ponto mais alto do corpo do peixe.\n3. **Largura/espessura (W)**: medida em centímetros, geralmente na altura do início da nadadeira dorsal.\n\nCom essas três dimensões, você pode aproximar o corpo do peixe como um elipsoide, calcular o volume elipsoidal e, em seguida, determinar o KV dividindo a massa corporal pelo volume elipsoidal.",
+        "sources": [
+          {
+            "file": "Indice volumetrico abate.pdf",
+            "pages": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
+          },
+          {
+            "file": "BIA_RAG.pdf",
+            "pages": [
+              0
+            ]
+          },
+          {
+            "file": "Genetic and phenotypic characterization of Nile tilapia.pdf",
+            "pages": [
+              3
+            ]
+          }
+        ],
+        "cited_files": [
+          "Indice volumetrico abate.pdf",
+          "BIA_RAG.pdf",
+          "Genetic and phenotypic characterization of Nile tilapia.pdf"
+        ],
+        "citation_file_count": 3,
+        "citation_precision": 0.3333333333333333,
+        "groundedness": 100.0,
+        "answers_question": 95.0
+      }
+    },
+    {
+      "id": "fu-gen-menor-valor",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "E qual teve o menor?",
+      "retrieval": {
+        "retrieved_count": 11,
+        "top_similarity": 0.615227939826829,
+        "min_similarity": 0.535788132311175,
+        "expected_total": 1,
+        "expected_found": 0,
+        "recall": 0.0,
+        "first_hit_rank": null,
+        "missed_passages": [
+          "the SAL stock recorded the low-"
+        ],
+        "retrieval_seconds": 2.82,
+        "retrieval_query": "Qual estoque apresentou a menor área de filé por ultrassonografia?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.615227939826829,
+        "selected_count": 11,
+        "context_chars": 14519,
+        "selection_reason": "relative_window"
+      },
+      "generation": {
+        "answer_chars": 423,
+        "refused": false,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": 0.0,
+        "generation_seconds": 37.679,
+        "answer": "Os documentos disponíveis não abordam diretamente qual estoque apresentou a menor área de filé por ultrassonografia. No entanto, a informação mais próxima relacionada indica que o estoque ILH foi destacado por ter uma área de filé única em comparação com outras populações, mas não especifica qual teve a menor área. Portanto, não é possível determinar a partir do contexto fornecido qual estoque teve a menor área de filé.",
+        "sources": [
+          {
+            "file": "Indice volumetrico abate.pdf",
+            "pages": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
+          },
+          {
+            "file": "Genetic and phenotypic characterization of Nile tilapia.pdf",
+            "pages": [
+              1,
+              2,
+              3,
+              6,
+              7,
+              9,
+              11,
+              12,
+              13,
+              14
+            ]
+          },
+          {
+            "file": "BIP 2024 publicado.pdf",
+            "pages": [
+              0,
+              2,
+              4,
+              5,
+              7,
+              8,
+              9,
+              11
+            ]
+          }
+        ],
+        "cited_files": [
+          "Indice volumetrico abate.pdf",
+          "Genetic and phenotypic characterization of Nile tilapia.pdf",
+          "BIP 2024 publicado.pdf"
+        ],
+        "citation_file_count": 3,
+        "citation_precision": 0.3333333333333333,
+        "groundedness": 90.0,
+        "answers_question": 10.0
+      }
+    },
+    {
+      "id": "fu-bia-margem",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "E qual a margem por unidade?",
+      "retrieval": {
+        "retrieved_count": 8,
+        "top_similarity": 0.643270360628232,
+        "min_similarity": 0.499086405911766,
+        "expected_total": 2,
+        "expected_found": 2,
+        "recall": 1.0,
+        "first_hit_rank": 0,
+        "missed_passages": [],
+        "retrieval_seconds": 2.894,
+        "retrieval_query": "Qual é a margem de lucro por unidade do equipamento BIA, que é vendido a R$ 17.000?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.643270360628232,
+        "selected_count": 8,
+        "context_chars": 9351,
+        "selection_reason": "min_fill"
+      },
+      "generation": {
+        "answer_chars": 419,
+        "refused": false,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": 1.0,
+        "generation_seconds": 3.515,
+        "answer": "Os documentos disponíveis não abordam diretamente a margem por unidade, mas a informação mais próxima indica que a margem bruta por equipamento BIA é de 56,47%. Isso significa que, considerando o preço de venda de R$ 17.000 por unidade e um custo unitário de R$ 7.400, a margem bruta por unidade seria calculada subtraindo o custo do preço de venda e dividindo pelo preço de venda, resultando em aproximadamente 56,47%.",
+        "sources": [
+          {
+            "file": "BIA_RAG.pdf",
+            "pages": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ]
+          }
+        ],
+        "cited_files": [
+          "BIA_RAG.pdf"
+        ],
+        "citation_file_count": 1,
+        "citation_precision": 1.0,
+        "groundedness": 100.0,
+        "answers_question": 95.0
+      }
+    },
+    {
+      "id": "fu-kv-por-que-importa",
+      "scope": "in_corpus",
+      "question_type": "conceptual",
+      "question": "E por que isso importa para o produtor?",
+      "retrieval": {
+        "retrieved_count": 8,
+        "top_similarity": 0.801456020038232,
+        "min_similarity": 0.488343383809306,
+        "expected_total": 1,
+        "expected_found": 1,
+        "recall": 1.0,
+        "first_hit_rank": 3,
+        "missed_passages": [],
+        "retrieval_seconds": 2.235,
+        "retrieval_query": "Por que é importante para o produtor saber quanta carne o peixe tem por unidade de volume do corpo, que é o que o KV mede?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.801456020038232,
+        "selected_count": 8,
+        "context_chars": 10973,
+        "selection_reason": "min_fill"
+      },
+      "generation": {
+        "answer_chars": 1424,
+        "refused": false,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": 1.0,
+        "generation_seconds": 5.49,
+        "answer": "O índice volumétrico elipsoidal (KV) é importante para o produtor porque oferece uma medida mais precisa e estável do estado corporal do peixe, em comparação com índices tradicionais como o K de Fulton. O KV leva em consideração o volume do peixe, calculado a partir de medidas de comprimento, altura e largura, e não apenas o comprimento, o que permite uma avaliação mais fiel de quanta carne útil o peixe possui. Isso é crucial para o produtor, pois um KV mais alto está associado a um maior rendimento de carcaça, significando que mais do peso do peixe é convertido em carne, em vez de vísceras ou gordura.\n\nAlém disso, o KV é quase independente do tamanho do peixe, permitindo comparações justas entre lotes de diferentes tamanhos e idades sem que o peso influencie indevidamente a média. Isso ajuda o produtor a identificar lotes mais eficientes e a corrigir manejos que possam estar resultando em peixes que crescem mais em comprimento do que em massa muscular. Com o uso do KV, o produtor pode definir o ponto de abate com base não apenas no peso, mas também na quantidade de carne útil que cada peixe carrega, otimizando assim o rendimento e a eficiência do uso da ração.\n\nPortanto, o KV não só melhora a precisão na avaliação do estado corporal dos peixes, mas também auxilia na tomada de decisões práticas sobre manejo e abate, contribuindo para um aumento na eficiência e na lucratividade da produção de tilápias.",
+        "sources": [
+          {
+            "file": "Indice volumetrico abate.pdf",
+            "pages": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
+          },
+          {
+            "file": "BIA_RAG.pdf",
+            "pages": [
+              0
+            ]
+          },
+          {
+            "file": "Genetic and phenotypic characterization of Nile tilapia.pdf",
+            "pages": [
+              1
+            ]
+          }
+        ],
+        "cited_files": [
+          "Indice volumetrico abate.pdf",
+          "BIA_RAG.pdf",
+          "Genetic and phenotypic characterization of Nile tilapia.pdf"
+        ],
+        "citation_file_count": 3,
+        "citation_precision": 0.3333333333333333,
+        "groundedness": 100.0,
+        "answers_question": 95.0
+      }
+    },
+    {
+      "id": "fu-bip-rpl-menor",
+      "scope": "in_corpus",
+      "question_type": "quantitative",
+      "question": "E qual teve o menor?",
+      "retrieval": {
+        "retrieved_count": 12,
+        "top_similarity": 0.700085721071298,
+        "min_similarity": 0.611069692510166,
+        "expected_total": 1,
+        "expected_found": 1,
+        "recall": 1.0,
+        "first_hit_rank": 3,
+        "missed_passages": [],
+        "retrieval_seconds": 2.913,
+        "retrieval_query": "Qual tratamento teve o menor nível de proteção relativa (RPL) contra Aeromonas hydrophila no estudo do BIP 2024, considerando que o tratamento PRO+MOS apresentou o maior RPL, com 64,10%?",
+        "candidate_count": 40,
+        "top_similarity_raw": 0.68975162970265,
+        "selected_count": 12,
+        "context_chars": 18506,
+        "selection_reason": "relative_window"
+      },
+      "generation": {
+        "answer_chars": 81,
+        "refused": false,
+        "skeleton": false,
+        "refusal_correct": true,
+        "mention_coverage": 1.0,
+        "generation_seconds": 3.599,
+        "answer": "O tratamento MOS apresentou o menor nível de proteção relativa (RPL), com 21,02%.",
+        "sources": [
+          {
+            "file": "BIP 2024 publicado.pdf",
+            "pages": [
+              0,
+              2,
+              3,
+              5,
+              6,
+              7,
+              8,
+              14
+            ]
+          }
+        ],
+        "cited_files": [
+          "BIP 2024 publicado.pdf"
+        ],
+        "citation_file_count": 1,
+        "citation_precision": 1.0,
+        "groundedness": 100.0,
+        "answers_question": 95.0
+      }
+    }
+  ],
+  "summary": {
+    "questions_total": 35,
+    "questions_in_corpus": 24,
+    "questions_out_of_corpus": 11,
+    "mean_recall": 0.958,
+    "perfect_recall_rate": 0.958,
+    "mean_top_similarity": 0.636,
+    "mean_selected_chunks": 9.3,
+    "starvation_rate": 0.0,
+    "p95_context_chars": 21950,
+    "refusal_correct_rate": 0.886,
+    "out_of_corpus_refusal_rate": 0.636,
+    "mean_groundedness": 95.4,
+    "mean_answers_question": 83.4,
+    "mean_mention_coverage": 0.729,
+    "skeleton_rate": 0.0,
+    "citation_file_count_mean": 1.89,
+    "citation_precision": 0.667
+  }
+}
