@@ -50,15 +50,15 @@ USER appuser
 
 EXPOSE 8000
 
-# Endpoint de docs do FastAPI existe hoje por padrão; se/quando a spec
-# `auth-endpoint-hardening` desabilitar /docs fora de ambiente de
-# desenvolvimento, trocar este alvo por um endpoint /health dedicado.
+# /health é um endpoint de liveness dedicado, sem autenticação — /docs deixou
+# de servir para isso desde que a spec `auth-endpoint-hardening` passou a
+# desabilitá-lo fora de ENVIRONMENT=development.
 #
 # start-period generoso: com --workers 4, cada worker reimporta toda a
 # cadeia pesada (langchain/langgraph/numba/onnxruntime) — medido ~100-110s
 # até o último worker log "Application startup complete." em hardware comum.
 HEALTHCHECK --interval=15s --timeout=5s --start-period=150s --retries=5 \
-    CMD curl -f http://localhost:8000/docs || exit 1
+    CMD curl -f http://localhost:8000/health || exit 1
 
 # Sem --reload (modo dev) e com múltiplos workers para paralelismo real.
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]

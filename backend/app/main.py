@@ -3,10 +3,13 @@ import logging
 import time
 import os
 import tempfile
-from fastapi import FastAPI, HTTPException, UploadFile, File, Depends, Form
+from fastapi import FastAPI, HTTPException, UploadFile, File, Depends, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from app.database import supabase_admin, get_user_scoped_client
 from app.services.vector_admin_service import vector_admin_service
 from app.services.rag_service import rag_service
@@ -43,6 +46,31 @@ ALLOWED_IMAGE_MIME_TYPES = {"image/jpeg", "image/png", "image/webp", "image/bmp"
 # cliente; o detalhe completo vai só para o log via logger.exception(...).
 # Ver openspec/specs/error-response-sanitization/spec.md.
 GENERIC_ERROR_MESSAGE = "Erro interno. Tente novamente mais tarde."
+
+# Só "development" habilita /docs, /redoc e /openapi.json — qualquer outro
+# valor (incluindo ausente) fecha a documentação interativa da API, que por
+# padrão do FastAPI fica exposta publicamente sem autenticação. Ver
+# openspec/specs/auth-endpoint-hardening/spec.md.
+_ENVIRONMENT = os.getenv("ENVIRONMENT", "production")
+_DOCS_ENABLED = _ENVIRONMENT == "development"
+
+# Limite de tentativas para os endpoints de autenticação mais sensíveis a
+# credential-stuffing/força bruta — configurável via env, sintaxe do slowapi
+# ("N/minute", "N/hour" etc.).
+AUTH_RATE_LIMIT = os.getenv("AUTH_RATE_LIMIT", "5/minute")
+
+
+def _client_ip_key(request: Request) -> str:
+    """Chave de rate limit = IP do cliente, respeitando X-Forwarded-For
+    (primeiro IP da cadeia) quando o backend roda atrás de um proxy/load
+    balancer — ex.: ALB na frente do ECS Fargate."""
+    forwarded_for = request.headers.get("X-Forwarded-For")
+    if forwarded_for:
+        return forwarded_for.split(",")[0].strip()
+    return get_remote_address(request)
+
+
+limiter = Limiter(key_func=_client_ip_key)
 
 from app.vector_admin_schemas import (
     VectorFileSummary,
@@ -97,7 +125,14 @@ class ChatRequest(BaseModel):
     message: str
     history: List[List[str]] = []
 
-app = FastAPI()
+app = FastAPI(
+    docs_url="/docs" if _DOCS_ENABLED else None,
+    redoc_url="/redoc" if _DOCS_ENABLED else None,
+    openapi_url="/openapi.json" if _DOCS_ENABLED else None,
+)
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Origens permitidas — definir ALLOWED_ORIGINS no .env em produção
 # Exemplo: ALLOWED_ORIGINS=https://app.drtilapia.com,https://www.drtilapia.com
@@ -117,8 +152,17 @@ app.add_middleware(
 
 logger = logging.getLogger(__name__)
 
+
+@app.get("/health")
+async def health():
+    """Endpoint de liveness — sem autenticação, sem detalhes internos.
+    Usado pelo HEALTHCHECK do container (ver backend.Dockerfile) desde que
+    /docs deixou de ficar disponível fora de ENVIRONMENT=development."""
+    return {"status": "ok"}
+
 @app.post("/auth/login", response_model=LoginResponse)
-async def login(data: LoginRequest):
+@limiter.limit(AUTH_RATE_LIMIT)
+async def login(request: Request, data: LoginRequest):
     start_time = time.perf_counter()
     logger.info("[main.login] início da requisição para email=%s", data.email)
     try:
@@ -165,7 +209,8 @@ async def resend_confirmation(data: ResendConfirmationRequest):
     )
 
 @app.post("/auth/forgot-password", response_model=MessageResponse)
-async def forgot_password(data: ForgotPasswordRequest):
+@limiter.limit(AUTH_RATE_LIMIT)
+async def forgot_password(request: Request, data: ForgotPasswordRequest):
     redirect_to = f"{FRONTEND_URL}/auth/callback"
     auth_service.send_password_reset(data.email, redirect_to)
     return MessageResponse(

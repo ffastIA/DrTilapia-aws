@@ -27,6 +27,10 @@ services:
       # copiado para a imagem), nunca um caminho `C:\...` do host.
       - SSL_CERT_FILE=
       - REQUESTS_CA_BUNDLE=
+      # Só "development" habilita /docs, /redoc, /openapi.json (ver
+      # backend/app/main.py e backend/.env.example). Vem do `.env` da raiz;
+      # sem valor lá, fecha a documentação por padrão (produção-safe).
+      - ENVIRONMENT=${ENVIRONMENT:-production}
     ports:
       - "8000:8000"
     restart: unless-stopped
