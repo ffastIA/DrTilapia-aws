@@ -38,6 +38,12 @@ from app.utils.upload_validation import (
 ALLOWED_VIDEO_MIME_TYPES = {"video/mp4", "video/webm", "video/quicktime"}
 ALLOWED_IMAGE_MIME_TYPES = {"image/jpeg", "image/png", "image/webp", "image/bmp"}
 
+# Mensagem genérica para exceções inesperadas (biblioteca/infraestrutura) —
+# nunca embutir str(e) de um `except Exception` genérico na resposta ao
+# cliente; o detalhe completo vai só para o log via logger.exception(...).
+# Ver openspec/specs/error-response-sanitization/spec.md.
+GENERIC_ERROR_MESSAGE = "Erro interno. Tente novamente mais tarde."
+
 from app.vector_admin_schemas import (
     VectorFileSummary,
     VectorFileDetail,
@@ -207,9 +213,9 @@ async def chat(data: ChatRequest, current_user: dict = Depends(get_current_user)
         return {"answer": result.answer, "sources": result.sources}
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         logger.exception("Erro no chat")
-        raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
+        raise HTTPException(status_code=500, detail=GENERIC_ERROR_MESSAGE)
 
 # ========== ROTAS ADMIN (requer role=admin) ==========
 
@@ -248,9 +254,9 @@ async def upload_admin(
         return result
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         logger.exception(f"[upload_admin] Erro no upload")
-        raise HTTPException(status_code=500, detail=f"Erro no upload: {str(e)}")
+        raise HTTPException(status_code=500, detail=GENERIC_ERROR_MESSAGE)
     finally:
         if temp_path and os.path.exists(temp_path):
             os.unlink(temp_path)
@@ -260,45 +266,45 @@ async def get_vector_files(current_user: dict = Depends(get_current_admin_user))
     try:
         logger.info(f"[get_vector_files] Listando arquivos")
         return vector_admin_service.get_files()
-    except Exception as e:
+    except Exception:
         logger.exception(f"[get_vector_files] Erro")
-        raise HTTPException(status_code=500, detail=f"Erro ao listar arquivos: {str(e)}")
+        raise HTTPException(status_code=500, detail=GENERIC_ERROR_MESSAGE)
 
 @app.get("/admin/vector-base/files/{original_file_id}", response_model=VectorFileDetail)
 async def get_vector_file(original_file_id: str, current_user: dict = Depends(get_current_admin_user)):
     try:
         logger.info(f"[get_vector_file] Obtendo arquivo {original_file_id}")
         return vector_admin_service.get_file(original_file_id)
-    except Exception as e:
+    except Exception:
         logger.exception(f"[get_vector_file] Erro")
-        raise HTTPException(status_code=500, detail=f"Erro ao obter arquivo: {str(e)}")
+        raise HTTPException(status_code=500, detail=GENERIC_ERROR_MESSAGE)
 
 @app.get("/admin/vector-base/files/{original_file_id}/chunks", response_model=VectorChunksResponse)
 async def get_vector_file_chunks(original_file_id: str, current_user: dict = Depends(get_current_admin_user)):
     try:
         logger.info(f"[get_vector_file_chunks] Obtendo chunks de {original_file_id}")
         return vector_admin_service.get_file_chunks(original_file_id)
-    except Exception as e:
+    except Exception:
         logger.exception(f"[get_vector_file_chunks] Erro")
-        raise HTTPException(status_code=500, detail=f"Erro ao obter chunks: {str(e)}")
+        raise HTTPException(status_code=500, detail=GENERIC_ERROR_MESSAGE)
 
 @app.get("/admin/vector-base/files/{original_file_id}/content", response_model=RecoverFileContentResponse)
 async def get_vector_file_content(original_file_id: str, current_user: dict = Depends(get_current_admin_user)):
     try:
         logger.info(f"[get_vector_file_content] Recuperando conteúdo de {original_file_id}")
         return vector_admin_service.get_file_content(original_file_id)
-    except Exception as e:
+    except Exception:
         logger.exception(f"[get_vector_file_content] Erro")
-        raise HTTPException(status_code=500, detail=f"Erro ao recuperar conteúdo: {str(e)}")
+        raise HTTPException(status_code=500, detail=GENERIC_ERROR_MESSAGE)
 
 @app.get("/admin/vector-base/files/{original_file_id}/diagnosis", response_model=RecoveryDiagnosisResponse)
 async def get_vector_file_diagnosis(original_file_id: str, current_user: dict = Depends(get_current_admin_user)):
     try:
         logger.info(f"[get_vector_file_diagnosis] Diagnosticando {original_file_id}")
         return vector_admin_service.get_file_diagnosis(original_file_id)
-    except Exception as e:
+    except Exception:
         logger.exception(f"[get_vector_file_diagnosis] Erro")
-        raise HTTPException(status_code=500, detail=f"Erro ao obter diagnóstico: {str(e)}")
+        raise HTTPException(status_code=500, detail=GENERIC_ERROR_MESSAGE)
 
 @app.post("/admin/vector-base/files/{original_file_id}/delete", response_model=DeleteFileResponse)
 async def delete_vector_file(original_file_id: str, request: DeleteFileRequest, current_user: dict = Depends(get_current_admin_user)):
@@ -313,9 +319,9 @@ async def delete_vector_file(original_file_id: str, request: DeleteFileRequest, 
         )
         normalized = _normalize_delete_response(original_file_id, result)
         return DeleteFileResponse(**normalized)
-    except Exception as e:
+    except Exception:
         logger.exception(f"[delete_vector_file] Erro")
-        raise HTTPException(status_code=500, detail=f"Erro ao deletar arquivo: {str(e)}")
+        raise HTTPException(status_code=500, detail=GENERIC_ERROR_MESSAGE)
 
 @app.post("/admin/vector-base/cleanup", response_model=CleanupVectorBaseResponse)
 async def cleanup_vector_base(request: CleanupVectorBaseRequest, current_user: dict = Depends(get_current_admin_user)):
@@ -327,9 +333,9 @@ async def cleanup_vector_base(request: CleanupVectorBaseRequest, current_user: d
             result = vector_admin_service.cleanup(request.confirmation_phrase)
         normalized = _normalize_cleanup_response(result)
         return CleanupVectorBaseResponse(**normalized)
-    except Exception as e:
+    except Exception:
         logger.exception(f"[cleanup_vector_base] Erro")
-        raise HTTPException(status_code=500, detail=f"Erro ao executar cleanup: {str(e)}")
+        raise HTTPException(status_code=500, detail=GENERIC_ERROR_MESSAGE)
 
 # ========== ROTAS VÍDEOS ==========
 
@@ -393,9 +399,9 @@ async def upload_video(
         raise
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
+    except Exception:
         logger.exception("[upload_video] erro inesperado")
-        raise HTTPException(status_code=500, detail=f"Erro no upload: {str(e)}")
+        raise HTTPException(status_code=500, detail=GENERIC_ERROR_MESSAGE)
     finally:
         if temp_path and os.path.exists(temp_path):
             os.unlink(temp_path)
@@ -412,9 +418,9 @@ async def list_videos(
     try:
         logger.info("[list_videos] user=%s", current_user["email"])
         return video_service.list_videos()
-    except Exception as e:
+    except Exception:
         logger.exception("[list_videos] erro")
-        raise HTTPException(status_code=500, detail=f"Erro ao listar vídeos: {str(e)}")
+        raise HTTPException(status_code=500, detail=GENERIC_ERROR_MESSAGE)
 
 
 @app.delete("/videos/{video_id}", response_model=VideoDeleteResponse)
@@ -431,9 +437,9 @@ async def delete_video(
         return video_service.delete_video(video_id)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
-    except Exception as e:
+    except Exception:
         logger.exception("[delete_video] erro")
-        raise HTTPException(status_code=500, detail=f"Erro ao deletar vídeo: {str(e)}")
+        raise HTTPException(status_code=500, detail=GENERIC_ERROR_MESSAGE)
 
 
 # ========== ROTAS ANÁLISE DE IMAGENS ==========
@@ -483,9 +489,9 @@ async def upload_fish_image(
         raise
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
+    except Exception:
         logger.exception("[upload_fish_image] erro")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=GENERIC_ERROR_MESSAGE)
     finally:
         if temp_path and os.path.exists(temp_path):
             os.unlink(temp_path)
@@ -507,9 +513,9 @@ async def list_fish_images(
             date_from=date_from,
             date_to=date_to,
         )
-    except Exception as e:
+    except Exception:
         logger.exception("[list_fish_images] erro")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=GENERIC_ERROR_MESSAGE)
 
 
 @app.delete("/fish/images/{image_id}", response_model=FishImageDeleteResponse)
@@ -524,9 +530,9 @@ async def delete_fish_image(
         raise HTTPException(status_code=404, detail=str(e))
     except PermissionError as e:
         raise HTTPException(status_code=403, detail=str(e))
-    except Exception as e:
+    except Exception:
         logger.exception("[delete_fish_image] erro")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=GENERIC_ERROR_MESSAGE)
 
 
 def _sync_process_fish_analysis(data: ProcessRequest, user_id: str, access_token: str) -> ProcessResponse:
@@ -683,7 +689,7 @@ async def process_fish_analysis(
                 ).eq("id", img_id).execute()
         except Exception:
             pass
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=GENERIC_ERROR_MESSAGE)
 
 
 @app.get("/fish/analyses", response_model=FishAnalysisListResponse)
@@ -704,9 +710,9 @@ async def list_fish_analyses(
             kvol_min=kvol_min,
             kvol_max=kvol_max,
         )
-    except Exception as e:
+    except Exception:
         logger.exception("[list_fish_analyses] erro")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=GENERIC_ERROR_MESSAGE)
 
 
 @app.delete("/fish/analyses/{analysis_id}", response_model=FishAnalysisDeleteResponse)
@@ -721,9 +727,9 @@ async def delete_fish_analysis(
         raise HTTPException(status_code=404, detail=str(e))
     except PermissionError as e:
         raise HTTPException(status_code=403, detail=str(e))
-    except Exception as e:
+    except Exception:
         logger.exception("[delete_fish_analysis] erro")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=GENERIC_ERROR_MESSAGE)
 
 
 # ========== FUNÇÕES AUXILIARES ==========
