@@ -49,7 +49,7 @@ import logging
 import os
 import uuid
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 from app.database import supabase_admin
 
@@ -112,6 +112,7 @@ class VideoService:
         description: str,
         category: str,
         uploader_id: str,
+        content_type: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Faz upload do vídeo para o Supabase Storage e salva metadados.
@@ -123,6 +124,10 @@ class VideoService:
             description  : descrição opcional
             category     : categoria (ex: "nutrição", "genética", "geral")
             uploader_id  : UUID do usuário admin que faz o upload
+            content_type : tipo MIME real, já detectado por magic bytes pelo
+                           chamador (`app.utils.upload_validation`) — usado em
+                           vez de adivinhar pela extensão do nome. Se omitido,
+                           cai para o mapeamento por extensão (compatibilidade).
 
         Returns:
             dict com id, title, storage_path, file_size, status e message
@@ -139,7 +144,7 @@ class VideoService:
 
         file_size = os.path.getsize(file_path)
         storage_path = self._make_storage_path(filename)
-        content_type = self._content_type(filename)
+        content_type = content_type or self._content_type(filename)
 
         logger.info(
             "[video_service] upload iniciado: '%s' → %s (%d bytes)",

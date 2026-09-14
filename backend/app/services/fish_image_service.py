@@ -104,7 +104,11 @@ class FishImageService:
         user_id: str,
         access_token: str,
         fator_conversao: Optional[float] = None,
+        content_type: Optional[str] = None,
     ) -> Dict[str, Any]:
+        """`content_type`: tipo MIME real, já detectado por magic bytes pelo
+        chamador (`app.utils.upload_validation`). Se omitido, cai para o
+        mapeamento por extensão (compatibilidade)."""
         ext = Path(filename).suffix.lower()
         if ext not in ALLOWED_EXTENSIONS:
             raise ValueError(
@@ -114,7 +118,7 @@ class FishImageService:
             raise ValueError("tag deve ser 'lateral' ou 'superior'")
 
         storage_path = self._make_storage_path(user_id, filename)
-        content_type = self._content_type(filename)
+        content_type = content_type or self._content_type(filename)
 
         logger.info("[fish_service] upload: '%s' tag=%s → %s", filename, tag, storage_path)
 

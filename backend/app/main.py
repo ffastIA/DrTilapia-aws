@@ -23,6 +23,20 @@ from app.fish_schemas import (
 )
 from app.services.user_profile_service import user_profile_service
 from app.profile_schemas import ProfileUpsertRequest, ProfileResponse
+from app.utils.upload_validation import (
+    read_limited,
+    detect_real_content_type,
+    sanitize_filename,
+    PayloadTooLargeError,
+    MAX_UPLOAD_SIZE_PDF_MB,
+    MAX_UPLOAD_SIZE_VIDEO_MB,
+    MAX_UPLOAD_SIZE_IMAGE_MB,
+)
+
+# Tipos reais (magic bytes) aceitos por endpoint de upload — ver
+# openspec/specs/upload-validation-and-limits/spec.md.
+ALLOWED_VIDEO_MIME_TYPES = {"video/mp4", "video/webm", "video/quicktime"}
+ALLOWED_IMAGE_MIME_TYPES = {"image/jpeg", "image/png", "image/webp", "image/bmp"}
 
 from app.vector_admin_schemas import (
     VectorFileSummary,
@@ -211,11 +225,17 @@ async def upload_admin(
             raise HTTPException(status_code=400, detail="Arquivo inválido")
         if not file.filename.lower().endswith('.pdf'):
             raise HTTPException(status_code=400, detail="Apenas arquivos PDF são aceitos")
+        try:
+            content = await read_limited(file, int(MAX_UPLOAD_SIZE_PDF_MB * 1024 * 1024))
+        except PayloadTooLargeError:
+            raise HTTPException(status_code=413, detail=f"Arquivo excede o limite de {MAX_UPLOAD_SIZE_PDF_MB:.0f}MB")
+        if detect_real_content_type(content) != "application/pdf":
+            raise HTTPException(status_code=400, detail="Conteúdo do arquivo não corresponde a um PDF válido")
+        safe_filename = sanitize_filename(file.filename)
         with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_file:
             temp_path = temp_file.name
-            content = await file.read()
             temp_file.write(content)
-        result = await rag_service.ingest_pdf(temp_path, file.filename)
+        result = await rag_service.ingest_pdf(temp_path, safe_filename)
         logger.info(f"[upload_admin] Upload concluído: {result.get('status')}")
         from fastapi.responses import JSONResponse
         if result.get('status') == 'already_exists':
@@ -343,18 +363,29 @@ async def upload_video(
             current_user["email"], file.filename, title,
         )
 
+        try:
+            content = await read_limited(file, int(MAX_UPLOAD_SIZE_VIDEO_MB * 1024 * 1024))
+        except PayloadTooLargeError:
+            raise HTTPException(status_code=413, detail=f"Arquivo excede o limite de {MAX_UPLOAD_SIZE_VIDEO_MB:.0f}MB")
+
+        detected_type = detect_real_content_type(content)
+        if detected_type not in ALLOWED_VIDEO_MIME_TYPES:
+            raise HTTPException(status_code=400, detail="Conteúdo do arquivo não corresponde a um vídeo suportado")
+
+        safe_filename = sanitize_filename(file.filename)
+
         with tempfile.NamedTemporaryFile(delete=False, suffix=f".{ext}") as tmp:
             temp_path = tmp.name
-            content = await file.read()
             tmp.write(content)
 
         result = video_service.upload_video(
             file_path=temp_path,
-            filename=file.filename,
+            filename=safe_filename,
             title=title,
             description=description,
             category=category,
             uploader_id=current_user["id"],
+            content_type=detected_type,
         )
         return result
 
@@ -418,8 +449,18 @@ async def upload_fish_image(
     temp_path = None
     try:
         suffix = "." + (file.filename or "img.jpg").rsplit(".", 1)[-1]
-        # await file.read() é assíncrono — OK no event loop
-        content = await file.read()
+
+        try:
+            content = await read_limited(file, int(MAX_UPLOAD_SIZE_IMAGE_MB * 1024 * 1024))
+        except PayloadTooLargeError:
+            raise HTTPException(status_code=413, detail=f"Arquivo excede o limite de {MAX_UPLOAD_SIZE_IMAGE_MB:.0f}MB")
+
+        detected_type = detect_real_content_type(content)
+        if detected_type not in ALLOWED_IMAGE_MIME_TYPES:
+            raise HTTPException(status_code=400, detail="Conteúdo do arquivo não corresponde a uma imagem suportada")
+
+        safe_filename = sanitize_filename(file.filename or "imagem.jpg")
+
         with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
             tmp.write(content)
             temp_path = tmp.name
@@ -431,12 +472,15 @@ async def upload_fish_image(
         return await asyncio.to_thread(
             fish_image_service.upload_image,
             file_path=temp_path,
-            filename=file.filename or "imagem.jpg",
+            filename=safe_filename,
             tag=tag,
             user_id=current_user["id"],
             access_token=current_user["access_token"],
             fator_conversao=fator_conversao,
+            content_type=detected_type,
         )
+    except HTTPException:
+        raise
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
