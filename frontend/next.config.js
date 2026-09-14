@@ -2,6 +2,10 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  // Gera `.next/standalone` (servidor Node autocontido + só as dependências
+  // realmente usadas) para a imagem Docker de produção copiar, em vez de
+  // precisar do `node_modules` completo em runtime.
+  output: 'standalone',
   images: {
     unoptimized: true,
   },

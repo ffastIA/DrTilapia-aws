@@ -1,0 +1,43 @@
+# O contexto de build de ambos os Dockerfiles (backend/backend.Dockerfile,
+# frontend.Dockerfile) é a raiz do repositório — este é o único .dockerignore
+# efetivo para os dois builds.
+
+.git/
+.idea/
+.claude/
+.codegraph/
+.pytest_cache/
+openspec/
+
+# Backend
+backend/.venv/
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/**/*.pyc
+backend/.pytest_cache/
+backend/.env
+backend/.env.*
+!backend/.env.example
+backend/tests/
+backend/evaluation/runs/
+backend/docs/*.pdf
+backend/uploads/
+backend/uploaded_files/
+backend/temp_uploads/
+backend/ca-bundle-windows.pem
+backend/*.log
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+frontend/npm-debug.log*
+
+# Raiz
+.env
+.env.*
+!.env.example
+*.log

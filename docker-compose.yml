@@ -1,11 +1,60 @@
-frontend:
-  build:
-    context: .
-    dockerfile: frontend.Dockerfile
-  ports:
-    - "3000:3000"
-  # Remover porta 8001 (Reflex backend)
-  volumes:
-    - ./frontend:/app
-  environment:
-    - NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
+# Backend e frontend continuam em containers/imagens separados (cada um com
+# seu próprio Dockerfile), compostos aqui só para paridade local com o que
+# rodará como 2 serviços independentes na AWS (ECS Fargate).
+#
+# Variáveis NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY (usadas
+# no build args.frontend abaixo) vêm do arquivo `.env` na raiz deste projeto
+# (o Compose carrega esse `.env` automaticamente para interpolar ${...} neste
+# arquivo) — não confundir com `backend/.env`, que só o serviço backend usa.
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/backend.Dockerfile
+    container_name: dr_tilapia_backend
+    env_file:
+      - backend/.env
+    environment:
+      # `backend/.env` pode apontar SSL_CERT_FILE/REQUESTS_CA_BUNDLE para um
+      # caminho absoluto do host (ex.: proxy corporativo de inspeção TLS no
+      # Windows) — inválido dentro do container Linux e faz o processo
+      # crashar na importação (backend/app/database.py) antes de abrir a
+      # porta. Zeramos aqui para o container usar verificação TLS padrão
+      # (certifi), o mesmo comportamento que valerá na AWS (sem esse proxy).
+      # Se o ambiente Docker também estiver atrás do proxy corporativo,
+      # aponte para um caminho *dentro* do container (ex.: um CA bundle
+      # copiado para a imagem), nunca um caminho `C:\...` do host.
+      - SSL_CERT_FILE=
+      - REQUESTS_CA_BUNDLE=
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    networks:
+      - dr_tilapia_net
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend.Dockerfile
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-${SUPABASE_URL}}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY:-${SUPABASE_ANON_KEY}}
+        # Precisa ser build arg, não environment: — ver comentário em
+        # frontend.Dockerfile (rewrites() do Next.js roda em build-time no
+        # modo standalone). "backend" é o hostname do outro serviço na rede
+        # do Compose (dr_tilapia_net).
+        BACKEND_INTERNAL_URL: http://backend:8000
+    container_name: dr_tilapia_frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - dr_tilapia_net
+
+networks:
+  dr_tilapia_net:
+    driver: bridge
