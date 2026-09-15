@@ -15,9 +15,12 @@ Pré-requisitos (Supabase Dashboard):
 """
 
 import logging
+import time
 import uuid
 from pathlib import Path
 from typing import Dict, Any, Optional, List
+
+from storage3.exceptions import StorageApiError
 
 from app.database import supabase_admin, get_user_scoped_client
 
@@ -25,6 +28,12 @@ logger = logging.getLogger(__name__)
 
 BUCKET_NAME = "fish-images"
 SIGNED_URL_EXPIRY = 3_600  # 1 hora — suficiente para sessão de análise
+
+# Códigos de status tipicamente transitórios do lado do Supabase (ex.:
+# Storage esbarrando no próprio pool de conexões internas com o Postgres,
+# "too_many_connections") — vale tentar de novo em vez de propagar direto.
+_STORAGE_RETRYABLE_STATUSES = {429, 500, 502, 503, 504}
+_STORAGE_RETRY_DELAYS_SECONDS = (0.5, 1.5, 3.0)
 
 ALLOWED_EXTENSIONS: Dict[str, str] = {
     ".jpg": "image/jpeg",
@@ -53,6 +62,30 @@ class FishImageService:
     def _make_storage_path(self, user_id: str, filename: str) -> str:
         ext = Path(filename).suffix.lower()
         return f"{user_id}/{uuid.uuid4().hex}{ext}"
+
+    def _upload_to_storage_with_retry(self, storage_path: str, file_obj, content_type: str) -> None:
+        """Sobe `file_obj` para o bucket, tentando de novo em erros
+        transitórios do Storage (ex.: 429 'too_many_connections' — já
+        observado se autorresolver em segundos). Erros não-transitórios
+        (403, 413, etc.) propagam já na primeira tentativa."""
+        for attempt, delay in enumerate((0.0, *_STORAGE_RETRY_DELAYS_SECONDS)):
+            if delay:
+                logger.warning(
+                    "[fish_service] upload transitoriamente falhou, tentando de novo em %.1fs (tentativa %d)",
+                    delay, attempt + 1,
+                )
+                time.sleep(delay)
+            file_obj.seek(0)
+            try:
+                self.supabase_admin.storage.from_(self.bucket).upload(
+                    path=storage_path,
+                    file=file_obj,
+                    file_options={"content-type": content_type},
+                )
+                return
+            except StorageApiError as exc:
+                if exc.status not in _STORAGE_RETRYABLE_STATUSES or attempt == len(_STORAGE_RETRY_DELAYS_SECONDS):
+                    raise
 
     def _signed_url(self, storage_path: str) -> str:
         try:
@@ -123,11 +156,7 @@ class FishImageService:
         logger.info("[fish_service] upload: '%s' tag=%s → %s", filename, tag, storage_path)
 
         with open(file_path, "rb") as f:
-            self.supabase_admin.storage.from_(self.bucket).upload(
-                path=storage_path,
-                file=f,
-                file_options={"content-type": content_type},
-            )
+            self._upload_to_storage_with_retry(storage_path, f, content_type)
 
         row = {
             "user_id": user_id,

@@ -1,0 +1,17 @@
+## 1. Retry na chamada de Storage
+
+- [x] 1.1 Em `backend/app/services/fish_image_service.py`, adicionado helper privado `_upload_to_storage_with_retry` que reexecuta a chamada `self.supabase_admin.storage.from_(self.bucket).upload(...)` em erros `storage3.exceptions.StorageApiError` cujo `.status` esteja em `{429, 500, 502, 503, 504}`, até 3 tentativas extras, com `time.sleep(0.5/1.5/3.0)` entre elas e `file_obj.seek(0)` antes de cada tentativa.
+- [x] 1.2 `upload_image` atualizado para chamar o novo helper em vez de subir direto.
+
+## 2. Verificação
+
+- [x] 2.1 Script ad-hoc dentro do container (`docker compose exec backend python -c "..."`) simulando `StorageApiError(status=429)` na 1ª chamada e sucesso na 2ª — confirmado: `_upload_to_storage_with_retry` retorna sem propagar erro (`attempts=2`, ~0.5s de espera). Segundo teste no mesmo script: `StorageApiError(status=403)` propaga já na 1ª tentativa (`attempts=1`), confirmando que erros não-transitórios não são reexecutados.
+- [x] 2.2 Rebuild do container backend (`docker compose up -d --build backend`) — build concluído, container saudável (`GET /health` respondendo 200 após o warm-up dos modelos).
+- [x] 2.3 Suíte `pytest` (copiada para dentro do container via `docker cp`, já que `backend/tests/` é excluído da imagem de produção via `.dockerignore` — instalado `pytest`/`pytest-asyncio` de forma efêmera no container em execução, sem alterar a imagem): baseline inicial **123 passed, 10 failed, 11 skipped**, idêntico ao já documentado em `auth-endpoint-hardening`. Nenhuma das 10 falhas tocava `fish_image_service`/upload de imagens.
+- [x] 2.4 (follow-up, a pedido do usuário) Das 10 falhas pré-existentes, 6 eram mocks/fixtures de teste desatualizados em relação ao contrato real do código (não bugs de produção) — corrigidas em `backend/tests/test_backend_api.py`:
+  - `test_login_success`: mock de `auth_service.login` não incluía `role` no `user` (obrigatório em `LoginUserResponse`) nem usava `id` como string (Pydantic exige `str`, mock usava `int`) — corrigido.
+  - `test_login_invalid_credentials`: mock retornava `None`; o contrato real de `auth_service.login` (`app/auth/auth_service.py`) é levantar `AuthError(code="invalid_credentials")` em vez de retornar `None` — corrigido para levantar `AuthError`, importado de `app.auth.auth_service`.
+  - `test_chat_success`/`test_chat_internal_error`: `/consultoria/chat` depende de `get_current_user` (qualquer usuário autenticado), não de `get_current_admin_user`; os testes não sobrescreviam nenhum dos dois → `401`. Adicionado helper `override_current_user()` (paralelo ao já existente `override_admin_user()`) e usado nos dois testes.
+  - `test_upload_pdf_success`/`test_upload_rejects_non_pdf`: `find_upload_route()` resolve para `/admin/upload`, que depende de `get_current_admin_user`; os testes não chamavam `override_admin_user()` → `401`. Corrigido.
+  - As 4 falhas restantes (`test_list_vector_files_success`, `test_reindex_vector_files_success`, `test_recover_vector_file_content_success`, `test_diagnose_vector_file_recovery_success`) **não são mock desatualizado** — são o H3 da auditoria original: os métodos (`list_files`, `reindex_files`, `recover_file_content`, `diagnose_file_recovery`) genuinamente não existem em `VectorAdminService`. Não haveria mock correto a escrever sem implementar o método real — fora do escopo desta mudança, deixadas como estão.
+  - Resultado final: **129 passed, 4 failed (H3, pré-existente e fora de escopo), 11 skipped**.
