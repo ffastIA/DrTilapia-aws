@@ -63,10 +63,10 @@ export default function ForgotPasswordPage() {
         <i className={`${styles.cardCorner} ${styles.cardCornerBl}`} />
         <i className={`${styles.cardCorner} ${styles.cardCornerBr}`} />
 
-        <div className={styles.cardBrand}>
+        <Link href="/main/hub" className={styles.cardBrand}>
           <Image src="/LogoTAI.jpeg" alt="Dr. Tilap-IA" width={32} height={27} />
           <span>Dr. Tilap-IA</span>
-        </div>
+        </Link>
 
         <h1 className={styles.cardTitle}>Esqueci Minha Senha</h1>
         <p className={styles.cardSub}>Informe seu email para receber um link de redefinição</p>

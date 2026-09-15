@@ -69,10 +69,10 @@ export default function SignupPage() {
 
   return (
     <Card corners className="w-full max-w-md p-8">
-      <div className="flex items-center gap-2 mb-6">
+      <Link href="/main/hub" className="flex items-center gap-2 mb-6">
         <Image src="/LogoTAI.jpeg" alt="Dr. Tilap-IA" width={32} height={27} />
         <span className="font-heading font-semibold text-xl uppercase">Dr. Tilap-IA</span>
-      </div>
+      </Link>
 
       <h1 className="font-heading font-semibold text-2xl uppercase m-0 mb-1">Criar Conta</h1>
       <p className="text-sm text-muted-foreground mb-6">Cadastre-se no DrTilápia</p>

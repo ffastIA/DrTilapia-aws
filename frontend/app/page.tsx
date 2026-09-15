@@ -34,10 +34,10 @@ export default function HomePage() {
   return (
     <div className={`${barlow.variable} ${barlowCondensed.variable} ${styles.theme}`}>
       <nav className={styles.nav}>
-        <span className={styles.navBrand}>
+        <Link href="/main/hub" className={styles.navBrand}>
           <Image src="/LogoTAI.jpeg" alt="Dr. Tilap-IA" width={36} height={30} />
           Dr. Tilap-IA
-        </span>
+        </Link>
         <div className={styles.navLinks}>
           <a href="#servicos">Serviços</a>
           <a href="#sobre">Sobre</a>
