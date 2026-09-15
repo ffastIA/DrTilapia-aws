@@ -41,6 +41,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   clearAuth: () => {
     Cookies.remove('accessToken', { path: '/' });
     Cookies.remove('user', { path: '/' });
+    Cookies.remove('profileGateSeen', { path: '/' });
+    Cookies.remove('profileComplete', { path: '/' });
     set({ token: null, user: null, isAuthenticated: false, isLoading: false });
   },
   restoreAuth: () => {

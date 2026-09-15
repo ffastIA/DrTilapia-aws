@@ -13,8 +13,9 @@
 //  3. /main/* (exceto /main/profile) com perfil incompleto:
 //       - primeira tentativa na sessão → redireciona silenciosamente para
 //         /main/profile (não desloga)
-//       - tentativa seguinte (usuário já tentou sair uma vez) → desloga
-//         (limpa cookies de sessão) e redireciona para /auth/login
+//       - tentativa seguinte (usuário já tentou sair uma vez sem completar
+//         o cadastro) → deixa passar normalmente; o gate é um aviso de uma
+//         vez só, não um bloqueio recorrente (não desloga o usuário)
 //     "Perfil completo" = existe uma linha em public.user_profiles para o
 //     usuário (as colunas obrigatórias são NOT NULL, então a existência da
 //     linha já garante que os campos obrigatórios foram preenchidos — ver
@@ -82,13 +83,6 @@ async function hasCompletedProfile(token: string): Promise<boolean> {
   }
 }
 
-function clearSessionCookies(response: NextResponse): void {
-  response.cookies.delete('accessToken');
-  response.cookies.delete('user');
-  response.cookies.delete('profileGateSeen');
-  response.cookies.delete('profileComplete');
-}
-
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -134,10 +128,9 @@ export async function middleware(request: NextRequest) {
         return response;
       }
 
-      // Já tinha recebido a chance de completar e tentou sair mesmo assim → desloga.
-      const response = NextResponse.redirect(new URL('/auth/login', request.url));
-      clearSessionCookies(response);
-      return response;
+      // Já recebeu o empurrão nesta sessão e tentou sair sem completar o
+      // cadastro: deixa passar normalmente (o gate é um aviso de uma vez só,
+      // não um bloqueio recorrente — não desloga o usuário).
     }
   }
 
