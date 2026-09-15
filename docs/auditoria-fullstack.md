@@ -94,3 +94,25 @@ Este documento é somente um relatório — nenhuma correção foi aplicada. Ser
 ## Próximo passo sugerido
 
 Priorizar C1–C5 (segurança/perda de dados) e H3 (endpoints quebrados). Cada correção pode virar uma mudança OpenSpec revisável (`openspec new change ...`), coordenada com o outro ambiente de desenvolvimento paralelo para evitar conflito.
+
+---
+
+## Reverificação (2026-09-14)
+
+Reverificação ao vivo (código-fonte + MCP `supabase`, projeto `tfdripphcwbjiveksuet`) contra o estado atual do repositório e do banco, disparada por um pedido de "check total e plano de ajuste para falhas de segurança e políticas implementadas", usando as diretrizes das skills `supabase-postgres-best-practices` e `supabase`. A maior parte dos itens críticos/altos já tinha sido corrigida entre a auditoria original (`eaa71ca`) e agora, via changes OpenSpec dedicadas — este relatório original permanece como retrato do estado em `eaa71ca` e não foi reescrito; esta seção é só o diff.
+
+| Item | Status em 2026-09-14 | Onde |
+|---|---|---|
+| C1 (TLS `verify=False`) | **Corrigido** — `_resolve_ssl_verify()` em `database.py` agora verifica por padrão (`True`), só aceita CA bundle custom via env | `openspec/changes/archive/2026-07-27-fix-tls-certificate-verification` |
+| C2 (gate admin via cookie) | **Corrigido** — `middleware.ts` consulta `/rest/v1/users` com o token real do usuário (RLS `users_select_own`), nunca o cookie `user` | `openspec/changes/archive/2026-07-27-fix-admin-middleware-jwt-validation` |
+| C3 (wipe destrutivo com `{}`) | **Corrigido** (arquivado, não reverificado linha a linha nesta sessão) | `openspec/changes/archive/2026-07-27-require-explicit-cleanup-confirmation` + 2 changes relacionadas |
+| C4 (`service_role` em tudo) | **Corrigido em parte** — existe `get_user_scoped_client`/`get_session_scoped_client` (RLS ativa) usados em login/perfil/imagens; `video_service.py` ainda usa só `supabase_admin`, mas a policy `videos_select_authenticated` (leitura liberada a todo autenticado) sugere que "vídeo é conteúdo compartilhado, não por usuário" é o modelo pretendido, não um bug — não resolvido a fundo nesta sessão, recomenda-se confirmar a intenção de produto | `openspec/changes/archive/2026-07-27-scope-service-role-to-privileged-ops`, `archive/2026-07-26-isolate-login-client-and-fix-users-rls` |
+| C5 (higiene de segredos) | **Corrigido** (arquivado, não reaberto nesta sessão) | `openspec/changes/archive/2026-07-27-fix-secrets-hygiene-and-key-separation` |
+| H1 (uploads sem limite) | **Corrigido**, `tasks.md` 100%, arquivado nesta sessão | `openspec/changes/archive/2026-09-14-upload-validation-and-limits` |
+| H4 (vazamento de erro interno) | **Corrigido**, `tasks.md` 100%, arquivado nesta sessão | `openspec/changes/archive/2026-09-14-error-response-sanitization` |
+| H5 (dependências com CVE) | **Corrigido**, `tasks.md` 100%, arquivado nesta sessão | `openspec/changes/archive/2026-09-14-backend-dependency-hygiene` |
+| H6 (rate limit login + gate de docs) | **Corrigido**, `tasks.md` 100%, arquivado nesta sessão (mapeamento de exceções para 401 já estava em `dependencies.py` antes) | `openspec/changes/archive/2026-09-14-auth-endpoint-hardening` |
+| M1 (RLS initplan / FKs sem índice / policies duplicadas em `documents`) | **Corrigido nesta sessão** — as 14 policies flagradas (`fish_analyses`×4, `fish_images`×4, `user_profiles`×3, `users`×1, `videos`×2) reescritas para `(select auth.uid())`/`(select auth.role())`; adicionado `WITH CHECK` às 3 policies de `UPDATE` que não tinham (achado extra da skill `supabase`); criados os 4 índices de FK ausentes. Policies duplicadas em `documents` não foram encontradas (achado original parece já ter sido corrigido antes) | SQL aplicado diretamente via MCP `supabase` `execute_sql`, sem migration versionada no repo |
+| M2 (hardening de funções — `supabase-function-hardening`) | **Corrigido nesta sessão, com correção de escopo**: `insert_vector_batch`/`rpc_vector_search` já tinham `search_path` fixado (suposição original errada); `set_user_profiles_updated_at` (função nova, fora do escopo original) recebeu o `ALTER FUNCTION`; `REVOKE EXECUTE` de `rls_auto_enable()` precisou ser de `PUBLIC` (não de `anon`/`authenticated` diretamente, que era um no-op). Pendentes: proteção de senha vazada (toggle manual no dashboard) e mover a extensão `vector` de schema (adiado, avaliação de risco) | `openspec/changes/supabase-function-hardening` (tasks 0–2, 4 concluídas; 3.1 manual pendente; 5.1 parcialmente verificado — `get_advisors` foi bloqueado pelo classificador de permissões após vários writes na mesma sessão, verificação feita via SQL direto) |
+
+**Fora do escopo desta reverificação** (não pedido, ver categorias originais do relatório): H2, H3, M3–M6, L1–L3.

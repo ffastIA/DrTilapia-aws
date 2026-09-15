@@ -23,3 +23,12 @@ Esta mudança é inteiramente do lado do banco (Supabase/Postgres), não do cód
 
 - **[Risco de dados desatualizados]** Esta proposta pode estar corrigindo problemas que já não existem (como aconteceu com C1-C5) — mitigado exigindo a reverificação ao vivo como primeira tarefa, antes de qualquer `ALTER FUNCTION`/`REVOKE`.
 - **[Risco operacional]** Revogar `EXECUTE` de `rls_auto_enable()` pode quebrar algum fluxo que dependa dela via RPC pública — mitigado checando, antes de revogar, se há alguma chamada real a essa função a partir do frontend/backend (busca por `rls_auto_enable` no código da aplicação).
+
+## Aplicado em 2026-09-14
+
+A reverificação (task 0.1) confirmou a hipótese acima: parte do achado original estava desatualizada.
+
+- `insert_vector_batch`/`rpc_vector_search` já tinham `search_path=public` — a suposição da proposta original (de que ambas precisavam de `ALTER FUNCTION`) estava errada. Nenhuma ação necessária nelas.
+- Em compensação, `set_user_profiles_updated_at` (função nova, criada depois desta auditoria pela migration `20260809185314`, fora do escopo original) apareceu com `search_path` mutável — recebeu o `ALTER FUNCTION` em vez das duas funções originalmente previstas.
+- `REVOKE EXECUTE ... FROM anon, authenticated` (conforme o texto original desta proposta) foi um no-op: o grant de `rls_auto_enable()` era via `PUBLIC` (`proacl` continha `=X/postgres`), que todo papel herda independente de grant direto. A revogação correta é `REVOKE EXECUTE ... FROM PUBLIC` — aplicada e verificada com `has_function_privilege()`.
+- Também aplicado no mesmo lote (fora do escopo original desta proposta, mas do mesmo M1/M2 do relatório): reescrita das 14 policies de RLS flagradas por `auth_rls_initplan` em `fish_analyses`/`fish_images`/`user_profiles`/`users`/`videos` para envolver `auth.uid()`/`auth.role()` em `(select ...)`, adição de `WITH CHECK` nas 3 policies de `UPDATE` que não tinham (achado da skill `supabase`, não do relatório original — sem isso um usuário podia reatribuir `user_id` de uma linha própria para outro usuário), e criação dos 4 índices de FK ausentes (`fish_analyses.user_id`, `fish_images.analysis_id`/`user_id`, `videos.uploaded_by`). Ver `docs/auditoria-fullstack.md` seção "Reverificação (2026-09-14)" para o detalhamento completo.
