@@ -1,7 +1,7 @@
 // CAMINHO: frontend/hooks/useRagAdmin.ts
 import { useCallback, useEffect, useState } from 'react';
-import { clearRagDatabase, deleteRagDocument, listRagDocuments, uploadRagDocuments } from '@/lib/ragAdminApi';
-import type { RagAdminError, RagClearResponse, RagDeleteResponse, RagItem, RagUploadResponse } from '@/types/rag-admin';
+import { clearRagDatabase, deleteRagDocument, listRagDocuments, reindexRagDocuments, uploadRagDocuments } from '@/lib/ragAdminApi';
+import type { RagAdminError, RagClearResponse, RagDeleteResponse, RagItem, RagReindexResponse, RagUploadResponse } from '@/types/rag-admin';
 
 function normalizeUiError(error: unknown): RagAdminError {
   if (error && typeof error === 'object' && 'message' in error) {
@@ -26,12 +26,14 @@ export default function useRagAdmin() {
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [isClearing, setIsClearing] = useState<boolean>(false);
+  const [reindexingId, setReindexingId] = useState<string | null>(null);
   const [listError, setListError] = useState<RagAdminError | null>(null);
   const [operationMessage, setOperationMessage] = useState<string>('');
   const [operationError, setOperationError] = useState<RagAdminError | null>(null);
   const [lastUploadResponse, setLastUploadResponse] = useState<RagUploadResponse | null>(null);
   const [lastDeleteResponse, setLastDeleteResponse] = useState<RagDeleteResponse | null>(null);
   const [lastClearResponse, setLastClearResponse] = useState<RagClearResponse | null>(null);
+  const [lastReindexResponse, setLastReindexResponse] = useState<RagReindexResponse | null>(null);
 
   const refreshList = useCallback(async () => {
     setListError(null);
@@ -142,6 +144,30 @@ export default function useRagAdmin() {
     }
   }, [refreshList]);
 
+  const reindexItem = useCallback(async (item: RagItem) => {
+    if (!hasValidItemId(item)) {
+      setOperationError({ message: 'Não foi possível reindexar: documento sem ID válido.' });
+      return;
+    }
+    setReindexingId(item.id);
+    setOperationMessage('');
+    setOperationError(null);
+    try {
+      const response = await reindexRagDocuments([item.id]);
+      setLastReindexResponse(response);
+      if (response.processedFiles > 0) {
+        setOperationMessage('Arquivo reindexado com sucesso.');
+        await refreshList();
+      } else {
+        setOperationError({ message: response.message || 'Falha ao reindexar o arquivo.' });
+      }
+    } catch (error) {
+      setOperationError(normalizeUiError(error));
+    } finally {
+      setReindexingId(null);
+    }
+  }, [refreshList]);
+
   const resetFeedback = useCallback(() => {
     setOperationMessage('');
     setOperationError(null);
@@ -159,18 +185,21 @@ export default function useRagAdmin() {
     isUploading,
     isDeleting,
     isClearing,
+    reindexingId,
     listError,
     operationMessage,
     operationError,
     lastUploadResponse,
     lastDeleteResponse,
     lastClearResponse,
+    lastReindexResponse,
     refreshList,
     uploadFiles,
     openDeleteModal,
     closeDeleteModal,
     deleteSelectedItem,
     clearDatabase,
+    reindexItem,
     resetFeedback,
   };
 }

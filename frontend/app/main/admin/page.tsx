@@ -56,6 +56,7 @@ export default function AdminPage() {
     isUploading,
     isDeleting,
     isClearing,
+    reindexingId,
     selectedItem,
     isDeleteModalOpen,
     operationMessage,
@@ -66,6 +67,7 @@ export default function AdminPage() {
     closeDeleteModal,
     deleteSelectedItem,
     clearDatabase,
+    reindexItem,
     resetFeedback,
   } = useRagAdmin();
 
@@ -141,9 +143,14 @@ export default function AdminPage() {
               <div key={item.id} className="p-6">
                 <div className="flex justify-between items-start mb-4 gap-4">
                   <h3 className="font-heading font-semibold flex-1 truncate">{item.title}</h3>
-                  <Button onClick={() => openDeleteModal(item)} disabled={isDeleting} variant="secondary" size="sm" className="!text-destructive !border-destructive/40 hover:!bg-destructive-bg">
-                    Excluir
-                  </Button>
+                  <div className="flex gap-2 shrink-0">
+                    <Button onClick={() => reindexItem(item)} disabled={reindexingId === item.id} variant="secondary" size="sm">
+                      {reindexingId === item.id ? 'Reindexando...' : 'Reindexar'}
+                    </Button>
+                    <Button onClick={() => openDeleteModal(item)} disabled={isDeleting} variant="secondary" size="sm" className="!text-destructive !border-destructive/40 hover:!bg-destructive-bg">
+                      Excluir
+                    </Button>
+                  </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-muted-foreground">
                   <p><strong className="text-foreground">ID:</strong> {item.id}</p>

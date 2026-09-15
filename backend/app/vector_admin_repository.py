@@ -105,7 +105,12 @@ class VectorAdminRepository:
             'created_at': self._normalize_datetime(row.get('created_at')),
             'updated_at': self._normalize_datetime(row.get('updated_at')),
             'deleted_at': self._normalize_datetime(row.get('deleted_at')),
-            'last_ingested_at': self._normalize_datetime(row.get('last_ingested_at')),
+            # `first_ingested_at`: gravado no metadata só quando uma
+            # reindexação recria as linhas (ver reindex_files) — preserva a
+            # data da primeira ingestão através de reindexações futuras. Sem
+            # esse campo (arquivo nunca reindexado), `created_at` da própria
+            # linha já É a primeira ingestão.
+            'first_ingested_at': self._normalize_datetime(metadata.get('first_ingested_at')),
             'page': row.get('page'),
             'chunk_index': row.get('chunk_index'),
             'storage_bucket': row.get('storage_bucket'),
@@ -135,13 +140,26 @@ class VectorAdminRepository:
 
         first = chunks[0]
 
-        # Encontra máximo last_ingested_at
+        # `last_ingested_at` não existe como coluna em `documents` — usar
+        # `created_at` (real, sempre preenchido pelo Postgres na inserção)
+        # dos chunks ATIVOS como proxy: é exatamente quando a versão atual
+        # do arquivo foi (re)ingerida, já que reindexar cria chunks novos e
+        # apaga os antigos (ver `add-vector-reindex-endpoint`).
         max_last_ingested = None
+        min_first_ingested = None
         max_deleted_at = None
         for chunk in chunks:
-            if chunk.get('last_ingested_at') and (
-                    max_last_ingested is None or chunk['last_ingested_at'] > max_last_ingested):
-                max_last_ingested = chunk['last_ingested_at']
+            if chunk.get('deleted_at') is None and chunk.get('created_at') and (
+                    max_last_ingested is None or chunk['created_at'] > max_last_ingested):
+                max_last_ingested = chunk['created_at']
+            # "Inserido em": `first_ingested_at` (gravado no metadata só
+            # quando o chunk veio de uma reindexação, ver reindex_files)
+            # preservado através de reindexações futuras; sem ele, o próprio
+            # `created_at` do chunk já é a primeira ingestão.
+            first_ingested_candidate = chunk.get('first_ingested_at') or chunk.get('created_at')
+            if chunk.get('deleted_at') is None and first_ingested_candidate and (
+                    min_first_ingested is None or first_ingested_candidate < min_first_ingested):
+                min_first_ingested = first_ingested_candidate
             if chunk.get('deleted_at') and (max_deleted_at is None or chunk['deleted_at'] > max_deleted_at):
                 max_deleted_at = chunk['deleted_at']
 
@@ -163,6 +181,7 @@ class VectorAdminRepository:
             'active_chunks': active_chunks_count,
             'deleted_chunks': deleted_chunks,
             'deleted_at': self._datetime_to_iso(max_deleted_at),
+            'created_at': self._datetime_to_iso(min_first_ingested),
             'last_ingested_at': self._datetime_to_iso(max_last_ingested),
             'status': status,
             'metadata': summary_metadata,
@@ -247,6 +266,7 @@ class VectorAdminRepository:
             'deleted_at': self._datetime_to_iso(chunk['deleted_at']),
             'created_at': self._datetime_to_iso(chunk['created_at']),
             'updated_at': self._datetime_to_iso(chunk['updated_at']),
+            'first_ingested_at': self._datetime_to_iso(chunk.get('first_ingested_at')),
             'page': chunk['page'],
             'chunk_index': chunk['chunk_index'],
         }
@@ -295,6 +315,20 @@ class VectorAdminRepository:
             'message': 'Diagnóstico recuperado com sucesso'
         }
 
+    def delete_document_rows(self, chunk_ids: List[str]) -> int:
+        """Apaga linhas de `documents` pelo UUID real da linha (não pelo
+        `original_file_id`, que o SupabaseVectorStore do LangChain não
+        popula na coluna top-level). Não mexe em Storage."""
+        if not chunk_ids:
+            return 0
+        response = supabase_admin.table('documents').delete().in_('id', chunk_ids).execute()
+        return len(response.data or [])
+
+    def download_storage_object(self, storage_bucket: str, storage_path: str) -> bytes:
+        """Baixa os bytes originais de um objeto do Storage (ex.: o PDF fonte
+        de um arquivo já indexado, para reindexação)."""
+        return supabase_admin.storage.from_(storage_bucket).download(storage_path)
+
     def delete_file(self, original_file_id: str, confirmation_phrase: str, reason: Optional[str] = None,
                     hard_delete: bool = True) -> Dict[str, Any]:
         if confirmation_phrase != self.CONFIRMAR_EXCLUSAO:
@@ -306,11 +340,7 @@ class VectorAdminRepository:
         # Obtém os UUIDs reais dos chunks via get_file_chunks e apaga por ID.
         chunk_data = self.get_file_chunks(original_file_id)
         chunk_ids = [c['id'] for c in chunk_data.get('chunks', [])]
-        if chunk_ids:
-            response = supabase_admin.table('documents').delete().in_('id', chunk_ids).execute()
-            documents_deleted = len(response.data or [])
-        else:
-            documents_deleted = 0
+        documents_deleted = self.delete_document_rows(chunk_ids)
 
         storage_deleted = False
         storage_bucket = file_summary.get('storage_bucket')

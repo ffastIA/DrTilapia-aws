@@ -12,6 +12,7 @@ class VectorFileSummary(BaseModel):
     active_chunks: int = 0
     deleted_chunks: int = 0
     deleted_at: Optional[str] = None
+    created_at: Optional[str] = None
     last_ingested_at: Optional[str] = None
     status: str = "unknown"
     metadata: Dict[str, Any] = Field(default_factory=dict)
@@ -108,6 +109,37 @@ class RecoverFileContentResponse(BaseModel):
     deleted_chunks: int = 0
     content: str = ""
     chunks: List[VectorChunk] = Field(default_factory=list)
+    status: str
+    message: str
+
+class ReindexFilesRequest(BaseModel):
+    model_config = ConfigDict(extra="ignore", populate_by_name=True)
+    confirmation_phrase: Optional[str] = None
+    original_file_ids: Optional[List[str]] = None
+
+    @model_validator(mode="after")
+    def validate_fields(self):
+        if not self.confirmation_phrase or self.confirmation_phrase.strip() == "":
+            raise ValueError("confirmation_phrase é obrigatório para reindexar")
+        if self.confirmation_phrase.strip() == "CONFIRMADO":
+            self.confirmation_phrase = "CONFIRMAR_REINDEXACAO"
+        return self
+
+class ReindexFileResult(BaseModel):
+    model_config = ConfigDict(extra="ignore", populate_by_name=True)
+    original_file_id: str
+    original_file_name: Optional[str] = None
+    status: str
+    message: str
+    chunks_created: int = 0
+    chunks_removed: int = 0
+
+class ReindexFilesResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore", populate_by_name=True)
+    processed_files: int = 0
+    failed_files: int = 0
+    total_chunks_created: int = 0
+    results: List[ReindexFileResult] = Field(default_factory=list)
     status: str
     message: str
 

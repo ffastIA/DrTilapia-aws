@@ -179,12 +179,29 @@ class RAGService:
         self.graph = self._build_graph()
 
     # MÉTODO MODIFICADO: ingest_pdf com duplicação + validação (Etapa 1)
-    async def ingest_pdf(self, file_path: str, original_filename: str) -> dict:
+    async def ingest_pdf(
+        self,
+        file_path: str,
+        original_filename: str,
+        force: bool = False,
+        first_ingested_at: Optional[str] = None,
+    ) -> dict:
         """Ingestão de PDF com detecção de duplicação e validação de qualidade.
 
         Identidade por conteúdo (SHA-256 dos bytes do arquivo, não do nome),
         PDF original persistido no Storage, e limpeza automática se qualquer
         etapa de escrita falhar no meio — ver `harden-pdf-ingestion`.
+
+        `force=True` pula a checagem de duplicata (usado pela reindexação,
+        que reprocessa deliberadamente um arquivo cujo conteúdo — e portanto
+        `original_file_id` — não muda; ver `add-vector-reindex-endpoint`).
+
+        `first_ingested_at` (ISO 8601, opcional): quando informado (só pela
+        reindexação), grava esse valor no metadata de cada chunk para
+        preservar a data da PRIMEIRA ingestão através de reindexações — sem
+        isso, "Inserido em" ficaria igual a "Atualizado em" toda vez que o
+        arquivo fosse reindexado, já que as linhas antigas são apagadas e
+        recriadas com um novo `created_at`.
         """
         storage_path: Optional[str] = None
         original_file_id: Optional[str] = None
@@ -196,7 +213,7 @@ class RAGService:
             # com outro nome é reconhecido como já ingerido.
             original_file_id = hashlib.sha256(file_bytes).hexdigest()
 
-            if self._check_file_exists(original_file_id):
+            if not force and self._check_file_exists(original_file_id):
                 return {
                     "status": "already_exists",
                     "message": "Arquivo já foi ingestado",
@@ -293,6 +310,8 @@ class RAGService:
                 split.metadata['extraction_method'] = extraction_method
                 split.metadata['extraction_quality'] = quality_metadata
                 split.metadata['chunk_index'] = idx
+                if first_ingested_at:
+                    split.metadata['first_ingested_at'] = first_ingested_at
 
             try:
                 # `_persist_chunks` faz a chamada de embeddings (rede síncrona,
@@ -352,13 +371,20 @@ class RAGService:
     def _upload_source_pdf(self, file_bytes: bytes, original_file_id: str, original_filename: str) -> str:
         """Envia o PDF original ao Storage. Nome do objeto é o hash de
         conteúdo (não o nome original) — evita problemas com espaços/acentos
-        no nome do arquivo e garante unicidade real."""
+        no nome do arquivo e garante unicidade real.
+
+        `upsert=true`: o caminho é endereçado por conteúdo (SHA-256 dos
+        bytes), então reenviar para o mesmo caminho só acontece quando os
+        bytes são idênticos — nunca sobrescreve um PDF diferente. Sem isso, a
+        reindexação (`force=True`, mesmo conteúdo) falharia sempre com um
+        409 Duplicate, já que o objeto já existe de uma ingestão anterior.
+        """
         ext = os.path.splitext(original_filename)[1] or ".pdf"
         storage_path = f"{original_file_id}{ext}"
         self.supabase_admin.storage.from_(RAG_SOURCE_PDFS_BUCKET).upload(
             path=storage_path,
             file=file_bytes,
-            file_options={"content-type": "application/pdf"},
+            file_options={"content-type": "application/pdf", "upsert": "true"},
         )
         return storage_path
 

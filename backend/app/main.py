@@ -82,6 +82,8 @@ from app.vector_admin_schemas import (
     DeleteFileResponse,
     CleanupVectorBaseRequest,
     CleanupVectorBaseResponse,
+    ReindexFilesRequest,
+    ReindexFilesResponse,
 )
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', force=True)
@@ -380,6 +382,19 @@ async def cleanup_vector_base(request: CleanupVectorBaseRequest, current_user: d
         return CleanupVectorBaseResponse(**normalized)
     except Exception:
         logger.exception(f"[cleanup_vector_base] Erro")
+        raise HTTPException(status_code=500, detail=GENERIC_ERROR_MESSAGE)
+
+@app.post("/admin/vector-base/reindex", response_model=ReindexFilesResponse)
+async def reindex_vector_files(request: ReindexFilesRequest, current_user: dict = Depends(get_current_admin_user)):
+    try:
+        logger.info(
+            f"[reindex_vector_files] Reindexando %s",
+            request.original_file_ids or "todos os arquivos",
+        )
+        result = await vector_admin_service.reindex_files(request.confirmation_phrase, request.original_file_ids)
+        return ReindexFilesResponse(**result)
+    except Exception:
+        logger.exception(f"[reindex_vector_files] Erro")
         raise HTTPException(status_code=500, detail=GENERIC_ERROR_MESSAGE)
 
 # ========== ROTAS VÍDEOS ==========

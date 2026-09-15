@@ -6,6 +6,7 @@ import pytest
 from fastapi.testclient import TestClient
 import app.main as main_module
 from app.main import app
+from app.auth.auth_service import AuthError
 
 
 @pytest.fixture
@@ -34,6 +35,14 @@ def override_admin_user():
     async def mock_admin_user():
         return {"id": 1, "email": "admin@example.com", "role": "admin"}
     app.dependency_overrides[main_module.get_current_admin_user] = mock_admin_user
+
+
+def override_current_user():
+    """Helper para sobrescrever get_current_user com um usuário comum mockado
+    (endpoints que aceitam qualquer usuário autenticado, não só admin)."""
+    async def mock_current_user():
+        return {"id": 1, "email": "user@example.com", "role": "user"}
+    app.dependency_overrides[main_module.get_current_user] = mock_current_user
 
 
 def error_tolerant_client():
@@ -180,7 +189,11 @@ def test_health_endpoint(client):
 def test_login_success(client, monkeypatch):
     """Testa login bem-sucedido."""
     async def mock_login(email, password):
-        return {"access_token": "token123", "token_type": "bearer", "user": {"id": 1, "email": email}}
+        return {
+            "access_token": "token123",
+            "token_type": "bearer",
+            "user": {"id": "1", "email": email, "role": "user"},
+        }
     monkeypatch.setattr(main_module.auth_service, "login", mock_login)
     payload = {"email": "admin@example.com", "password": "pass"}
     response = client.post("/auth/login", json=payload)
@@ -194,7 +207,7 @@ def test_login_success(client, monkeypatch):
 def test_login_invalid_credentials(client, monkeypatch):
     """Testa login com credenciais inválidas."""
     async def mock_login(email, password):
-        return None
+        raise AuthError(code="invalid_credentials", message="Invalid credentials")
     monkeypatch.setattr(main_module.auth_service, "login", mock_login)
     payload = {"email": "admin@example.com", "password": "wrong"}
     response = client.post("/auth/login", json=payload)
@@ -204,6 +217,8 @@ def test_login_invalid_credentials(client, monkeypatch):
 def test_chat_success(client, monkeypatch):
     """Testa chat bem-sucedido, incluindo as fontes reais na resposta."""
     from app.services.rag_service import AnswerResult
+
+    override_current_user()
 
     def mock_get_answer(message, history):
         return AnswerResult(
@@ -222,6 +237,7 @@ def test_chat_success(client, monkeypatch):
 def test_chat_internal_error(monkeypatch):
     """Testa erro interno no chat."""
     client = error_tolerant_client()
+    override_current_user()
     async def mock_get_answer(message, history):
         raise Exception("Erro interno")
     monkeypatch.setattr(main_module.rag_service, "get_answer", mock_get_answer)
@@ -232,6 +248,7 @@ def test_chat_internal_error(monkeypatch):
 
 def test_upload_pdf_success(client, monkeypatch):
     """Testa upload de PDF bem-sucedido."""
+    override_admin_user()
     upload_route = find_upload_route()
     async def mock_ingest_pdf(file_path, filename, *args, **kwargs):
         return {"status": "success"}
@@ -244,6 +261,7 @@ def test_upload_pdf_success(client, monkeypatch):
 
 def test_upload_rejects_non_pdf(client):
     """Testa rejeição de upload de arquivo não PDF."""
+    override_admin_user()
     upload_route = find_upload_route()
     files = {"file": ("teste.txt", io.BytesIO(b"conteudo texto"), "text/plain")}
     response = client.post(upload_route, files=files)
@@ -253,9 +271,9 @@ def test_upload_rejects_non_pdf(client):
 def test_list_vector_files_success(client, monkeypatch):
     """Testa listagem de arquivos vetoriais bem-sucedida."""
     override_admin_user()
-    def mock_list_files():
+    def mock_get_files():
         return [build_vector_file_summary()]
-    monkeypatch.setattr(main_module.vector_admin_service, "list_files", mock_list_files)
+    monkeypatch.setattr(main_module.vector_admin_service, "get_files", mock_get_files)
     response = client.get("/admin/vector-base/files")
     assert response.status_code == 200
     data = response.json()
@@ -351,9 +369,9 @@ def test_get_vector_file_chunks_success(client, monkeypatch):
 def test_recover_vector_file_content_success(client, monkeypatch):
     """Testa recuperação de conteúdo de arquivo vetorial bem-sucedida."""
     override_admin_user()
-    def mock_recover_file_content(original_file_id):
+    def mock_get_file_content(original_file_id):
         return build_recover_file_content_response()
-    monkeypatch.setattr(main_module.vector_admin_service, "recover_file_content", mock_recover_file_content)
+    monkeypatch.setattr(main_module.vector_admin_service, "get_file_content", mock_get_file_content)
     response = client.get("/admin/vector-base/files/file123/content")
     assert response.status_code == 200
     data = response.json()
@@ -363,9 +381,9 @@ def test_recover_vector_file_content_success(client, monkeypatch):
 def test_diagnose_vector_file_recovery_success(client, monkeypatch):
     """Testa diagnóstico de recuperação de arquivo vetorial bem-sucedido."""
     override_admin_user()
-    def mock_diagnose_file_recovery(original_file_id):
+    def mock_get_file_diagnosis(original_file_id):
         return build_recovery_diagnosis_response()
-    monkeypatch.setattr(main_module.vector_admin_service, "diagnose_file_recovery", mock_diagnose_file_recovery)
+    monkeypatch.setattr(main_module.vector_admin_service, "get_file_diagnosis", mock_get_file_diagnosis)
     response = client.get("/admin/vector-base/files/file123/diagnosis")
     assert response.status_code == 200
     data = response.json()

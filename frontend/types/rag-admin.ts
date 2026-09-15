@@ -53,6 +53,15 @@ export interface RawRagClearResponse {
   [key: string]: any;
 }
 
+export interface RawRagReindexResponse {
+  processed_files?: number;
+  failed_files?: number;
+  total_chunks_created?: number;
+  status?: string;
+  message?: string;
+  [key: string]: any;
+}
+
 // Tipos normalizados para UI (estáveis e padronizados)
 export interface RagItem {
   id: string;
@@ -85,6 +94,14 @@ export interface RagDeleteResponse {
 export interface RagClearResponse {
   cleared: boolean;
   count: number;
+}
+
+export interface RagReindexResponse {
+  processedFiles: number;
+  failedFiles: number;
+  totalChunksCreated: number;
+  status: string;
+  message: string;
 }
 
 // Utilitários para adaptação de respostas cruas do backend para objetos de UI

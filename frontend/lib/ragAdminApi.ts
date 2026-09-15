@@ -1,13 +1,14 @@
 // CAMINHO: frontend/lib/ragAdminApi.ts
 
 import api from '@/lib/api';
-import type { RagAdminError, RagClearResponse, RagDeletePayload, RagDeleteResponse, RagItem, RagListResponse, RagUploadResponse } from '@/types/rag-admin';
+import type { RagAdminError, RagClearResponse, RagDeletePayload, RagDeleteResponse, RagItem, RagListResponse, RagReindexResponse, RagUploadResponse } from '@/types/rag-admin';
 
 export const RAG_ADMIN_ENDPOINTS = {
   LIST: '/admin/vector-base/files',
   UPLOAD: '/admin/upload',
   DELETE_BASE: '/admin/vector-base/files',
   CLEAR: '/admin/vector-base/cleanup',
+  REINDEX: '/admin/vector-base/reindex',
 } as const;
 
 export type RagOperationStatusResponse = {
@@ -60,13 +61,20 @@ function normalizeItem(raw: any): RagItem | null {
   const content =
     (getFirstDefined(raw?.content, raw?.summary, raw?.text) as string) || '';
 
+  // `created_at`: data da PRIMEIRA ingestão, preservada através de
+  // reindexações (ver backend `vector_admin_repository._build_file_summary`
+  // + `first_ingested_at` no metadata). `last_ingested_at` só entra como
+  // último recurso, para respostas antigas que não tenham `created_at`.
   const createdSource = getFirstDefined(
-    raw?.last_ingested_at,
     raw?.created_at,
     raw?.createdAt,
-    raw?.metadata?.created_at
+    raw?.metadata?.created_at,
+    raw?.last_ingested_at
   );
 
+  // `last_ingested_at`: data da ingestão mais recente (muda a cada
+  // reindexação) — é o que corresponde a "Atualizado em" nesta base, já que
+  // não existe um `updated_at` de verdade preenchido por trigger.
   const updatedSource = getFirstDefined(
     raw?.updated_at,
     raw?.updatedAt,
@@ -257,11 +265,30 @@ export async function getRagOperationStatus(_jobId: string): Promise<RagOperatio
   throw new Error('Status de operação não está disponível no backend atual.');
 }
 
+export async function reindexRagDocuments(originalFileIds: string[]): Promise<RagReindexResponse> {
+  if (!originalFileIds?.length) {
+    throw new Error('Nenhum arquivo selecionado para reindexação.');
+  }
+  const response = await api.post(RAG_ADMIN_ENDPOINTS.REINDEX, {
+    confirmation_phrase: 'CONFIRMADO',
+    original_file_ids: originalFileIds,
+  });
+  const body = extractBody(response);
+  return {
+    processedFiles: getFirstDefined<number>(body?.processed_files, 0) ?? 0,
+    failedFiles: getFirstDefined<number>(body?.failed_files, 0) ?? 0,
+    totalChunksCreated: getFirstDefined<number>(body?.total_chunks_created, 0) ?? 0,
+    status: getFirstDefined<string>(body?.status, 'unknown') ?? 'unknown',
+    message: getFirstDefined<string>(body?.message, '') ?? '',
+  };
+}
+
 export const ragAdminApi = {
   listRagDocuments,
   uploadRagDocuments,
   deleteRagDocument,
   clearRagDatabase,
+  reindexRagDocuments,
   getRagOperationStatus,
 } as const;
 
