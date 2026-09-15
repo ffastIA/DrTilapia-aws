@@ -45,11 +45,29 @@ _ARUCO_DICT_NAME: str = os.getenv("ARUCO_DICT", "DICT_4X4_50")
 # ── Verificação de dependências opcionais ──────────────────────────────────────
 
 try:
-    from rembg import remove as rembg_remove
+    from rembg import remove as rembg_remove, new_session as rembg_new_session
     REMBG_AVAILABLE = True
 except ImportError:
     REMBG_AVAILABLE = False
     logger.warning("[img_proc] rembg não instalado — instale com: pip install rembg")
+
+# Modelo fixado explicitamente — NUNCA depender do default da lib `rembg`:
+# em rembg>=2.0.7x o default mudou de "u2net" (~176MB) para "bria-rmbg"
+# (~1GB), que travou/derrubou o processo worker do backend em produção
+# (crash nativo do onnxruntime, sem traceback Python capturável) assim que
+# a lib foi atualizada sem nenhuma mudança de código aqui — exatamente o
+# tipo de drift silencioso de dependência não pinada. `u2net` é o modelo
+# testado e leve que este pipeline sempre pretendeu usar (ver docstring
+# original da classe).
+REMBG_MODEL_NAME: str = os.getenv("REMBG_MODEL", "u2net")
+_rembg_session = None
+
+
+def _get_rembg_session():
+    global _rembg_session
+    if _rembg_session is None:
+        _rembg_session = rembg_new_session(REMBG_MODEL_NAME)
+    return _rembg_session
 
 try:
     import cv2
@@ -91,7 +109,7 @@ class ImageProcessingService:
         if not PIL_AVAILABLE:
             raise RuntimeError("Pillow não está instalado. Execute: pip install Pillow")
 
-        output_bytes = rembg_remove(image_bytes)
+        output_bytes = rembg_remove(image_bytes, session=_get_rembg_session())
         img_rgba = PILImage.open(io.BytesIO(output_bytes)).convert("RGBA")
         img_array = np.array(img_rgba, dtype=np.uint8)
 

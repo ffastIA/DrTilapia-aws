@@ -48,6 +48,16 @@ ENV HOME=/home/appuser \
 
 USER appuser
 
+# Pré-baixa o modelo de remoção de fundo (rembg/u2net, ~176MB) no build da
+# imagem, não em tempo de execução — sem isso, a primeira análise de imagem
+# depois de cada subida do container dispara esse download em pleno request,
+# demorando o suficiente para estourar o timeout do cliente (a análise
+# terminava com sucesso no backend, só que depois de o usuário já ver um
+# erro). Nome do modelo fixado em REMBG_MODEL
+# (backend/app/services/image_processing_service.py) — mudar um sem o outro
+# quebra esse cache.
+RUN python -c "from rembg import new_session; new_session('u2net')"
+
 EXPOSE 8000
 
 # /health é um endpoint de liveness dedicado, sem autenticação — /docs deixou
