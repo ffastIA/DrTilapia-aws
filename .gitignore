@@ -61,6 +61,7 @@ backend/docs/*.pdf
 # (necessário só em ambientes atrás de proxy de inspeção TLS — ver SSL_CERT_FILE
 # em backend/.env.example). Específico da máquina, nunca commitar.
 backend/ca-bundle-windows.pem
+backend/*.pem.bak
 
 # Cache incremental do compilador TypeScript (regenerado a cada build)
 frontend/tsconfig.tsbuildinfo

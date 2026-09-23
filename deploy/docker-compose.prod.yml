@@ -1,0 +1,49 @@
+# Roda NA EC2, a partir de imagens já publicadas no ECR — nunca builda a
+# partir do código-fonte aqui (isso acontece na máquina de desenvolvimento,
+# ver deploy/build-and-push.ps1). A instância só precisa deste arquivo, do
+# `.env` ao lado dele (ver deploy/README.md) e de `backend/.env` — não
+# precisa do restante do repositório nem do Docker BuildKit/secrets do CA
+# bundle corporativo (aquilo é só do build local no Windows).
+#
+# Variáveis de imagem (ECR_REGISTRY, ECR_REPO_BACKEND, ECR_REPO_FRONTEND,
+# IMAGE_TAG) vêm de um `.env` neste mesmo diretório na EC2, criado a partir
+# de `deploy/.env.prod.example` — nunca commitado.
+
+services:
+  backend:
+    image: ${ECR_REGISTRY}/${ECR_REPO_BACKEND}:${IMAGE_TAG}
+    container_name: dr_tilapia_backend
+    env_file:
+      - backend/.env
+    environment:
+      # Produção sempre fecha /docs, /redoc, /openapi.json — só sobrescreva
+      # se precisar depurar algo pontualmente numa instância de teste.
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+    ports:
+      # Só loopback: o frontend alcança o backend pela rede interna do
+      # Compose (nenhum client externo — nem o CloudFront — fala com o
+      # backend diretamente).
+      - "127.0.0.1:8000:8000"
+    restart: unless-stopped
+    networks:
+      - dr_tilapia_net
+
+  frontend:
+    image: ${ECR_REGISTRY}/${ECR_REPO_FRONTEND}:${IMAGE_TAG}
+    container_name: dr_tilapia_frontend
+    ports:
+      # Publicado de propósito: o CloudFront aponta pra esta EC2 como
+      # origin. A restrição de acesso é feita no Security Group da
+      # instância (liberar só o prefix list gerenciado da AWS
+      # `com.amazonaws.global.cloudfront.origin-facing`), não aqui.
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - dr_tilapia_net
+
+networks:
+  dr_tilapia_net:
+    driver: bridge

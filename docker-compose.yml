@@ -1,6 +1,9 @@
 # Backend e frontend continuam em containers/imagens separados (cada um com
 # seu próprio Dockerfile), compostos aqui só para paridade local com o que
-# rodará como 2 serviços independentes na AWS (ECS Fargate).
+# rodará como 2 serviços independentes na AWS: uma única instância EC2
+# rodando os dois containers via Docker Compose, com o CloudFront apontando
+# pra essa EC2 como origin (ver `deploy/` para os artefatos de deploy real —
+# lá a imagem já vem pronta do ECR, sem `build:` na instância).
 #
 # Variáveis NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY (usadas
 # no build args.frontend abaixo) vêm do arquivo `.env` na raiz deste projeto
@@ -12,27 +15,49 @@ services:
     build:
       context: .
       dockerfile: backend/backend.Dockerfile
+      # Secret de build-time só (ver backend.Dockerfile) — nunca vira camada
+      # da imagem. Requer que backend/ca-bundle-windows.pem exista no host
+      # (mesma exigência local-only que `env_file: backend/.env` já tem
+      # abaixo); opcional para quem não estiver atrás do proxy corporativo,
+      # nesse caso substitua por um arquivo vazio ou remova esta seção.
+      secrets:
+        - ca_bundle
     container_name: dr_tilapia_backend
     env_file:
       - backend/.env
     environment:
-      # `backend/.env` pode apontar SSL_CERT_FILE/REQUESTS_CA_BUNDLE para um
-      # caminho absoluto do host (ex.: proxy corporativo de inspeção TLS no
-      # Windows) — inválido dentro do container Linux e faz o processo
-      # crashar na importação (backend/app/database.py) antes de abrir a
-      # porta. Zeramos aqui para o container usar verificação TLS padrão
-      # (certifi), o mesmo comportamento que valerá na AWS (sem esse proxy).
-      # Se o ambiente Docker também estiver atrás do proxy corporativo,
-      # aponte para um caminho *dentro* do container (ex.: um CA bundle
-      # copiado para a imagem), nunca um caminho `C:\...` do host.
-      - SSL_CERT_FILE=
-      - REQUESTS_CA_BUNDLE=
+      # `backend/.env` aponta SSL_CERT_FILE/REQUESTS_CA_BUNDLE para um
+      # caminho absoluto do host (proxy corporativo de inspeção TLS no
+      # Windows) — inválido dentro do container Linux. O tráfego do Docker
+      # Desktop passa pelo mesmo proxy, então zerar essas variáveis faz toda
+      # chamada a Supabase/OpenAI falhar com CERTIFICATE_VERIFY_FAILED
+      # (mascarado como "invalid_credentials" no login). Por isso apontamos
+      # para o caminho do bind mount abaixo (paridade local apenas — o
+      # arquivo NUNCA é copiado para dentro da imagem, ver .dockerignore e
+      # backend.Dockerfile). Isto é específico deste compose de paridade
+      # local: uma task definition real de AWS não tem este bloco nem o
+      # volume abaixo, então a verificação TLS em produção usa o padrão
+      # (certifi) automaticamente — não há nada para "lembrar de remover".
+      - SSL_CERT_FILE=/app/backend/ca-bundle-windows.pem
+      - REQUESTS_CA_BUNDLE=/app/backend/ca-bundle-windows.pem
       # Só "development" habilita /docs, /redoc, /openapi.json (ver
       # backend/app/main.py e backend/.env.example). Vem do `.env` da raiz;
       # sem valor lá, fecha a documentação por padrão (produção-safe).
       - ENVIRONMENT=${ENVIRONMENT:-production}
+      # Origens liberadas para CORS (ver backend/app/main.py). Sem isso
+      # definido para o domínio real, o frontend de produção é bloqueado
+      # pelo navegador — ajuste antes do primeiro deploy real.
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000}
+    volumes:
+      # Só desenvolvimento local: nunca vira parte da imagem (ver
+      # .dockerignore). Sem efeito/sem equivalente num deploy real na AWS.
+      - ./backend/ca-bundle-windows.pem:/app/backend/ca-bundle-windows.pem:ro
     ports:
-      - "8000:8000"
+      # Publicado só em loopback — o frontend já alcança o backend pela rede
+      # interna do Compose (BACKEND_INTERNAL_URL). Publicar em 0.0.0.0 aqui
+      # exporia a API diretamente à internet se este compose rodasse tal e
+      # qual num host EC2 público.
+      - "127.0.0.1:8000:8000"
     restart: unless-stopped
     networks:
       - dr_tilapia_net
@@ -51,6 +76,11 @@ services:
         BACKEND_INTERNAL_URL: http://backend:8000
     container_name: dr_tilapia_frontend
     ports:
+      # Publicado na interface pública do host de propósito: o CloudFront
+      # aponta pra esta EC2 como origin. A restrição de acesso é feita no
+      # Security Group da instância (liberar só o prefix list gerenciado da
+      # AWS `com.amazonaws.global.cloudfront.origin-facing`), não aqui —
+      # ver checklist de deploy.
       - "3000:3000"
     depends_on:
       backend:
@@ -62,3 +92,8 @@ services:
 networks:
   dr_tilapia_net:
     driver: bridge
+
+secrets:
+  # Só usado em build (ver backend.build.secrets acima e backend.Dockerfile).
+  ca_bundle:
+    file: backend/ca-bundle-windows.pem

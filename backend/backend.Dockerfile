@@ -56,7 +56,26 @@ USER appuser
 # erro). Nome do modelo fixado em REMBG_MODEL
 # (backend/app/services/image_processing_service.py) — mudar um sem o outro
 # quebra esse cache.
-RUN python -c "from rembg import new_session; new_session('u2net')"
+#
+# SSL_CERT_FILE/REQUESTS_CA_BUNDLE só neste RUN (não como ENV persistente da
+# imagem): o download usa `requests`, que só respeita REQUESTS_CA_BUNDLE, e em
+# máquinas atrás do proxy corporativo de inspeção TLS esse download falha com
+# CERTIFICATE_VERIFY_FAILED sem essa CA. O bundle vem por BuildKit secret
+# mount (--mount=type=secret), não por COPY: assim o certificado do proxy
+# nunca é gravado em nenhuma camada da imagem, e a imagem final publicável
+# (a que vai para o ECR/AWS) não carrega esse arquivo específico do Windows.
+# O secret é opcional (`required` não declarado = false): sem ele — caso de
+# builds fora do proxy corporativo, ex. AWS — o comando roda normalmente com
+# a verificação TLS padrão (certifi). Fornecido via `docker-compose.yml`
+# (`build.secrets: [ca_bundle]`) ou `docker build --secret
+# id=ca_bundle,src=backend/ca-bundle-windows.pem`.
+RUN --mount=type=secret,id=ca_bundle,mode=0444 \
+    if [ -s /run/secrets/ca_bundle ]; then \
+        SSL_CERT_FILE=/run/secrets/ca_bundle REQUESTS_CA_BUNDLE=/run/secrets/ca_bundle \
+        python -c "from rembg import new_session; new_session('u2net')"; \
+    else \
+        python -c "from rembg import new_session; new_session('u2net')"; \
+    fi
 
 EXPOSE 8000
 

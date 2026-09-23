@@ -1,0 +1,17 @@
+# Normaliza para LF no repositório, independente do core.autocrlf de cada
+# máquina — evita que um checkout no Windows reescreva Dockerfiles, YAML ou
+# (futuros) scripts shell para CRLF antes de irem para build Linux/AWS.
+* text=auto eol=lf
+
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.Dockerfile text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Binários — nunca normalizar.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pdf binary
+*.pem binary

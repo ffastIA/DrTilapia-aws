@@ -19,13 +19,17 @@ backend/.pytest_cache/
 backend/.env
 backend/.env.*
 !backend/.env.example
+# CA bundle de proxy corporativo (Windows) — nunca deve entrar na imagem via
+# COPY; se precisar dele no build, use `docker build --secret id=ca_bundle,...`
+# (ver backend.Dockerfile). Runtime local usa bind mount (docker-compose.yml).
+backend/ca-bundle-windows.pem
+backend/*.pem.bak
 backend/tests/
 backend/evaluation/runs/
 backend/docs/*.pdf
 backend/uploads/
 backend/uploaded_files/
 backend/temp_uploads/
-backend/ca-bundle-windows.pem
 backend/*.log
 
 # Frontend
