@@ -1,0 +1,33 @@
+# Roda na EC2 PRIVADA do backend (sem IP público, alcançada pela EC2 do
+# frontend só pela rede da VPC — ver deploy/README.md). A partir de imagem já
+# publicada no ECR — nunca builda a partir do código-fonte aqui (isso
+# acontece na máquina de desenvolvimento, ver deploy/build-and-push.ps1).
+#
+# Variáveis de imagem (ECR_REGISTRY, ECR_REPO_BACKEND, IMAGE_TAG) vêm de um
+# `.env` neste mesmo diretório na EC2, criado a partir de
+# `deploy/.env.prod.example` — nunca commitado.
+
+services:
+  backend:
+    image: ${ECR_REGISTRY}/${ECR_REPO_BACKEND}:${IMAGE_TAG}
+    container_name: dr_tilapia_backend
+    env_file:
+      - backend/.env
+    environment:
+      # Produção sempre fecha /docs, /redoc, /openapi.json — só sobrescreva
+      # se precisar depurar algo pontualmente numa instância de teste.
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+    ports:
+      # Publicado em todas as interfaces de propósito: esta EC2 é privada
+      # (sem IP público) e só a EC2 do frontend precisa alcançar esta porta
+      # pela rede da VPC. A proteção não é mais o binding (como era em
+      # 127.0.0.1 quando os dois serviços dividiam o mesmo host) — é o
+      # Security Group desta instância, que deve liberar a porta 8000 só
+      # para o Security Group da EC2 do frontend (nunca 0.0.0.0/0 nem um
+      # CIDR amplo). Ver deploy/README.md.
+      - "0.0.0.0:8000:8000"
+    restart: unless-stopped
+
+networks:
+  default:
+    name: dr_tilapia_backend_net

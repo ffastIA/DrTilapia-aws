@@ -27,15 +27,15 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   isAuthenticated: false,
   isLoading: true,
   setAuth: (token, user) => {
-    Cookies.set('accessToken', token, { path: '/', sameSite: 'Lax' });
-    Cookies.set('user', JSON.stringify(user), { path: '/', sameSite: 'Lax' });
+    Cookies.set('accessToken', token, { path: '/', sameSite: 'Lax', secure: true });
+    Cookies.set('user', JSON.stringify(user), { path: '/', sameSite: 'Lax', secure: true });
     set({ token, user, isAuthenticated: true, isLoading: false });
   },
   setUserName: (name) => {
     const currentUser = get().user;
     if (!currentUser || currentUser.name === name) return;
     const updatedUser = { ...currentUser, name };
-    Cookies.set('user', JSON.stringify(updatedUser), { path: '/', sameSite: 'Lax' });
+    Cookies.set('user', JSON.stringify(updatedUser), { path: '/', sameSite: 'Lax', secure: true });
     set({ user: updatedUser });
   },
   clearAuth: () => {

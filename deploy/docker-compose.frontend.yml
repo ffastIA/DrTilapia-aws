@@ -1,0 +1,44 @@
+# Roda na EC2 PÚBLICA do frontend, na frente do Next.js: Nginx recebe o
+# tráfego do CloudFront na porta 80 e repassa internamente para o container
+# `frontend` na porta 3000 (ver deploy/nginx/nginx.conf). A partir de imagens
+# já publicadas no ECR (frontend) e oficial do Docker Hub (nginx) — nunca
+# builda a partir do código-fonte aqui (isso acontece na máquina de
+# desenvolvimento, ver deploy/build-and-push.ps1).
+#
+# Variáveis de imagem (ECR_REGISTRY, ECR_REPO_FRONTEND, IMAGE_TAG) vêm de um
+# `.env` neste mesmo diretório na EC2, criado a partir de
+# `deploy/.env.prod.example` — nunca commitado.
+
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: dr_tilapia_nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      # Publicado de propósito: o CloudFront aponta pra esta EC2 como
+      # origin, na porta 80. A restrição de acesso é feita no Security Group
+      # da instância (liberar só o prefix list gerenciado da AWS
+      # `com.amazonaws.global.cloudfront.origin-facing`), não aqui.
+      - "80:80"
+    depends_on:
+      frontend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - dr_tilapia_net
+
+  frontend:
+    image: ${ECR_REGISTRY}/${ECR_REPO_FRONTEND}:${IMAGE_TAG}
+    container_name: dr_tilapia_frontend
+    # Sem `ports:` — só o Nginx acima precisa alcançar esta porta, pela rede
+    # interna do Compose (hostname de serviço `frontend`, resolvido pelo
+    # nginx.conf). Publicar 3000 ao host aqui reabriria o mesmo acesso direto
+    # que o Nginx existe justamente para evitar.
+    restart: unless-stopped
+    networks:
+      - dr_tilapia_net
+
+networks:
+  dr_tilapia_net:
+    driver: bridge

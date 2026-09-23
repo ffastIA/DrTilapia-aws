@@ -115,7 +115,7 @@ export async function middleware(request: NextRequest) {
 
       if (complete) {
         const response = NextResponse.next();
-        response.cookies.set('profileComplete', '1', { path: '/', sameSite: 'lax' });
+        response.cookies.set('profileComplete', '1', { path: '/', sameSite: 'lax', secure: true });
         return response;
       }
 
@@ -124,7 +124,7 @@ export async function middleware(request: NextRequest) {
       if (!alreadySeen) {
         // Primeira tentativa nesta sessão: empurrão silencioso para o cadastro.
         const response = NextResponse.redirect(new URL('/main/profile', request.url));
-        response.cookies.set('profileGateSeen', '1', { path: '/', sameSite: 'lax' });
+        response.cookies.set('profileGateSeen', '1', { path: '/', sameSite: 'lax', secure: true });
         return response;
       }
 
