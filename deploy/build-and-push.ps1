@@ -1,7 +1,6 @@
 <#
-    Builda as imagens do backend e do frontend, tageia cada uma com o SHA
-    curto do commit atual e envia pro ECR. Roda na máquina Windows onde o
-    build já acontece hoje.
+    Builda as imagens do backend e do frontend, tageia cada uma como "latest"
+    e envia pro ECR. Roda na máquina Windows onde o build já acontece hoje.
 
     O backend builda a partir do docker-compose.yml de desenvolvimento (o
     mesmo usado localmente, com o BuildKit secret do CA bundle corporativo).
@@ -54,12 +53,9 @@ foreach ($name in $FilledVars.Keys) {
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 Set-Location $RepoRoot
 
-$Tag = (git rev-parse --short HEAD).Trim()
-if ([string]::IsNullOrWhiteSpace($Tag)) {
-    throw "Não foi possível obter o SHA do commit atual (git rev-parse falhou)."
-}
+$Tag = "latest"
 if ((git status --porcelain) -ne $null) {
-    Write-Warning "Há mudanças não commitadas — a imagem vai carregar código diferente do que 'git rev-parse' está tageando. Considere commitar antes de buildar para produção."
+    Write-Warning "Há mudanças não commitadas — a imagem 'latest' vai carregar esse código não commitado. Considere commitar antes de buildar para produção."
 }
 
 $EcrRegistry = "$AwsAccountId.dkr.ecr.$AwsRegion.amazonaws.com"
@@ -101,4 +97,4 @@ Write-Host "Pronto. Imagens publicadas:" -ForegroundColor Green
 Write-Host "  $BackendImage"
 Write-Host "  $FrontendImage"
 Write-Host ""
-Write-Host "Atualize IMAGE_TAG no deploy/.env de cada EC2 (frontend e backend) com esta tag ($Tag) antes de fazer o pull." -ForegroundColor Yellow
+Write-Host "IMAGE_TAG no deploy/.env de cada EC2 já deve estar como 'latest' — basta rodar 'docker compose pull && docker compose up -d' em cada uma." -ForegroundColor Yellow
