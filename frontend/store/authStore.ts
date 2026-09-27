@@ -27,15 +27,18 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   isAuthenticated: false,
   isLoading: true,
   setAuth: (token, user) => {
-    Cookies.set('accessToken', token, { path: '/', sameSite: 'Lax', secure: true });
-    Cookies.set('user', JSON.stringify(user), { path: '/', sameSite: 'Lax', secure: true });
+    // Cookie "Secure" é descartado pelo browser em http:// (ex.: CloudFront sem TLS),
+    // o que impede o middleware de ver o token e devolve o usuário ao login.
+    const secure = window.location.protocol === 'https:';
+    Cookies.set('accessToken', token, { path: '/', sameSite: 'Lax', secure });
+    Cookies.set('user', JSON.stringify(user), { path: '/', sameSite: 'Lax', secure });
     set({ token, user, isAuthenticated: true, isLoading: false });
   },
   setUserName: (name) => {
     const currentUser = get().user;
     if (!currentUser || currentUser.name === name) return;
     const updatedUser = { ...currentUser, name };
-    Cookies.set('user', JSON.stringify(updatedUser), { path: '/', sameSite: 'Lax', secure: true });
+    Cookies.set('user', JSON.stringify(updatedUser), { path: '/', sameSite: 'Lax', secure: window.location.protocol === 'https:' });
     set({ user: updatedUser });
   },
   clearAuth: () => {
