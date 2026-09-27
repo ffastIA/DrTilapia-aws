@@ -56,7 +56,10 @@ usado pelo Next.js para alcançar o backend é resolvido em **build-time** (não
    é o Nginx que recebe o tráfego agora), `Origin Protocol Policy = HTTP Only`,
    `Viewer Protocol Policy = Redirect HTTP to HTTPS`, cache policy `CachingDisabled` + origin
    request policy que encaminhe cookies (o app é dinâmico e autenticado). Anote o domínio
-   `*.cloudfront.net` gerado.
+   `*.cloudfront.net` gerado. Ajustar também o **Origin response timeout (`OriginReadTimeout`) para
+   55 s** (padrão é 30 s; máximo 60 s sem aumento de cota): a análise de imagens (rembg) pode passar
+   de 30 s e o CloudFront responderia 504 mesmo com o backend concluindo. É um alívio — a solução
+   definitiva é o processamento assíncrono (`openspec/changes/async-fish-analysis-processing`).
 6. **Copiar `deploy/` pra cada EC2** (scp/rsync — não precisa do resto do repositório; a EC2 do
    frontend também precisa de `deploy/nginx/nginx.conf`, incluído automaticamente se copiar o
    diretório inteiro):

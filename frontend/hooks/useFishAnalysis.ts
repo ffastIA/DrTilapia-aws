@@ -1,14 +1,30 @@
 // CAMINHO: frontend/hooks/useFishAnalysis.ts
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   uploadFishImage,
   processFishAnalysis,
+  getFishAnalysisJob,
   listFishAnalyses,
   deleteFishAnalysis,
 } from '@/lib/fishImageApi';
-import type { FishAnalysisItem, ProcessResponse, FishError } from '@/types/fishImage';
+import type { FishAnalysisItem, ProcessResponse, FishError, FishAnalysisJobStatus } from '@/types/fishImage';
+
+// Polling do job: intervalo entre consultas e teto de espera total. Acima
+// do teto, o processamento provavelmente ainda está rodando (rembg pode
+// demorar), mas deixamos de bloquear a UI — o usuário pode conferir o
+// resultado depois na lista de análises.
+const POLL_INTERVAL_MS = 2_000;
+const POLL_MAX_WAIT_MS = 5 * 60 * 1000;
+// Tolera algumas falhas de rede consecutivas durante o polling (ex.: blip
+// momentâneo de conectividade) antes de desistir — uma falha isolada não
+// deve abortar o processamento que já está rodando no backend.
+const POLL_MAX_CONSECUTIVE_FAILURES = 5;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 export default function useFishAnalysis() {
   const [analyses, setAnalyses] = useState<FishAnalysisItem[]>([]);
@@ -16,7 +32,14 @@ export default function useFishAnalysis() {
   const [isLoadingList, setIsLoadingList] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  // Estágio do job em andamento, para a UI diferenciar "na fila" de
+  // "processando" enquanto isProcessing === true.
+  const [processingStage, setProcessingStage] = useState<FishAnalysisJobStatus | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Evita continuar o polling (setState) depois que o componente desmontou
+  // ou uma nova chamada a processImages substituiu o job em andamento.
+  const pollGenerationRef = useRef(0);
 
   // IDs das imagens carregadas na sessão atual
   const [lateralId, setLateralId] = useState<string | null>(null);
@@ -55,7 +78,7 @@ export default function useFishAnalysis() {
     }
   }, []);
 
-  // ── Processar par de imagens ──────────────────────────────────────────────────
+  // ── Processar par de imagens (assíncrono: cria o job e faz polling) ───────────
   const processImages = useCallback(async (opts: {
     lateralId: string;
     superiorId: string;
@@ -63,30 +86,92 @@ export default function useFishAnalysis() {
     fatorSuperior?: number | null;
     pesoG?: number | null;
   }): Promise<ProcessResponse | null> => {
+    // Invalida qualquer polling anterior ainda em voo (nova chamada
+    // substitui a anterior) e reserva esta geração como a atual.
+    const generation = ++pollGenerationRef.current;
+
     setIsProcessing(true);
+    setProcessingStage('queued');
     setError(null);
     setLastResult(null);
     try {
-      const result = await processFishAnalysis({
+      const created = await processFishAnalysis({
         lateral_id: opts.lateralId,
         superior_id: opts.superiorId,
         fator_lateral: opts.fatorLateral,
         fator_superior: opts.fatorSuperior,
         peso_g: opts.pesoG,
       });
-      setLastResult(result);
-      setFeedback('Análise concluída com sucesso!');
-      // Limpar IDs da sessão após processamento bem-sucedido
-      setLateralId(null);
-      setSuperiorId(null);
-      return result;
+
+      const deadline = Date.now() + POLL_MAX_WAIT_MS;
+      let consecutiveFailures = 0;
+
+      while (true) {
+        if (pollGenerationRef.current !== generation) {
+          // Componente desmontou ou outro processImages assumiu — para
+          // silenciosamente, sem tocar mais no estado.
+          return null;
+        }
+
+        let job;
+        try {
+          job = await getFishAnalysisJob(created.job_id);
+          consecutiveFailures = 0;
+        } catch (pollErr: unknown) {
+          consecutiveFailures += 1;
+          if (consecutiveFailures >= POLL_MAX_CONSECUTIVE_FAILURES) {
+            throw pollErr;
+          }
+          await sleep(POLL_INTERVAL_MS);
+          continue;
+        }
+
+        if (job.status === 'done') {
+          if (pollGenerationRef.current !== generation) return null;
+          const result = job.result as ProcessResponse;
+          setLastResult(result);
+          setFeedback('Análise concluída com sucesso!');
+          setLateralId(null);
+          setSuperiorId(null);
+          return result;
+        }
+
+        if (job.status === 'error') {
+          throw Object.assign(new Error(job.error || 'Erro no processamento'), {
+            response: { data: { detail: job.error } },
+          });
+        }
+
+        if (pollGenerationRef.current !== generation) return null;
+        setProcessingStage(job.status); // 'queued' | 'processing'
+
+        if (Date.now() >= deadline) {
+          throw new Error(
+            'O processamento está demorando mais que o esperado. Confira o resultado depois na lista de análises.'
+          );
+        }
+
+        await sleep(POLL_INTERVAL_MS);
+      }
     } catch (err: unknown) {
       const e = err as { response?: { data?: { detail?: string } }; message?: string };
-      setError({ message: e?.response?.data?.detail || e?.message || 'Erro no processamento' });
+      if (pollGenerationRef.current === generation) {
+        setError({ message: e?.response?.data?.detail || e?.message || 'Erro no processamento' });
+      }
       return null;
     } finally {
-      setIsProcessing(false);
+      if (pollGenerationRef.current === generation) {
+        setIsProcessing(false);
+        setProcessingStage(null);
+      }
     }
+  }, []);
+
+  // Cancela o polling em andamento se o componente desmontar.
+  useEffect(() => {
+    return () => {
+      pollGenerationRef.current += 1;
+    };
   }, []);
 
   // ── Listar análises ───────────────────────────────────────────────────────────
@@ -146,6 +231,7 @@ export default function useFishAnalysis() {
     // Status
     isUploading,
     isProcessing,
+    processingStage,
     isDeleting,
     isLoadingList,
     lastResult,

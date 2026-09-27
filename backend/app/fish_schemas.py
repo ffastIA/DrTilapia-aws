@@ -98,3 +98,22 @@ class ProcessResponse(BaseModel):
     lateral_viz_b64: Optional[str] = None   # JPEG base64 com máscara + bbox
     superior_viz_b64: Optional[str] = None  # JPEG base64 com máscara + bbox
     warnings: List[str] = []
+
+
+# ── Jobs assíncronos de processamento ──────────────────────────────────────────
+# Ver openspec/changes/async-fish-analysis-processing: POST /fish/analyses/process
+# cria um job e responde 202 de imediato; o resultado é obtido depois via
+# GET /fish/analyses/jobs/{job_id} (evita o 504 do CloudFront quando o
+# processamento passa do timeout do gateway).
+
+class JobCreatedResponse(BaseModel):
+    job_id: str
+    status: str   # 'queued' | 'processing'
+
+
+class JobStatusResponse(BaseModel):
+    job_id: str
+    status: str   # 'queued' | 'processing' | 'done' | 'error'
+    analysis_id: Optional[str] = None
+    result: Optional[ProcessResponse] = None
+    error: Optional[str] = None

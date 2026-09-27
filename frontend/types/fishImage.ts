@@ -88,3 +88,24 @@ export interface FishError {
   message: string;
   status?: number;
 }
+
+// ── Job assíncrono de processamento ─────────────────────────────────────────
+// Ver openspec/changes/async-fish-analysis-processing: POST /fish/analyses/process
+// cria um job e responde 202 de imediato; o resultado é obtido depois via
+// GET /fish/analyses/jobs/{job_id} (evita o 504 do CloudFront quando o
+// processamento passa do timeout do gateway).
+
+export type FishAnalysisJobStatus = 'queued' | 'processing' | 'done' | 'error';
+
+export interface JobCreatedResponse {
+  job_id: string;
+  status: FishAnalysisJobStatus;
+}
+
+export interface JobStatusResponse {
+  job_id: string;
+  status: FishAnalysisJobStatus;
+  analysis_id?: string | null;
+  result?: ProcessResponse | null;
+  error?: string | null;
+}

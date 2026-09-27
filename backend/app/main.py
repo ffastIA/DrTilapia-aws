@@ -19,10 +19,12 @@ from app.services.video_service import video_service
 from app.video_schemas import VideoUploadResponse, VideoListResponse, VideoDeleteResponse
 from app.services.fish_image_service import fish_image_service
 from app.services.image_processing_service import image_processing_service
+from app.services.fish_analysis_job_service import fish_analysis_job_service
 from app.fish_schemas import (
     FishImageUploadResponse, FishImageListResponse, FishImageDeleteResponse,
     FishAnalysisListResponse, FishAnalysisDeleteResponse,
     ProcessRequest, ProcessResponse,
+    JobCreatedResponse, JobStatusResponse,
 )
 from app.services.user_profile_service import user_profile_service
 from app.profile_schemas import ProfileUpsertRequest, ProfileResponse
@@ -58,6 +60,18 @@ _DOCS_ENABLED = _ENVIRONMENT == "development"
 # credential-stuffing/força bruta — configurável via env, sintaxe do slowapi
 # ("N/minute", "N/hour" etc.).
 AUTH_RATE_LIMIT = os.getenv("AUTH_RATE_LIMIT", "5/minute")
+
+# Quantos jobs de análise de imagem (rembg, CPU/memória intensivo) rodam ao
+# mesmo tempo em CADA processo/worker uvicorn — ver
+# openspec/changes/async-fish-analysis-processing. Jobs excedentes ficam
+# 'queued' até um slot ficar livre.
+ANALYSIS_MAX_CONCURRENCY = int(os.getenv("ANALYSIS_MAX_CONCURRENCY", "1"))
+_analysis_semaphore = asyncio.Semaphore(ANALYSIS_MAX_CONCURRENCY)
+
+# Mantém referências às tasks de processamento em background — sem isso elas
+# podem ser coletadas pelo GC antes de terminar (asyncio.create_task não
+# mantém uma referência forte por si só).
+_background_analysis_tasks: set = set()
 
 
 def _client_ip_key(request: Request) -> str:
@@ -712,44 +726,130 @@ def _sync_process_fish_analysis(data: ProcessRequest, user_id: str, access_token
     )
 
 
-@app.post("/fish/analyses/process", response_model=ProcessResponse)
+def _mark_images_processing_error(access_token: str, image_ids: List[str], message: str) -> None:
+    """Best-effort: marca as imagens do par como erro quando o
+    processamento falha de forma inesperada (job assíncrono)."""
+    try:
+        error_client = get_user_scoped_client(access_token)
+        for img_id in image_ids:
+            error_client.table("fish_images").update(
+                {"processing_status": "error", "processing_error": message}
+            ).eq("id", img_id).execute()
+    except Exception:
+        pass
+
+
+async def _run_analysis_job(job_id: str, data: ProcessRequest, user_id: str, access_token: str) -> None:
+    """Executa o processamento do par de imagens em background e atualiza o
+    job (fish_analysis_jobs) com o resultado ou erro. O semáforo limita
+    quantas análises (rembg, CPU/memória intensivo) rodam ao mesmo tempo
+    neste processo — jobs excedentes ficam aguardando aqui, ainda em
+    'queued' do ponto de vista do cliente."""
+    async with _analysis_semaphore:
+        try:
+            fish_analysis_job_service.mark_processing(job_id, access_token)
+            # _sync_process_fish_analysis contém I/O de rede + CPU intensivo
+            # (rembg). asyncio.to_thread executa em thread pool — event loop
+            # permanece livre para atender outras requisições/jobs.
+            result = await asyncio.to_thread(
+                _sync_process_fish_analysis, data, user_id, access_token
+            )
+            fish_analysis_job_service.mark_done(
+                job_id, access_token, result.analysis_id, result.model_dump()
+            )
+        except HTTPException as e:
+            detail = e.detail if isinstance(e.detail, str) else GENERIC_ERROR_MESSAGE
+            _mark_images_processing_error(access_token, [data.lateral_id, data.superior_id], detail)
+            fish_analysis_job_service.mark_error(job_id, access_token, detail)
+        except Exception:
+            logger.exception("[_run_analysis_job] erro job=%s", job_id)
+            _mark_images_processing_error(
+                access_token, [data.lateral_id, data.superior_id], GENERIC_ERROR_MESSAGE
+            )
+            fish_analysis_job_service.mark_error(job_id, access_token, GENERIC_ERROR_MESSAGE)
+
+
+@app.post("/fish/analyses/process", response_model=JobCreatedResponse, status_code=202)
 async def process_fish_analysis(
     data: ProcessRequest,
     current_user: dict = Depends(get_current_user),
 ):
     """
-    Processa o par de imagens (lateral + superior) e cria a análise.
+    Cria um job assíncrono para processar o par de imagens (lateral +
+    superior) e responde de imediato com o job_id — o processamento (rembg
+    + métricas + criação da análise) roda em background. O resultado é
+    obtido via GET /fish/analyses/jobs/{job_id}.
 
-    Etapas:
-      1. Baixa cada imagem do Supabase Storage
-      2. Detecta escala via ArUco (ou usa fator manual)
-      3. Remove fundo com rembg
-      4. Calcula bounding box e área da máscara
-      5. Cria registro em fish_analyses com as métricas consolidadas
-      6. Calcula Kvol se peso_g for informado
+    Isso evita que a requisição HTTP fique presa pela duração do
+    processamento: atrás do CloudFront, qualquer resposta acima do Origin
+    response timeout (30-60s) resultaria em 504 mesmo que o backend
+    concluísse a análise depois. Ver
+    openspec/changes/async-fish-analysis-processing.
 
-    Toda a lógica síncrona roda em asyncio.to_thread para não bloquear o event loop.
+    Reenvios do mesmo par de imagens enquanto um job ainda está
+    queued/processing devolvem o job existente (idempotência).
     """
+    user_id = current_user["id"]
+    access_token = current_user["access_token"]
+
+    # Validação de posse adiantada para o request inicial — mesma checagem
+    # que o processamento em si faz, para responder 404/403 sem criar job.
+    user_client = get_user_scoped_client(access_token)
+    for img_id, label in ((data.lateral_id, "lateral"), (data.superior_id, "superior")):
+        result = user_client.table("fish_images").select("id, user_id").eq("id", img_id).execute()
+        if not result.data:
+            raise HTTPException(status_code=404, detail=f"Imagem {label} não encontrada")
+        if result.data[0]["user_id"] != user_id:
+            raise HTTPException(status_code=403, detail=f"Sem permissão para a imagem {label}")
+
     try:
-        # _sync_process_fish_analysis contém I/O de rede + CPU intensivo (rembg).
-        # asyncio.to_thread executa em thread pool — event loop permanece livre.
-        return await asyncio.to_thread(
-            _sync_process_fish_analysis, data, current_user["id"], current_user["access_token"]
+        existing = fish_analysis_job_service.find_active_job(
+            user_id, access_token, data.lateral_id, data.superior_id
+        )
+        if existing:
+            return JobCreatedResponse(job_id=existing["id"], status=existing["status"])
+
+        job = fish_analysis_job_service.create_job(
+            user_id, access_token, data.lateral_id, data.superior_id,
+            data.fator_lateral, data.fator_superior, data.peso_g,
         )
     except HTTPException:
         raise
-    except Exception as e:
-        logger.exception("[process_fish_analysis] erro")
-        # Marcar imagens como erro (best-effort)
-        try:
-            error_client = get_user_scoped_client(current_user["access_token"])
-            for img_id in [data.lateral_id, data.superior_id]:
-                error_client.table("fish_images").update(
-                    {"processing_status": "error", "processing_error": str(e)}
-                ).eq("id", img_id).execute()
-        except Exception:
-            pass
+    except Exception:
+        logger.exception("[process_fish_analysis] erro ao criar job")
         raise HTTPException(status_code=500, detail=GENERIC_ERROR_MESSAGE)
+
+    task = asyncio.create_task(_run_analysis_job(job["id"], data, user_id, access_token))
+    _background_analysis_tasks.add(task)
+    task.add_done_callback(_background_analysis_tasks.discard)
+
+    return JobCreatedResponse(job_id=job["id"], status=job["status"])
+
+
+@app.get("/fish/analyses/jobs/{job_id}", response_model=JobStatusResponse)
+async def get_fish_analysis_job(
+    job_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    """Consulta o estado/resultado de um job criado por
+    POST /fish/analyses/process. Usado pelo frontend em polling até
+    status='done' ou 'error'."""
+    try:
+        job = fish_analysis_job_service.get_job(job_id, current_user["id"], current_user["access_token"])
+    except Exception:
+        logger.exception("[get_fish_analysis_job] erro")
+        raise HTTPException(status_code=500, detail=GENERIC_ERROR_MESSAGE)
+
+    if not job:
+        raise HTTPException(status_code=404, detail="Job não encontrado")
+
+    return JobStatusResponse(
+        job_id=job["id"],
+        status=job["status"],
+        analysis_id=job.get("analysis_id"),
+        result=job.get("result"),
+        error=job.get("error"),
+    )
 
 
 @app.get("/fish/analyses", response_model=FishAnalysisListResponse)

@@ -8,7 +8,8 @@ import type {
   FishImageDeleteResponse,
   FishAnalysisListResponse,
   ProcessRequest,
-  ProcessResponse,
+  JobCreatedResponse,
+  JobStatusResponse,
 } from '@/types/fishImage';
 
 // Mesmo proxy configurado em api.ts e next.config.js
@@ -87,10 +88,21 @@ export async function deleteFishImage(imageId: string): Promise<FishImageDeleteR
 
 // ── Análises ──────────────────────────────────────────────────────────────────
 
+/**
+ * Cria o job de processamento do par de imagens. Responde 202 de imediato
+ * (job_id) — o processamento roda em background no backend; o resultado é
+ * obtido depois via getFishAnalysisJob (polling). Ver
+ * openspec/changes/async-fish-analysis-processing.
+ */
 export async function processFishAnalysis(
   data: ProcessRequest,
-): Promise<ProcessResponse> {
+): Promise<JobCreatedResponse> {
   const response = await api.post('/fish/analyses/process', data);
+  return response.data;
+}
+
+export async function getFishAnalysisJob(jobId: string): Promise<JobStatusResponse> {
+  const response = await api.get(`/fish/analyses/jobs/${jobId}`);
   return response.data;
 }
 
