@@ -107,8 +107,17 @@ if (Test-Path $CaBundlePath) {
 
 # ---- Build do frontend ----
 Write-Host "==> Build do frontend (buildx multi-arch, com BACKEND_INTERNAL_URL de produção)" -ForegroundColor Cyan
+# `next build` baixa o Google Fonts; atrás de proxy/antivírus com inspeção TLS
+# precisa do mesmo CA bundle secret do backend (ver frontend.Dockerfile). Sem o
+# arquivo, o build roda sem o secret, como antes.
+$FrontendSecretArgs = @()
+if (Test-Path $CaBundlePath) {
+    $FrontendSecretArgs = @("--secret", "id=ca_bundle,src=$CaBundlePath")
+}
+
 docker buildx build `
     --platform linux/amd64,linux/arm64 `
+    @FrontendSecretArgs `
     --build-arg BACKEND_INTERNAL_URL=$BackendInternalUrl `
     --build-arg NEXT_PUBLIC_SUPABASE_URL=$NextPublicSupabaseUrl `
     --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=$NextPublicSupabaseAnonKey `

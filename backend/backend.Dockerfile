@@ -12,7 +12,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY backend/requirements.txt .
-RUN pip install --no-cache-dir --user -r requirements.txt
+# O CA bundle (secret opcional `ca_bundle`, mesmo do passo do rembg abaixo) só
+# é usado se fornecido: em máquinas atrás do proxy corporativo/antivírus com
+# inspeção TLS, o pip falha com CERTIFICATE_VERIFY_FAILED sem ele. Vem por
+# BuildKit secret mount, nunca por COPY/ENV — não entra em camada nenhuma, e
+# sem o secret (build na AWS/CI) roda o `pip install` padrão, idêntico a antes.
+# Não usar PIP_CERT sem o teste `-s`: apontar para arquivo inexistente quebra o pip.
+RUN --mount=type=secret,id=ca_bundle,mode=0444 \
+    if [ -s /run/secrets/ca_bundle ]; then \
+        PIP_CERT=/run/secrets/ca_bundle PIP_DEFAULT_TIMEOUT=300 PIP_RETRIES=10 \
+        pip install --no-cache-dir --user -r requirements.txt; \
+    else \
+        pip install --no-cache-dir --user -r requirements.txt; \
+    fi
 
 # ---------- Stage 2: imagem de runtime ----------
 FROM python:3.11-slim AS runtime

@@ -27,7 +27,17 @@ ARG BACKEND_INTERNAL_URL
 ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL \
     NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY \
     BACKEND_INTERNAL_URL=$BACKEND_INTERNAL_URL
-RUN npm run build
+# `next build` baixa o Google Fonts (next/font) — atrás de proxy corporativo/
+# antivírus com inspeção TLS isso falha com "unable to verify the first
+# certificate". O CA bundle vem por BuildKit secret mount opcional (mesmo id
+# `ca_bundle` do backend.Dockerfile): não entra em camada nenhuma, e sem o
+# secret (build na AWS/CI) roda `npm run build` padrão, idêntico a antes.
+RUN --mount=type=secret,id=ca_bundle,mode=0444 \
+    if [ -s /run/secrets/ca_bundle ]; then \
+        NODE_EXTRA_CA_CERTS=/run/secrets/ca_bundle npm run build; \
+    else \
+        npm run build; \
+    fi
 
 # ---------- Stage 3: runtime (output standalone) ----------
 FROM node:20-alpine AS runner

@@ -74,6 +74,10 @@ services:
         # modo standalone). "backend" é o hostname do outro serviço na rede
         # do Compose (dr_tilapia_net).
         BACKEND_INTERNAL_URL: http://backend:8000
+      # Secret de build-time só (ver frontend.Dockerfile): o `next build`
+      # baixa fontes do Google e falha atrás de proxy com inspeção TLS.
+      secrets:
+        - ca_bundle
     container_name: dr_tilapia_frontend
     ports:
       # Publicado na interface pública do host de propósito: o CloudFront
