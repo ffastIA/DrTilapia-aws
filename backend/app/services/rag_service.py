@@ -3,6 +3,7 @@ import re
 import time
 import json
 import hashlib
+import importlib.util
 import logging
 import asyncio
 import unicodedata
@@ -22,11 +23,10 @@ try:
 except ImportError:
     _PDFPLUMBER_AVAILABLE = False
 
-try:
-    import fitz as _fitz  # PyMuPDF — renderização de páginas para Vision OCR / Tesseract
-    _PYMUPDF_AVAILABLE = True
-except ImportError:
-    _PYMUPDF_AVAILABLE = False
+# PyMuPDF (fitz) — renderização de páginas para Vision OCR / Tesseract. Só detecta
+# a instalação, sem importar: o módulo é carregado dentro dos extratores de OCR, para
+# não pesar na subida do servidor (EC2 de 1 GB).
+_PYMUPDF_AVAILABLE = importlib.util.find_spec("fitz") is not None
 
 try:
     import pytesseract as _pytesseract

@@ -1,5 +1,6 @@
 # CAMINHO: backend/app/database.py
 
+import json
 import logging
 import os
 import httpx
@@ -11,39 +12,78 @@ from supabase import create_client, Client, ClientOptions
 logger = logging.getLogger(__name__)
 
 
-# Carrega o arquivo .env do backend
+DEFAULT_SECRET_ID = 'tilapia/backend'
+DEFAULT_AWS_REGION = 'sa-east-1'
+
+
+def _load_secrets_from_aws() -> str:
+    """Carrega os segredos do AWS Secrets Manager para `os.environ`.
+
+    Só é chamado fora de desenvolvimento. Os valores do secret prevalecem sobre
+    o que já estiver no ambiente — um valor antigo num `env_file` da instância
+    não pode sobrepor silenciosamente o segredo vigente. Qualquer falha aborta
+    a inicialização com uma mensagem clara; nunca cai para um estado parcial.
+    Retorna o id do secret usado (nunca os valores).
+    """
+    secret_id = os.getenv('SECRET_ID') or DEFAULT_SECRET_ID
+    region = os.getenv('AWS_REGION') or os.getenv('AWS_DEFAULT_REGION') or DEFAULT_AWS_REGION
+    try:
+        import boto3  # import tardio: dev não precisa da dependência nem do custo de memória
+
+        client = boto3.client('secretsmanager', region_name=region)
+        secret_string = client.get_secret_value(SecretId=secret_id)['SecretString']
+        secrets = json.loads(secret_string)
+        if not isinstance(secrets, dict):
+            raise ValueError('o secret deve ser um objeto JSON chave/valor')
+    except Exception as exc:
+        raise RuntimeError(
+            f"Não foi possível carregar o secret '{secret_id}' do AWS Secrets Manager "
+            f"(região {region}): {type(exc).__name__}: {exc}. Verifique a role IAM da instância "
+            f"(secretsmanager:GetSecretValue), o nome do secret (SECRET_ID) e a região (AWS_REGION)."
+        ) from exc
+
+    for key, value in secrets.items():
+        os.environ[key] = str(value)
+    return secret_id
+
+
+# Ordem importa: o .env é carregado primeiro (sem sobrescrever variáveis já
+# exportadas; não faz nada se o arquivo não existe, como na imagem de produção),
+# porque é ele que define ENVIRONMENT=development no ambiente local.
 env_path = Path(__file__).resolve().parent.parent / '.env'
 load_dotenv(dotenv_path=env_path)
 
+_ENVIRONMENT = os.getenv('ENVIRONMENT', 'production')
+if _ENVIRONMENT == 'development':
+    secrets_source = f'.env ({env_path})'
+else:
+    secrets_source = f'AWS Secrets Manager (secret {_load_secrets_from_aws()})'
+
 
 # Lê as variáveis de ambiente obrigatórias
+_MISSING_HINT = 'Configure-a no backend/.env (desenvolvimento) ou no secret do AWS Secrets Manager (produção)'
+
 SUPABASE_URL = os.getenv('SUPABASE_URL')
 if not SUPABASE_URL:
-    raise ValueError('SUPABASE_URL é obrigatória. Configure-a no backend/.env')
+    raise ValueError(f'SUPABASE_URL é obrigatória. {_MISSING_HINT}')
 
 SUPABASE_KEY = os.getenv('SUPABASE_KEY')
 if not SUPABASE_KEY:
-    raise ValueError('SUPABASE_KEY é obrigatória para autenticação comum. Configure-a no backend/.env')
+    raise ValueError(f'SUPABASE_KEY é obrigatória para autenticação comum. {_MISSING_HINT}')
 
 SUPABASE_SERVICE_ROLE_KEY = os.getenv('SUPABASE_SERVICE_ROLE_KEY')
 if not SUPABASE_SERVICE_ROLE_KEY:
     raise ValueError(
         'SUPABASE_SERVICE_ROLE_KEY é obrigatória para upload no Storage e operações administrativas. '
         'Sem ela, o cliente admin falhará silenciosamente em operações privilegiadas. '
-        'Configure-a no backend/.env'
+        f'{_MISSING_HINT}'
     )
 
 
-# Variáveis expostas para depuração e compatibilidade
-supabase_env_path = str(env_path)
-supabase_auth_key_type = 'default_key'
-supabase_admin_key_type = 'service_role'
-
-
 # Logs informativos seguros (sem expor segredos)
-logger.info(f'Arquivo .env carregado: {supabase_env_path}')
-logger.info(f'Tipo de chave para supabase_auth: {supabase_auth_key_type}')
-logger.info(f'Tipo de chave para supabase_admin: {supabase_admin_key_type}')
+logger.info('Segredos carregados de: %s', secrets_source)
+logger.info('Tipo de chave para supabase_auth: default_key')
+logger.info('Tipo de chave para supabase_admin: service_role')
 
 
 def _resolve_ssl_verify():

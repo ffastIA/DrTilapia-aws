@@ -81,6 +81,17 @@ usado pelo Next.js para alcançar o backend é resolvido em **build-time** (não
    - `ALLOWED_ORIGINS` e `FRONTEND_URL` com o domínio `*.cloudfront.net` do passo 5, com `https://`.
    - Cadastrar esse mesmo domínio como Redirect URL no Supabase Auth (Dashboard → Authentication →
      URL Configuration).
+   - **Sem** `SUPABASE_URL`, `SUPABASE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `OPENAI_API_KEY` nem outras
+     chaves sensíveis: em produção elas vêm do **AWS Secrets Manager** (secret `tilapia/backend`, ou o
+     nome em `SECRET_ID` no `deploy/.env`), e os valores do secret prevalecem sobre o `.env`. Para isso:
+     - Criar o secret (JSON chave/valor) na região do deploy, com todas as chaves acima.
+     - Anexar à role IAM da EC2 do backend a permissão `secretsmanager:GetSecretValue` restrita ao ARN
+       desse secret.
+     - **IMDSv2 com container:** configurar `HttpPutResponseHopLimit=2` na EC2 do backend
+       (`aws ec2 modify-instance-metadata-options --instance-id <id> --http-put-response-hop-limit 2
+       --http-tokens required`). Com o padrão (1), o container não alcança as credenciais da role.
+     - A EC2 privada precisa de rota ao Secrets Manager (o NAT Gateway já serve, ou um VPC endpoint).
+     - O backend falha ao iniciar, com mensagem clara, se o secret não puder ser lido.
 9. **Rodar o bootstrap em cada EC2**:
    ```
    # EC2 do Frontend

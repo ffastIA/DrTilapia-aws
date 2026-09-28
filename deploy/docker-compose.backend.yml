@@ -17,6 +17,10 @@ services:
       # Produção sempre fecha /docs, /redoc, /openapi.json — só sobrescreva
       # se precisar depurar algo pontualmente numa instância de teste.
       - ENVIRONMENT=${ENVIRONMENT:-production}
+      # Secret do AWS Secrets Manager com SUPABASE_*, OPENAI_API_KEY etc.
+      # (lido em app/database.py; credenciais AWS vêm da role IAM da EC2).
+      - SECRET_ID=${SECRET_ID:-tilapia/backend}
+      - AWS_REGION=${AWS_REGION:-sa-east-1}
     ports:
       # Publicado em todas as interfaces de propósito: esta EC2 é privada
       # (sem IP público) e só a EC2 do frontend precisa alcançar esta porta
