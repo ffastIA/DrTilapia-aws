@@ -48,7 +48,7 @@ $AwsAccountId              = "759328201443"
 $AwsRegion                 = "sa-east-1"
 $EcrRepoBackend            = "759328201443.dkr.ecr.sa-east-1.amazonaws.com/drtilapia-aws-backend"
 $EcrRepoFrontend           = "759328201443.dkr.ecr.sa-east-1.amazonaws.com/drtilapia-aws-frontend"
-$BackendInternalUrl        = "http://10.1.20.128:8000"
+$BackendInternalUrl        = "http://10.1.2.22:8000"
 $NextPublicSupabaseUrl     = "https://tfdripphcwbjiveksuet.supabase.co"
 $NextPublicSupabaseAnonKey = "sb_publishable_vtjWKBmND6gJMXgCH55pNw_5BICznza"
 # --------------------------------------------------------
