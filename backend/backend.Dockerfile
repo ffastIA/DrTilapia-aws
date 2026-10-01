@@ -81,13 +81,19 @@ USER appuser
 # a verificação TLS padrão (certifi). Fornecido via `docker-compose.yml`
 # (`build.secrets: [ca_bundle]`) ou `docker build --secret
 # id=ca_bundle,src=backend/ca-bundle-windows.pem`.
+#
+# Até 3 tentativas de 5 min cada (`timeout`): o download do rembg/pooch não tem
+# limite de tempo, e uma conexão que fica pendurada (visto em build arm64 sob
+# QEMU) travava o build para sempre, sem erro e sem uso de CPU.
 RUN --mount=type=secret,id=ca_bundle,mode=0444 \
     if [ -s /run/secrets/ca_bundle ]; then \
-        SSL_CERT_FILE=/run/secrets/ca_bundle REQUESTS_CA_BUNDLE=/run/secrets/ca_bundle \
-        python -c "from rembg import new_session; new_session('u2net')"; \
-    else \
-        python -c "from rembg import new_session; new_session('u2net')"; \
-    fi
+        export SSL_CERT_FILE=/run/secrets/ca_bundle REQUESTS_CA_BUNDLE=/run/secrets/ca_bundle; \
+    fi; \
+    for attempt in 1 2 3; do \
+        timeout 300 python -c "from rembg import new_session; new_session('u2net')" && exit 0; \
+        echo "download do modelo u2net falhou ou expirou (tentativa $attempt/3)"; \
+    done; \
+    exit 1
 
 EXPOSE 8000
 
