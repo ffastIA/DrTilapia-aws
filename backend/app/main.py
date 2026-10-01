@@ -118,6 +118,7 @@ class LoginResponse(BaseModel):
     access_token: str
     token_type: str
     user: LoginUserResponse
+    profile_complete: bool = False
 
 class SignupRequest(BaseModel):
     email: str
@@ -190,7 +191,12 @@ async def login(request: Request, data: LoginRequest):
         user_response = LoginUserResponse(id=user['id'], email=user['email'], role=user['role'])
         elapsed_seconds = time.perf_counter() - start_time
         logger.info("[main.login] login concluído para email=%s em %.3fs", data.email, elapsed_seconds)
-        return LoginResponse(access_token=access_token, token_type=token_type, user=user_response)
+        return LoginResponse(
+            access_token=access_token,
+            token_type=token_type,
+            user=user_response,
+            profile_complete=bool(result.get('profile_complete', False)),
+        )
     except AuthError as e:
         logger.warning("[main.login] AuthError code=%s para email=%s", e.code, data.email)
         status_code = 403 if e.code == "email_not_confirmed" else 401

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import Cookies from 'js-cookie';
 import { useAuth } from '@/hooks/useAuth';
 import LoadingSpinner from './LoadingSpinner';
 
@@ -31,7 +32,15 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (!isAuthenticated && isProtectedRoute) {
       router.push('/auth/login');
     } else if (isAuthenticated && pathname === '/auth/login') {
-      router.push('/main/hub');
+      // Os cookies são a fonte da verdade da sessão. Se o middleware deslogou o
+      // usuário (cookies expirados na resposta de redirecionamento), o estado em
+      // memória ainda diz "logado" — sem esta checagem haveria um loop
+      // hub → middleware → login → hub.
+      if (Cookies.get('accessToken')) {
+        router.push('/main/hub');
+      } else {
+        restoreAuth();
+      }
     }
   }, [isAuthenticated, isLoading, pathname, router, mounted]);
 

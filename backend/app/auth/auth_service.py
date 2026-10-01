@@ -46,6 +46,27 @@ def _is_email_not_confirmed(exc: Exception) -> bool:
     return "not confirmed" in str(exc).lower()
 
 
+def _has_profile(user_id: str) -> bool:
+    """True se o usuário já tem linha em `user_profiles` (cadastro completo).
+
+    As colunas obrigatórias do perfil são NOT NULL, então a linha só existe com
+    o cadastro preenchido (spec `profile-onboarding-gate`). Qualquer falha na
+    consulta vira `False` e é logada: o login não pode falhar por causa disso.
+    """
+    try:
+        result = (
+            supabase_admin.table("user_profiles")
+            .select("user_id")
+            .eq("user_id", user_id)
+            .limit(1)
+            .execute()
+        )
+        return bool(result.data)
+    except Exception:
+        logger.exception("[login] falha ao consultar user_profiles para user_id: %s", user_id)
+        return False
+
+
 class AuthService:
     @staticmethod
     async def login(email: str, password: str) -> Optional[Dict[str, Any]]:
@@ -96,6 +117,7 @@ class AuthService:
                 "email": user_email,
                 "role": role,
             },
+            "profile_complete": _has_profile(user_id),
         }
 
     @staticmethod

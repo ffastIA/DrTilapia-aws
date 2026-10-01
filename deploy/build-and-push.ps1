@@ -24,6 +24,23 @@
     Uso: .\deploy\build-and-push.ps1
 #>
 
+[CmdletBinding()]
+param(
+    # Qual imagem buildar/enviar.
+    [ValidateSet("all", "backend", "frontend")]
+    [string]$Target = "all",
+    # "both" = amd64 + arm64 (uma plataforma por vez, depois junta num manifest);
+    # amd64/arm64 = só uma plataforma (mais leve; amd64 roda nativo, sem QEMU).
+    [ValidateSet("both", "amd64", "arm64")]
+    [string]$Platform = "both",
+    # "lowmem-builder" = container BuildKit com max-parallelism=1 (menos memória),
+    # mas NÃO confia na CA do proxy corporativo (x509 unknown authority ao falar
+    # com o Docker Hub). "desktop-linux" usa o engine do Docker Desktop, que
+    # confia. Use este se o lowmem-builder der erro de certificado.
+    [ValidateSet("lowmem-builder", "desktop-linux")]
+    [string]$Builder = "lowmem-builder"
+)
+
 $ErrorActionPreference = "Stop"
 
 # ---- Preencher com os valores reais antes de usar ----
@@ -76,59 +93,70 @@ Write-Host "==> Autenticando no ECR ($EcrRegistry)" -ForegroundColor Cyan
 (aws ecr get-login-password --region $AwsRegion) |
     docker login --username AWS --password-stdin $EcrRegistry
 
-# ---- Criar/reutilizar builder multi-arch ----
-Write-Host "==> Configurando builder multi-arch" -ForegroundColor Cyan
-$builderExists = docker buildx inspect multi-arch-builder 2>$null
-if ($LASTEXITCODE -ne 0) {
-    docker buildx create --name multi-arch-builder --use
-    docker buildx inspect --bootstrap multi-arch-builder
+# ---- Criar/reutilizar builder de baixo consumo de memória ----
+# max-parallelism=1 (deploy/buildkitd.toml) + uma plataforma por vez evitam os
+# picos de memória que derrubavam o build no Docker Desktop.
+Write-Host "==> Configurando builder lowmem-builder" -ForegroundColor Cyan
+if ($Builder -eq "desktop-linux") {
+    docker buildx use desktop-linux
 } else {
-    docker buildx use multi-arch-builder
+    $null = docker buildx inspect lowmem-builder 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        docker buildx create --name lowmem-builder --driver docker-container `
+            --buildkitd-config (Join-Path $PSScriptRoot "buildkitd.toml") --use
+        if ($LASTEXITCODE -ne 0) { throw "Falha ao criar o builder." }
+    } else {
+        docker buildx use lowmem-builder
+    }
 }
-
-# ---- Build do backend ----
-Write-Host "==> Build do backend (buildx multi-arch, com CA bundle secret)" -ForegroundColor Cyan
 $env:DOCKER_BUILDKIT = "1"
 
-if (Test-Path $CaBundlePath) {
-    docker buildx build `
-        --platform linux/amd64,linux/arm64 `
-        --secret "id=ca_bundle,src=$CaBundlePath" `
-        -t $BackendImage `
-        --push `
-        -f backend/backend.Dockerfile .
-} else {
-    docker buildx build `
-        --platform linux/amd64,linux/arm64 `
-        -t $BackendImage `
-        --push `
-        -f backend/backend.Dockerfile .
+$Platforms = if ($Platform -eq "both") { @("amd64", "arm64") } else { @($Platform) }
+
+# Builda+envia uma imagem, uma plataforma por vez. Com mais de uma plataforma,
+# cada uma vai para "<imagem>-<arch>" e no fim um manifest multi-arch é criado
+# em "<imagem>" (latest) sem rebuildar nada.
+function Build-Image {
+    param([string]$Image, [string]$Dockerfile, [string[]]$ExtraArgs)
+
+    foreach ($arch in $Platforms) {
+        $archTag = if ($Platforms.Count -gt 1) { "$Image-$arch" } else { $Image }
+        Write-Host "    -> linux/$arch" -ForegroundColor DarkCyan
+        docker buildx build --platform "linux/$arch" @ExtraArgs -t $archTag --push -f $Dockerfile .
+        if ($LASTEXITCODE -ne 0) { throw "Build falhou ($Image, linux/$arch)." }
+        # Libera cache/memória do builder antes da próxima plataforma/imagem.
+        docker buildx prune --builder $Builder --force --filter "until=1h" | Out-Null
+    }
+    if ($Platforms.Count -gt 1) {
+        docker buildx imagetools create -t $Image ($Platforms | ForEach-Object { "$Image-$_" })
+        if ($LASTEXITCODE -ne 0) { throw "Falha ao criar o manifest multi-arch de $Image." }
+    }
 }
 
-# ---- Build do frontend ----
-Write-Host "==> Build do frontend (buildx multi-arch, com BACKEND_INTERNAL_URL de produção)" -ForegroundColor Cyan
-# `next build` baixa o Google Fonts; atrás de proxy/antivírus com inspeção TLS
-# precisa do mesmo CA bundle secret do backend (ver frontend.Dockerfile). Sem o
-# arquivo, o build roda sem o secret, como antes.
-$FrontendSecretArgs = @()
+$SecretArgs = @()
 if (Test-Path $CaBundlePath) {
-    $FrontendSecretArgs = @("--secret", "id=ca_bundle,src=$CaBundlePath")
+    $SecretArgs = @("--secret", "id=ca_bundle,src=$CaBundlePath")
 }
 
-docker buildx build `
-    --platform linux/amd64,linux/arm64 `
-    @FrontendSecretArgs `
-    --build-arg BACKEND_INTERNAL_URL=$BackendInternalUrl `
-    --build-arg NEXT_PUBLIC_SUPABASE_URL=$NextPublicSupabaseUrl `
-    --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=$NextPublicSupabaseAnonKey `
-    -t $FrontendImage `
-    --push `
-    -f frontend.Dockerfile .
+if ($Target -in @("all", "backend")) {
+    Write-Host "==> Build do backend ($Platform)" -ForegroundColor Cyan
+    Build-Image -Image $BackendImage -Dockerfile "backend/backend.Dockerfile" -ExtraArgs $SecretArgs
+}
+
+if ($Target -in @("all", "frontend")) {
+    Write-Host "==> Build do frontend ($Platform, com BACKEND_INTERNAL_URL de produção)" -ForegroundColor Cyan
+    # `next build` baixa o Google Fonts; atrás de proxy/antivírus com inspeção TLS
+    # precisa do mesmo CA bundle secret do backend (ver frontend.Dockerfile).
+    Build-Image -Image $FrontendImage -Dockerfile "frontend.Dockerfile" -ExtraArgs ($SecretArgs + @(
+        "--build-arg", "BACKEND_INTERNAL_URL=$BackendInternalUrl",
+        "--build-arg", "NEXT_PUBLIC_SUPABASE_URL=$NextPublicSupabaseUrl",
+        "--build-arg", "NEXT_PUBLIC_SUPABASE_ANON_KEY=$NextPublicSupabaseAnonKey"))
+}
 
 Write-Host ""
 Write-Host "Pronto. Imagens publicadas:" -ForegroundColor Green
-Write-Host "  $BackendImage"
-Write-Host "  $FrontendImage"
+if ($Target -in @("all", "backend"))  { Write-Host "  $BackendImage" }
+if ($Target -in @("all", "frontend")) { Write-Host "  $FrontendImage" }
 Write-Host ""
 Write-Host "Nas instâncias EC2, autentique no ECR e rode:" -ForegroundColor Yellow
 Write-Host "  docker pull <imagem>"

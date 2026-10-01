@@ -21,6 +21,17 @@ interface AuthStore {
   restoreAuth: () => void;
 }
 
+// Cache positivo do gate de cadastro (spec `profile-onboarding-gate`): só grava
+// quando o cadastro está completo, nunca o estado "incompleto". `Secure` segue o
+// protocolo da página (cookie Secure é descartado em http://), como em setAuth.
+export const setProfileCompleteCookie = () => {
+  Cookies.set('profileComplete', '1', {
+    path: '/',
+    sameSite: 'Lax',
+    secure: window.location.protocol === 'https:',
+  });
+};
+
 export const useAuthStore = create<AuthStore>((set, get) => ({
   token: null,
   user: null,

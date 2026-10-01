@@ -14,8 +14,15 @@
 //       - primeira tentativa na sessão → redireciona silenciosamente para
 //         /main/profile (não desloga)
 //       - tentativa seguinte (usuário já tentou sair uma vez sem completar
-//         o cadastro) → deixa passar normalmente; o gate é um aviso de uma
-//         vez só, não um bloqueio recorrente (não desloga o usuário)
+//         o cadastro) → DESLOGA: redireciona para /auth/login expirando os
+//         cookies de sessão (o cadastro é obrigatório — spec
+//         `profile-onboarding-gate`, change fix-login-first-access-redirect)
+//       - ATENÇÃO: o Next 14 remove os cabeçalhos RSC/Next-Router-Prefetch antes
+//         de chamar o middleware, então aqui não dá para distinguir prefetch de
+//         navegação real. Por isso as telas que um usuário com cadastro
+//         incompleto enxerga (/main/profile e app/main/layout.tsx) NÃO podem ter
+//         <Link> com prefetch para outras rotas de /main/* — senão o prefetch
+//         consumiria o aviso e deslogaria o usuário sozinho.
 //     "Perfil completo" = existe uma linha em public.user_profiles para o
 //     usuário (as colunas obrigatórias são NOT NULL, então a existência da
 //     linha já garante que os campos obrigatórios foram preenchidos — ver
@@ -74,14 +81,21 @@ async function hasCompletedProfile(token: string): Promise<boolean> {
       cache: 'no-store',
     });
     if (!response.ok) {
+      // Distingue "consulta falhou" de "sem cadastro" nos logs (sem dados sensíveis).
+      console.warn(`[middleware] hasCompletedProfile: Supabase respondeu HTTP ${response.status}`);
       return false;
     }
     const rows = (await response.json()) as { user_id?: string }[];
     return Array.isArray(rows) && rows.length === 1;
-  } catch {
+  } catch (error) {
+    console.warn('[middleware] hasCompletedProfile: falha de rede/parsing', error instanceof Error ? error.message : error);
     return false;
   }
 }
+
+// Cookies de sessão/gate removidos no logout por abandono do cadastro (mesma
+// lista de authStore.clearAuth).
+const SESSION_COOKIES = ['accessToken', 'user', 'profileGateSeen', 'profileComplete'];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -129,8 +143,14 @@ export async function middleware(request: NextRequest) {
       }
 
       // Já recebeu o empurrão nesta sessão e tentou sair sem completar o
-      // cadastro: deixa passar normalmente (o gate é um aviso de uma vez só,
-      // não um bloqueio recorrente — não desloga o usuário).
+      // cadastro: o cadastro é obrigatório, então encerra a sessão. Os cookies
+      // são expirados na própria resposta; o AuthProvider ressincroniza o
+      // estado em memória ao chegar em /auth/login.
+      const response = NextResponse.redirect(new URL('/auth/login', request.url));
+      for (const name of SESSION_COOKIES) {
+        response.cookies.set(name, '', { path: '/', maxAge: 0 });
+      }
+      return response;
     }
   }
 

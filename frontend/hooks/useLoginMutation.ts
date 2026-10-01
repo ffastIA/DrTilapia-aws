@@ -18,6 +18,8 @@ interface LoginResponse {
   access_token: string;
   token_type?: string;
   user?: User;
+  // Ausente em backends antigos: o destino cai no hub e o gate do middleware decide.
+  profile_complete?: boolean;
 }
 
 const KNOWN_ERROR_MESSAGES: Record<string, string> = {

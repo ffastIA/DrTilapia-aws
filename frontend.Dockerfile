@@ -5,7 +5,14 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 COPY frontend/package*.json ./
-RUN npm ci
+# CA bundle opcional (secret `ca_bundle`, ver stage builder): atrás de proxy
+# corporativo com inspeção TLS, `npm ci` falha sem ele. Sem o secret, idêntico a antes.
+RUN --mount=type=secret,id=ca_bundle,mode=0444 \
+    if [ -s /run/secrets/ca_bundle ]; then \
+        NODE_EXTRA_CA_CERTS=/run/secrets/ca_bundle npm ci; \
+    else \
+        npm ci; \
+    fi
 
 # ---------- Stage 2: build ----------
 FROM node:20-alpine AS builder
@@ -34,18 +41,26 @@ ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL \
 # secret (build na AWS/CI) roda `npm run build` padrão, idêntico a antes.
 RUN --mount=type=secret,id=ca_bundle,mode=0444 \
     if [ -s /run/secrets/ca_bundle ]; then \
-        NODE_EXTRA_CA_CERTS=/run/secrets/ca_bundle npm run build; \
+        NODE_EXTRA_CA_CERTS=/run/secrets/ca_bundle NODE_OPTIONS=--max-old-space-size=1536 npm run build; \
     else \
-        npm run build; \
+        NODE_OPTIONS=--max-old-space-size=1536 npm run build; \
     fi
 
 # ---------- Stage 3: runtime (output standalone) ----------
 FROM node:20-alpine AS runner
 WORKDIR /app
 
-RUN addgroup --system --gid 1001 nodejs \
+# CA bundle opcional (secret `ca_bundle`) só para o `apk add`: atrás de proxy
+# corporativo com inspeção TLS ele falha com "server certificate not trusted".
+# SSL_CERT_FILE vale só neste RUN; o certificado não entra em nenhuma camada.
+RUN --mount=type=secret,id=ca_bundle,mode=0444 \
+    addgroup --system --gid 1001 nodejs \
     && adduser --system --uid 1001 nextjs \
-    && apk add --no-cache curl
+    && if [ -s /run/secrets/ca_bundle ]; then \
+        SSL_CERT_FILE=/run/secrets/ca_bundle apk add --no-cache curl; \
+    else \
+        apk add --no-cache curl; \
+    fi
 
 ENV NODE_ENV=production \
     PORT=3000 \

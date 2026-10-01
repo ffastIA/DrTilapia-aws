@@ -11,7 +11,11 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <nav className="flex items-center gap-4 px-edge py-3 border-b border-border">
-        <Link href="/main/hub" className="inline-flex items-center gap-2 font-heading font-semibold text-lg uppercase">
+        {/* prefetch={false}: este layout aparece em /main/profile para quem ainda não
+            completou o cadastro; um prefetch de /main/hub passaria pelo gate do
+            middleware (que não distingue prefetch de navegação) e consumiria o aviso
+            ou deslogaria o usuário sem ele ter clicado (spec profile-onboarding-gate). */}
+        <Link href="/main/hub" prefetch={false} className="inline-flex items-center gap-2 font-heading font-semibold text-lg uppercase">
           <Image src="/LogoTAI.jpeg" alt="Dr. Tilap-IA" width={28} height={23} />
           Dr. Tilap-IA
         </Link>

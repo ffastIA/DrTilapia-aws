@@ -204,6 +204,26 @@ def test_login_success(client, monkeypatch):
     assert "user" in data
 
 
+@pytest.mark.parametrize("service_result, expected", [
+    ({"profile_complete": False}, False),
+    ({"profile_complete": True}, True),
+    ({}, False),  # service antigo, sem o campo: assume cadastro incompleto
+])
+def test_login_returns_profile_complete(client, monkeypatch, service_result, expected):
+    """O login informa se o cadastro está completo (spec profile-onboarding-gate)."""
+    async def mock_login(email, password):
+        return {
+            "access_token": "token123",
+            "token_type": "bearer",
+            "user": {"id": "1", "email": email, "role": "user"},
+            **service_result,
+        }
+    monkeypatch.setattr(main_module.auth_service, "login", mock_login)
+    response = client.post("/auth/login", json={"email": "a@example.com", "password": "pass"})
+    assert response.status_code == 200
+    assert response.json()["profile_complete"] is expected
+
+
 def test_login_invalid_credentials(client, monkeypatch):
     """Testa login com credenciais inválidas."""
     async def mock_login(email, password):
@@ -212,6 +232,7 @@ def test_login_invalid_credentials(client, monkeypatch):
     payload = {"email": "admin@example.com", "password": "wrong"}
     response = client.post("/auth/login", json=payload)
     assert response.status_code == 401
+    assert "profile_complete" not in response.text
 
 
 def test_chat_success(client, monkeypatch):

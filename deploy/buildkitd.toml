@@ -1,0 +1,6 @@
+# Config do builder "lowmem-builder" (ver deploy/build-and-push.ps1).
+# max-parallelism = 1: o BuildKit executa um passo do Dockerfile por vez,
+# evitando picos de memória (pip install de pacotes ML + next build) que
+# estouravam o limite do Docker Desktop.
+[worker.oci]
+  max-parallelism = 1

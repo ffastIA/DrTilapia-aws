@@ -5,8 +5,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import { useLoginMutation } from '@/hooks/useLoginMutation';
+import { setProfileCompleteCookie } from '@/store/authStore';
 import { useResendConfirmationMutation } from '@/hooks/useResendConfirmationMutation';
 import { barlow, barlowCondensed } from '@/lib/fonts';
 import styles from '@/styles/dr-tilapia.module.css';
@@ -20,7 +20,6 @@ export default function LoginPage() {
   const [showResendConfirmation, setShowResendConfirmation] = useState(false);
   const [resendMessage, setResendMessage] = useState('');
 
-  const router = useRouter();
   const loginMutation = useLoginMutation();
   const resendConfirmationMutation = useResendConfirmationMutation();
 
@@ -55,10 +54,21 @@ export default function LoginPage() {
     loginMutation.mutate(
       { email: email.trim(), password },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
           setSuccessMessage('Login realizado com sucesso! Redirecionando...');
+          // Primeiro acesso (sem cadastro) vai direto ao cadastro; só quem já
+          // completou o cadastro vai ao hub. Sem a informação (backend antigo),
+          // vai ao hub e o gate do middleware decide.
+          const firstAccess = data.profile_complete === false;
+          if (data.profile_complete === true) {
+            setProfileCompleteCookie();
+          }
+          // Navegação completa (não router.push): o Next.js faz prefetch de
+          // /main/hub ao abrir esta página, ainda sem cookie, e o middleware
+          // responde com redirect para /auth/login. O Router Cache reaproveita
+          // esse resultado e o push volta ao login sem nem fazer a requisição.
           setTimeout(() => {
-            router.push('/main/hub');
+            window.location.assign(firstAccess ? '/main/profile' : '/main/hub');
           }, 2000);
         },
         onError: (error) => {
@@ -92,7 +102,7 @@ export default function LoginPage() {
         <i className={`${styles.cardCorner} ${styles.cardCornerBl}`} />
         <i className={`${styles.cardCorner} ${styles.cardCornerBr}`} />
 
-        <Link href="/main/hub" className={styles.cardBrand}>
+        <Link href="/main/hub" prefetch={false} className={styles.cardBrand}>
           <Image src="/LogoTAI.jpeg" alt="Dr. Tilap-IA" width={32} height={27} />
           <span>Dr. Tilap-IA</span>
         </Link>
