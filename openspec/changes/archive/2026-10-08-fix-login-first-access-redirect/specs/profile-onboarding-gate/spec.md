@@ -48,12 +48,13 @@ registrado no log.
 - **THEN** a resposta é o erro de autenticação existente e não contém `profile_complete`
 
 ### Requirement: Telas acessíveis a quem tem cadastro incompleto não disparam prefetch de rotas protegidas
-O middleware do Next.js 14 não consegue distinguir uma requisição de prefetch de uma navegação real (o
-framework remove os cabeçalhos `RSC` e `Next-Router-Prefetch` antes de chamá-lo). Portanto, toda requisição
-de `/main/*` recebida do gate é tratada como tentativa real do usuário, e as telas que um usuário com
-cadastro incompleto enxerga (`/main/profile` e o layout compartilhado `app/main/layout.tsx`) SHALL NOT conter
-links com prefetch para outras rotas de `/main/*` (`prefetch={false}`), de modo que um prefetch não consuma o
-redirecionamento único nem deslogue o usuário sem ele ter navegado.
+O sistema SHALL NOT disparar prefetch de rotas de `/main/*` a partir das telas que um usuário com cadastro
+incompleto enxerga (`/main/profile` e o layout compartilhado `app/main/layout.tsx`): os links dessas telas
+para outras rotas de `/main/*` usam `prefetch={false}`, de modo que um prefetch não consuma o
+redirecionamento único nem deslogue o usuário sem ele ter navegado. Isso é necessário porque o middleware
+do Next.js 14 não consegue distinguir uma requisição de prefetch de uma navegação real (o framework remove
+os cabeçalhos `RSC` e `Next-Router-Prefetch` antes de chamá-lo), então toda requisição de `/main/*` recebida
+do gate é tratada como tentativa real do usuário.
 
 #### Scenario: Abrir o cadastro não consome o redirecionamento único
 - **WHEN** um usuário com cadastro incompleto permanece em `/main/profile`, sem clicar em nenhum link
