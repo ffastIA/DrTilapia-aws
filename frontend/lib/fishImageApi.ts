@@ -1,7 +1,6 @@
 // CAMINHO: frontend/lib/fishImageApi.ts
 
 import api from '@/lib/api';
-import { useAuthStore } from '@/store/authStore';
 import type {
   FishImageListResponse,
   FishImageUploadResponse,
@@ -40,7 +39,6 @@ export async function uploadFishImage(
     form.append('fator_conversao', String(fatorConversao));
   }
 
-  const token = useAuthStore.getState().token;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 30_000); // 30s timeout
 
@@ -48,7 +46,6 @@ export async function uploadFishImage(
     const res = await fetch(`${API_BASE_URL}/fish/images/upload`, {
       method: 'POST',
       // SEM Content-Type: o browser seta multipart/form-data; boundary=... automaticamente
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
       body: form,
       signal: controller.signal,
     });

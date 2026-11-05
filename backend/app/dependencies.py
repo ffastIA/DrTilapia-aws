@@ -3,7 +3,7 @@
 
 import logging
 
-from app.database import supabase
+from app.database import supabase_admin, get_user_scoped_client
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from supabase_auth.errors import AuthApiError
@@ -24,16 +24,18 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials | None = De
     access_token = credentials.credentials
 
     try:
-        # Validar o token com Supabase Auth
-        user_response = supabase.auth.get_user(access_token)
+        # Validar o token com Supabase Auth com cliente descartável de chave anon (baixo privilégio)
+        user_response = get_user_scoped_client(access_token).auth.get_user(access_token)
         user = user_response.user
         if not user:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido ou expirado")
 
         user_id = user.id
 
-        # Consultar a tabela 'users' para obter id, email e role
-        response = supabase.table('users').select('id, email, role').eq('id', user_id).execute()
+        # Leitura privilegiada e explícita (supabase_admin): o papel em public.users
+        # só é alterável com service_role e a consulta é filtrada pelo id do token
+        # já validado acima.
+        response = supabase_admin.table('users').select('id, email, role').eq('id', user_id).execute()
         if not response.data:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                 detail="Usuário não encontrado na tabela 'users'")

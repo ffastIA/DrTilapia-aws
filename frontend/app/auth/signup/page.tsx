@@ -31,8 +31,8 @@ export default function SignupPage() {
       setValidationError('Por favor, insira um email válido.');
       return false;
     }
-    if (!password || password.length < 6) {
-      setValidationError('A senha deve ter pelo menos 6 caracteres.');
+    if (!password || password.length < 10) {
+      setValidationError('A senha deve ter pelo menos 10 caracteres.');
       return false;
     }
     if (password !== confirmPassword) {
@@ -96,7 +96,7 @@ export default function SignupPage() {
             name="password"
             type="password"
             required
-            placeholder="Pelo menos 6 caracteres"
+            placeholder="Pelo menos 10 caracteres"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={isSubmitting}

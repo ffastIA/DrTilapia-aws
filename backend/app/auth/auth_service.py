@@ -67,12 +67,15 @@ def _has_profile(user_id: str) -> bool:
         return False
 
 
+from app.utils.log_safety import mask_email
+
+
 class AuthService:
     @staticmethod
     async def login(email: str, password: str) -> Optional[Dict[str, Any]]:
         client = _fresh_auth_client()
         try:
-            logger.info("[login] iniciando autenticação para: %s", email)
+            logger.info("[login] iniciando autenticação para: %s", mask_email(email))
             auth_response = client.auth.sign_in_with_password(
                 {
                     "email": email,
@@ -80,16 +83,16 @@ class AuthService:
                 }
             )
         except AuthApiError as e:
-            logger.warning("[login] AuthApiError para %s: code=%s status=%s", email, getattr(e, "code", None), getattr(e, "status", None))
+            logger.warning("[login] AuthApiError para %s: code=%s status=%s", mask_email(email), getattr(e, "code", None), getattr(e, "status", None))
             if _is_email_not_confirmed(e):
                 raise AuthError(code="email_not_confirmed", message="Confirme seu e-mail antes de entrar.")
             raise AuthError(code="invalid_credentials", message="Invalid credentials")
         except Exception:
-            logger.exception("[login] exceção inesperada durante login para %s", email)
+            logger.exception("[login] exceção inesperada durante login para %s", mask_email(email))
             raise AuthError(code="invalid_credentials", message="Invalid credentials")
 
         if not auth_response.user:
-            logger.warning("[login] auth_response.user vazio para: %s", email)
+            logger.warning("[login] auth_response.user vazio para: %s", mask_email(email))
             raise AuthError(code="invalid_credentials", message="Invalid credentials")
 
         user_id = auth_response.user.id
@@ -111,6 +114,7 @@ class AuthService:
 
         return {
             "access_token": auth_response.session.access_token,
+            "refresh_token": auth_response.session.refresh_token,
             "token_type": "bearer",
             "user": {
                 "id": user_id,
@@ -132,7 +136,7 @@ class AuthService:
                 }
             )
         except AuthApiError as e:
-            logger.warning("[signup] AuthApiError para %s: %s", email, e)
+            logger.warning("[signup] AuthApiError para %s: %s", mask_email(email), e)
             raise AuthError(code="signup_failed", message=str(e))
 
         user = auth_response.user
@@ -153,7 +157,7 @@ class AuthService:
                 }
             )
         except Exception:
-            logger.info("[resend_confirmation] falha ao reenviar para %s (não revelado ao chamador)", email)
+            logger.info("[resend_confirmation] falha ao reenviar para %s (não revelado ao chamador)", mask_email(email))
 
     @staticmethod
     def send_password_reset(email: str, redirect_to: str) -> None:
@@ -161,7 +165,7 @@ class AuthService:
         try:
             client.auth.reset_password_for_email(email, {"redirect_to": redirect_to})
         except Exception:
-            logger.info("[send_password_reset] falha ao enviar reset para %s (não revelado ao chamador)", email)
+            logger.info("[send_password_reset] falha ao enviar reset para %s (não revelado ao chamador)", mask_email(email))
 
     @staticmethod
     def reset_password(access_token: str, refresh_token: str, new_password: str) -> None:
@@ -174,6 +178,27 @@ class AuthService:
         except Exception as e:
             logger.exception("[reset_password] erro inesperado")
             raise AuthError(code="reset_failed", message=str(e))
+
+    @staticmethod
+    def refresh(refresh_token: str) -> Dict[str, str]:
+        """Troca um refresh token por um novo par de tokens (rotação do Supabase)."""
+        client = _fresh_auth_client()
+        try:
+            response = client.auth.refresh_session(refresh_token)
+        except AuthApiError:
+            raise AuthError(code="invalid_refresh_token", message="Sessão expirada. Entre novamente.")
+        session = response.session
+        if not session:
+            raise AuthError(code="invalid_refresh_token", message="Sessão expirada. Entre novamente.")
+        return {"access_token": session.access_token, "refresh_token": session.refresh_token}
+
+    @staticmethod
+    def logout(access_token: str) -> None:
+        """Revoga a sessão (refresh token) no Supabase. Best effort: não propaga falhas."""
+        try:
+            supabase_admin.auth.admin.sign_out(access_token, "local")
+        except Exception:
+            logger.warning("[logout] não foi possível revogar a sessão no Supabase", exc_info=True)
 
 
 auth_service = AuthService()

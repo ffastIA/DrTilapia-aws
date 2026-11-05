@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import os
 from supabase import create_client, Client
 import argparse
+import getpass
 
 def get_supabase_client():
     load_dotenv()
@@ -52,10 +53,19 @@ def upsert_user_profile(client, user, role):
     }
     client.table("users").upsert(data, on_conflict="id").execute()
 
+def _ask_password() -> str:
+    """Lê a senha sem eco (não fica no histórico do shell nem na lista de processos)."""
+    password = getpass.getpass('Senha (mínimo 10 caracteres): ')
+    if len(password) < 10:
+        raise ValueError('A senha deve ter no mínimo 10 caracteres.')
+    if password != getpass.getpass('Confirme a senha: '):
+        raise ValueError('As senhas não conferem.')
+    return password
+
+
 def main():
     parser = argparse.ArgumentParser(description="Criar usuário comum no projeto DrTilápia")
     parser.add_argument("--email", required=True, help="Email do usuário")
-    parser.add_argument("--password", required=True, help="Senha do usuário")
     parser.add_argument("--name", help="Nome do usuário (opcional)")
     parser.add_argument("--role", default="user", help="Role do usuário (padrão: user)")
     args = parser.parse_args()
@@ -68,7 +78,7 @@ def main():
         if user:
             print(f"Usuário encontrado: {user.email} (ID: {user.id})")
         else:
-            user = create_auth_user(client, args.email, args.password, args.name)
+            user = create_auth_user(client, args.email, _ask_password(), args.name)
             print(f"Usuário criado: {user.email} (ID: {user.id})")
 
         upsert_user_profile(client, user, args.role)

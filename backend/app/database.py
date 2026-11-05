@@ -103,10 +103,6 @@ _ssl_options = ClientOptions(httpx_client=httpx.Client(verify=_resolve_ssl_verif
 supabase_auth: Client = create_client(SUPABASE_URL, SUPABASE_KEY, options=_ssl_options)
 supabase_admin: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, options=_ssl_options)
 
-# Alias legado para compatibilidade com código existente
-supabase: Client = supabase_admin
-
-
 def get_user_scoped_client(access_token: str) -> Client:
     """Cria um cliente Supabase novo, autenticado como o usuário chamador.
 

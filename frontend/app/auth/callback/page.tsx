@@ -56,8 +56,8 @@ export default function AuthCallbackPage() {
   }, []);
 
   const validateForm = (): boolean => {
-    if (!newPassword || newPassword.length < 6) {
-      setValidationError('A senha deve ter pelo menos 6 caracteres.');
+    if (!newPassword || newPassword.length < 10) {
+      setValidationError('A senha deve ter pelo menos 10 caracteres.');
       return false;
     }
     if (newPassword !== confirmPassword) {
@@ -132,7 +132,7 @@ export default function AuthCallbackPage() {
               name="newPassword"
               type="password"
               required
-              placeholder="Pelo menos 6 caracteres"
+              placeholder="Pelo menos 10 caracteres"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               disabled={isSubmitting}

@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import os
 from supabase import create_client, Client
 import argparse
+import getpass
 
 
 def get_supabase_client() -> Client:
@@ -95,10 +96,19 @@ def upsert_user_profile(client, user, role):
     client.table('users').upsert(data, on_conflict='id').execute()
 
 
+def _ask_password() -> str:
+    """Lê a senha sem eco (não fica no histórico do shell nem na lista de processos)."""
+    password = getpass.getpass('Senha (mínimo 10 caracteres): ')
+    if len(password) < 10:
+        raise ValueError('A senha deve ter no mínimo 10 caracteres.')
+    if password != getpass.getpass('Confirme a senha: '):
+        raise ValueError('As senhas não conferem.')
+    return password
+
+
 def main():
     parser = argparse.ArgumentParser(description='Criar ou atualizar admin no Supabase')
     parser.add_argument('--email', required=True, help='Email do admin')
-    parser.add_argument('--password', required=True, help='Senha do admin')
     parser.add_argument('--name', help='Nome opcional do admin')
     parser.add_argument('--role', default='admin', help='Role do usuário (default: admin)')
     args = parser.parse_args()
@@ -112,7 +122,7 @@ def main():
             print(f'Usuário encontrado: {existing_user.email} (ID: {existing_user.id})')
             user = existing_user
         else:
-            user = create_auth_user(client, args.email, args.password, args.name)
+            user = create_auth_user(client, args.email, _ask_password(), args.name)
             print(f'Usuário criado: {user.email} (ID: {user.id})')
 
         upsert_user_profile(client, user, args.role)

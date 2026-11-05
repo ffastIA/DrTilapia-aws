@@ -1,16 +1,19 @@
 import asyncio
 import logging
 import time
+import uuid
+from fastapi.responses import JSONResponse
 import os
 import tempfile
 from fastapi import FastAPI, HTTPException, UploadFile, File, Depends, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from app.database import supabase_admin, get_user_scoped_client
+from app.utils.rate_limit import client_ip, EmailRateLimiter
+from app.utils.log_safety import mask_email
 from app.services.vector_admin_service import vector_admin_service
 from app.services.rag_service import rag_service
 from app.auth.auth_service import auth_service, AuthError
@@ -32,6 +35,7 @@ from app.utils.upload_validation import (
     read_limited,
     detect_real_content_type,
     sanitize_filename,
+    validate_image_dimensions,
     PayloadTooLargeError,
     MAX_UPLOAD_SIZE_PDF_MB,
     MAX_UPLOAD_SIZE_VIDEO_MB,
@@ -75,16 +79,16 @@ _background_analysis_tasks: set = set()
 
 
 def _client_ip_key(request: Request) -> str:
-    """Chave de rate limit = IP do cliente, respeitando X-Forwarded-For
-    (primeiro IP da cadeia) quando o backend roda atrás de um proxy/load
-    balancer — ex.: ALB na frente do ECS Fargate."""
-    forwarded_for = request.headers.get("X-Forwarded-For")
-    if forwarded_for:
-        return forwarded_for.split(",")[0].strip()
-    return get_remote_address(request)
+    """Chave de rate limit = IP real do cliente (ver app/utils/rate_limit.py —
+    não confia em entradas de X-Forwarded-For forjáveis pelo cliente)."""
+    return client_ip(request)
 
 
 limiter = Limiter(key_func=_client_ip_key)
+
+# Limites por e-mail (SEC-03): login conta só falhas; os demais contam envios.
+_login_failures = EmailRateLimiter(max_events=10, window_seconds=300)
+_email_sends = EmailRateLimiter(max_events=1, window_seconds=300)
 
 from app.vector_admin_schemas import (
     VectorFileSummary,
@@ -105,6 +109,21 @@ logging.getLogger("AuthService").setLevel(logging.INFO)
 logging.getLogger("uvicorn").setLevel(logging.INFO)
 logging.getLogger("uvicorn.error").setLevel(logging.INFO)
 
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    """Rede de segurança (SEC-07): qualquer exceção não tratada vira 500
+    genérico com um identificador de correlação; o detalhe fica só no log."""
+    request_id = uuid.uuid4().hex[:12]
+    logger.error(
+        "[unhandled] request_id=%s %s %s",
+        request_id, request.method, request.url.path,
+        exc_info=(type(exc), exc, exc.__traceback__),
+    )
+    return JSONResponse(
+        status_code=500,
+        content={"detail": GENERIC_ERROR_MESSAGE, "request_id": request_id},
+    )
+
+
 class LoginRequest(BaseModel):
     email: str
     password: str
@@ -116,13 +135,20 @@ class LoginUserResponse(BaseModel):
 
 class LoginResponse(BaseModel):
     access_token: str
+    refresh_token: Optional[str] = None
     token_type: str
     user: LoginUserResponse
     profile_complete: bool = False
 
+# Política de senha aplicada no servidor (SEC-04). A checagem de senhas
+# vazadas é feita pelo Supabase Auth (leaked password protection).
+MIN_PASSWORD_LENGTH = 10
+MAX_PASSWORD_LENGTH = 128
+
+
 class SignupRequest(BaseModel):
     email: str
-    password: str
+    password: str = Field(min_length=MIN_PASSWORD_LENGTH, max_length=MAX_PASSWORD_LENGTH)
 
 class MessageResponse(BaseModel):
     message: str
@@ -136,7 +162,7 @@ class ForgotPasswordRequest(BaseModel):
 class ResetPasswordRequest(BaseModel):
     access_token: str
     refresh_token: str
-    new_password: str
+    new_password: str = Field(min_length=MIN_PASSWORD_LENGTH, max_length=MAX_PASSWORD_LENGTH)
 
 class ChatRequest(BaseModel):
     message: str
@@ -149,6 +175,7 @@ app = FastAPI(
 )
 
 app.state.limiter = limiter
+app.add_exception_handler(Exception, unhandled_exception_handler)
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Origens permitidas — definir ALLOWED_ORIGINS no .env em produção
@@ -181,35 +208,66 @@ async def health():
 @limiter.limit(AUTH_RATE_LIMIT)
 async def login(request: Request, data: LoginRequest):
     start_time = time.perf_counter()
-    logger.info("[main.login] início da requisição para email=%s", data.email)
+    masked = mask_email(data.email)
+    if _login_failures.is_limited(data.email):
+        logger.warning("[main.login] limite de falhas por e-mail excedido para %s", masked)
+        raise HTTPException(status_code=429, detail="Muitas tentativas. Tente novamente em alguns minutos.")
+    logger.info("[main.login] início da requisição para %s", masked)
     try:
-        logger.info("[main.login] chamando auth_service.login para email=%s", data.email)
         result = await auth_service.login(data.email, data.password)
         access_token = result['access_token']
         token_type = result['token_type']
         user = result['user']
         user_response = LoginUserResponse(id=user['id'], email=user['email'], role=user['role'])
         elapsed_seconds = time.perf_counter() - start_time
-        logger.info("[main.login] login concluído para email=%s em %.3fs", data.email, elapsed_seconds)
+        logger.info("[main.login] login concluído para %s em %.3fs", masked, elapsed_seconds)
         return LoginResponse(
             access_token=access_token,
+            refresh_token=result.get('refresh_token'),
             token_type=token_type,
             user=user_response,
             profile_complete=bool(result.get('profile_complete', False)),
         )
     except AuthError as e:
-        logger.warning("[main.login] AuthError code=%s para email=%s", e.code, data.email)
+        logger.warning("[main.login] AuthError code=%s para %s", e.code, masked)
+        if e.code != "email_not_confirmed":
+            _login_failures.hit(data.email)
         status_code = 403 if e.code == "email_not_confirmed" else 401
         raise HTTPException(status_code=status_code, detail=e.code)
     except HTTPException:
         raise
     except Exception:
-        logger.exception("[main.login] exceção inesperada para email=%s", data.email)
+        logger.exception("[main.login] exceção inesperada para %s", masked)
         raise HTTPException(status_code=500, detail="Erro interno do servidor")
 
+class RefreshRequest(BaseModel):
+    refresh_token: str = Field(min_length=1, max_length=2048)
+
+class RefreshResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+
+@app.post("/auth/refresh", response_model=RefreshResponse)
+@limiter.limit("30/minute")
+async def refresh_session(request: Request, data: RefreshRequest):
+    try:
+        return RefreshResponse(**auth_service.refresh(data.refresh_token))
+    except AuthError as e:
+        raise HTTPException(status_code=401, detail=e.code)
+
+@app.post("/auth/logout", response_model=MessageResponse)
+async def logout(current_user: dict = Depends(get_current_user)):
+    auth_service.logout(current_user["access_token"])
+    return MessageResponse(message="Sessão encerrada.")
+
 @app.post("/auth/signup", response_model=MessageResponse, status_code=201)
-async def signup(data: SignupRequest):
+@limiter.limit(AUTH_RATE_LIMIT)
+async def signup(request: Request, data: SignupRequest):
     generic_message = "Se o e-mail informado for válido, você receberá um link de confirmação em instantes."
+    masked = mask_email(data.email)
+    if _email_sends.is_limited("signup:" + data.email):
+        return MessageResponse(message=generic_message)
+    _email_sends.hit("signup:" + data.email)
     try:
         email_redirect_to = f"{FRONTEND_URL}/auth/callback"
         user = auth_service.signup(data.email, data.password, email_redirect_to)
@@ -217,15 +275,18 @@ async def signup(data: SignupRequest):
             {"id": user["id"], "email": user["email"], "role": "user"}
         ).execute()
     except AuthError as e:
-        logger.info("[main.signup] AuthError code=%s para email=%s (resposta genérica mantida)", e.code, data.email)
+        logger.info("[main.signup] AuthError code=%s para %s (resposta genérica mantida)", e.code, masked)
     except Exception:
-        logger.exception("[main.signup] erro inesperado para email=%s (resposta genérica mantida)", data.email)
+        logger.exception("[main.signup] erro inesperado para %s (resposta genérica mantida)", masked)
     return MessageResponse(message=generic_message)
 
 @app.post("/auth/resend-confirmation", response_model=MessageResponse)
-async def resend_confirmation(data: ResendConfirmationRequest):
-    email_redirect_to = f"{FRONTEND_URL}/auth/callback"
-    auth_service.resend_confirmation(data.email, email_redirect_to)
+@limiter.limit(AUTH_RATE_LIMIT)
+async def resend_confirmation(request: Request, data: ResendConfirmationRequest):
+    if not _email_sends.is_limited("resend:" + data.email):
+        _email_sends.hit("resend:" + data.email)
+        email_redirect_to = f"{FRONTEND_URL}/auth/callback"
+        auth_service.resend_confirmation(data.email, email_redirect_to)
     return MessageResponse(
         message="Se o e-mail existir e ainda não tiver sido confirmado, um novo link foi enviado."
     )
@@ -233,8 +294,10 @@ async def resend_confirmation(data: ResendConfirmationRequest):
 @app.post("/auth/forgot-password", response_model=MessageResponse)
 @limiter.limit(AUTH_RATE_LIMIT)
 async def forgot_password(request: Request, data: ForgotPasswordRequest):
-    redirect_to = f"{FRONTEND_URL}/auth/callback"
-    auth_service.send_password_reset(data.email, redirect_to)
+    if not _email_sends.is_limited("forgot:" + data.email):
+        _email_sends.hit("forgot:" + data.email)
+        redirect_to = f"{FRONTEND_URL}/auth/callback"
+        auth_service.send_password_reset(data.email, redirect_to)
     return MessageResponse(
         message="Se o e-mail existir em nossa base, você receberá um link para redefinir sua senha."
     )
@@ -544,6 +607,11 @@ async def upload_fish_image(
         detected_type = detect_real_content_type(content)
         if detected_type not in ALLOWED_IMAGE_MIME_TYPES:
             raise HTTPException(status_code=400, detail="Conteúdo do arquivo não corresponde a uma imagem suportada")
+
+        try:
+            validate_image_dimensions(content)
+        except ValueError as dim_err:
+            raise HTTPException(status_code=400, detail=str(dim_err))
 
         safe_filename = sanitize_filename(file.filename or "imagem.jpg")
 

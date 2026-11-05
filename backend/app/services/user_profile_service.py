@@ -71,7 +71,7 @@ class UserProfileService:
             )
         except APIError as exc:
             logger.warning("[user_profile_service] upsert rejeitado: %s", exc)
-            raise ValueError(f"Não foi possível salvar o perfil: {exc.message}") from exc
+            raise ValueError("Não foi possível salvar o perfil") from exc
 
         if not result.data:
             raise ValueError("Não foi possível salvar o perfil")

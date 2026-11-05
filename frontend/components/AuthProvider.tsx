@@ -36,7 +36,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // usuário (cookies expirados na resposta de redirecionamento), o estado em
       // memória ainda diz "logado" — sem esta checagem haveria um loop
       // hub → middleware → login → hub.
-      if (Cookies.get('accessToken')) {
+      if (Cookies.get('user')) {
         router.push('/main/hub');
       } else {
         restoreAuth();

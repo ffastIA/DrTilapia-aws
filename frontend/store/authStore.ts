@@ -17,7 +17,7 @@ interface AuthStore {
   isLoading: boolean;
   setAuth: (token: string, user: User) => void;
   setUserName: (name: string) => void;
-  clearAuth: () => void;
+  clearAuth: () => Promise<void>;
   restoreAuth: () => void;
 }
 
@@ -37,13 +37,14 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   user: null,
   isAuthenticated: false,
   isLoading: true,
-  setAuth: (token, user) => {
+  setAuth: (_token, user) => {
     // Cookie "Secure" é descartado pelo browser em http:// (ex.: CloudFront sem TLS),
     // o que impede o middleware de ver o token e devolve o usuário ao login.
+    // O token de sessão NÃO é gravado aqui: o servidor o define em cookie
+    // HttpOnly (/api/auth/login). Só o perfil não sensível fica legível ao JS.
     const secure = window.location.protocol === 'https:';
-    Cookies.set('accessToken', token, { path: '/', sameSite: 'Lax', secure });
     Cookies.set('user', JSON.stringify(user), { path: '/', sameSite: 'Lax', secure });
-    set({ token, user, isAuthenticated: true, isLoading: false });
+    set({ token: null, user, isAuthenticated: true, isLoading: false });
   },
   setUserName: (name) => {
     const currentUser = get().user;
@@ -52,7 +53,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     Cookies.set('user', JSON.stringify(updatedUser), { path: '/', sameSite: 'Lax', secure: window.location.protocol === 'https:' });
     set({ user: updatedUser });
   },
-  clearAuth: () => {
+  clearAuth: async () => {
+    // Revoga a sessão no servidor e remove os cookies HttpOnly (best effort).
+    // Aguardado para que a navegação seguinte já não encontre o cookie de sessão.
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' }).catch(() => {});
     Cookies.remove('accessToken', { path: '/' });
     Cookies.remove('user', { path: '/' });
     Cookies.remove('profileGateSeen', { path: '/' });
@@ -60,12 +64,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     set({ token: null, user: null, isAuthenticated: false, isLoading: false });
   },
   restoreAuth: () => {
-    const token = Cookies.get('accessToken');
+    // O cookie de sessão é HttpOnly (invisível ao JS): o cookie `user` indica a
+    // sessão; o middleware/servidor é quem valida o token de fato.
     const userCookie = Cookies.get('user');
-    if (token && userCookie) {
+    if (userCookie) {
       try {
         const user = JSON.parse(userCookie);
-        set({ token, user, isAuthenticated: true, isLoading: false });
+        set({ token: null, user, isAuthenticated: true, isLoading: false });
       } catch {
         // JSON inválido, limpar cookies
         Cookies.remove('accessToken', { path: '/' });

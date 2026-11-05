@@ -27,6 +27,10 @@ MAX_UPLOAD_SIZE_PDF_MB = float(os.getenv("MAX_UPLOAD_SIZE_PDF_MB", "25"))
 MAX_UPLOAD_SIZE_VIDEO_MB = float(os.getenv("MAX_UPLOAD_SIZE_VIDEO_MB", "200"))
 MAX_UPLOAD_SIZE_IMAGE_MB = float(os.getenv("MAX_UPLOAD_SIZE_IMAGE_MB", "10"))
 
+# Teto de dimensões de imagem (antes de rembg/OpenCV, caros em CPU/memória).
+MAX_IMAGE_PIXELS = int(os.getenv("MAX_IMAGE_PIXELS", str(40_000_000)))  # ~40 MP
+MAX_IMAGE_SIDE = int(os.getenv("MAX_IMAGE_SIDE", "10000"))
+
 _CHUNK_SIZE = 1024 * 1024  # 1 MB
 
 
@@ -104,3 +108,23 @@ def sanitize_filename(name: str, max_length: int = 200) -> str:
     if not cleaned:
         cleaned = "arquivo"
     return cleaned[:max_length]
+
+
+
+def validate_image_dimensions(content: bytes) -> None:
+    """Rejeita imagens com dimensões excessivas lendo só o cabeçalho.
+
+    `Image.open` é preguiçoso: não decodifica os pixels. Levanta ValueError
+    (tratado como 400 pelo chamador) se o arquivo não abre como imagem ou se
+    exceder `MAX_IMAGE_SIDE` / `MAX_IMAGE_PIXELS`.
+    """
+    import io
+    from PIL import Image, UnidentifiedImageError
+
+    try:
+        with Image.open(io.BytesIO(content)) as img:
+            width, height = img.size
+    except (UnidentifiedImageError, OSError, Image.DecompressionBombError):
+        raise ValueError("Imagem inválida ou corrompida")
+    if max(width, height) > MAX_IMAGE_SIDE or width * height > MAX_IMAGE_PIXELS:
+        raise ValueError("Dimensões da imagem excedem o limite permitido")

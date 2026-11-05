@@ -95,12 +95,38 @@ async function hasCompletedProfile(token: string): Promise<boolean> {
 
 // Cookies de sessão/gate removidos no logout por abandono do cadastro (mesma
 // lista de authStore.clearAuth).
-const SESSION_COOKIES = ['accessToken', 'user', 'profileGateSeen', 'profileComplete'];
+const SESSION_COOKIES = ['accessToken', 'refreshToken', 'user', 'profileGateSeen', 'profileComplete'];
+
+// `exp` (segundos) do JWT, sem validar assinatura — só para decidir se renova.
+function tokenExpiry(token: string): number | null {
+  try {
+    const b64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const payload = JSON.parse(atob(b64));
+    return typeof payload.exp === 'number' ? payload.exp : null;
+  } catch {
+    return null;
+  }
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const token = request.cookies.get('accessToken')?.value;
+  let token = request.cookies.get('accessToken')?.value;
+  const refreshToken = request.cookies.get('refreshToken')?.value;
+
+  // Access token expirado/expirando: renova no servidor (cookies HttpOnly) e volta
+  // à página pedida. Sem refresh token válido, trata como não autenticado.
+  if (token && (pathname.startsWith('/main') || pathname.startsWith('/auth'))) {
+    const exp = tokenExpiry(token);
+    if (exp === null || exp - 30 <= Math.floor(Date.now() / 1000)) {
+      if (refreshToken) {
+        const refreshUrl = new URL('/api/auth/refresh', request.url);
+        refreshUrl.searchParams.set('redirect', pathname + request.nextUrl.search);
+        return NextResponse.redirect(refreshUrl);
+      }
+      token = undefined;
+    }
+  }
 
   const isProtected = pathname.startsWith('/main');
   // Permite-lista: só estas páginas de /auth/* redirecionam para o hub se já

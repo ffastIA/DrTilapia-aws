@@ -84,12 +84,12 @@ export const useLoginMutation = () => {
     setData(null);
 
     try {
-      const response = await api.post<LoginResponse>('/auth/login', credentials);
+      const response = await api.post<LoginResponse>('/api/auth/login', credentials, { baseURL: '' });
       let user = response.data.user;
       if (!user) {
         user = { id: '', email: credentials.email, role: 'user' };
       }
-      setAuth(response.data.access_token, user);
+      setAuth('', user);
       setData(response.data);
       setIsSuccess(true);
       options?.onSuccess?.(response.data);

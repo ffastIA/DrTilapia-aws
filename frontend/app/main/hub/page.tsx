@@ -35,8 +35,8 @@ export default function HubPage() {
   // a página não usa `profile` diretamente.
   useProfile();
 
-  const handleLogout = () => {
-    clearAuth();
+  const handleLogout = async () => {
+    await clearAuth();
     router.replace('/');
   };
 

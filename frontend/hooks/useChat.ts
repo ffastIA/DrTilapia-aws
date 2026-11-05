@@ -44,17 +44,10 @@ export const useChat = () => {
     setError(null);
 
     try {
-      console.log('Enviando mensagem para o backend...', {
-        message: newMessage,
-        history: chatHistoryRef.current,
-      });
-
       const response = await api.post<ChatResponse>('/consultoria/chat', {
         message: newMessage,
         history: chatHistoryRef.current,
       });
-
-      console.log('Resposta recebida do backend:', response.data);
 
       const aiMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),

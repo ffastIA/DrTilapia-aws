@@ -24,12 +24,8 @@ COPY frontend/ .
 # aqui, não só como env de runtime do container.
 ARG NEXT_PUBLIC_SUPABASE_URL
 ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
-# BACKEND_INTERNAL_URL também precisa ser build-time, não runtime: em
-# `output: 'standalone'`, a função `rewrites()` de next.config.js roda
-# durante `next build` e o destino resolvido é congelado em
-# `.next/routes-manifest.json` — o server.js gerado NÃO reavalia
-# next.config.js a cada request. Definir isso só como env do container
-# (sem rebuild) não tem efeito nenhum sobre o proxy /api-proxy/*.
+# BACKEND_INTERNAL_URL: o proxy /api-proxy/* agora é um route handler que lê
+# a variável em runtime; ela é repetida no estágio `runner` abaixo.
 ARG BACKEND_INTERNAL_URL
 ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL \
     NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY \
@@ -62,6 +58,9 @@ RUN --mount=type=secret,id=ca_bundle,mode=0444 \
         apk add --no-cache curl; \
     fi
 
+# Lido em RUNTIME pelo route handler /api-proxy e por /api/auth/*.
+ARG BACKEND_INTERNAL_URL
+ENV BACKEND_INTERNAL_URL=$BACKEND_INTERNAL_URL
 ENV NODE_ENV=production \
     PORT=3000 \
     HOSTNAME=0.0.0.0
