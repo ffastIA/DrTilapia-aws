@@ -13,6 +13,7 @@ from typing import TypedDict, Dict, Any, List, Literal, Optional, Tuple, NamedTu
 logger = logging.getLogger(__name__)
 from langchain_core.documents import Document
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
+from app.utils.prompt_safety import SECURITY_RULES, sanitize_history, wrap_context_and_question
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import SupabaseVectorStore
@@ -1265,7 +1266,7 @@ class RAGService:
 
         messages = [SystemMessage(content=system_content)]
 
-        for pair in history:
+        for pair in sanitize_history(history):
             if len(pair) >= 1 and pair[0]:
                 messages.append(HumanMessage(content=pair[0]))
             if len(pair) >= 2 and pair[1]:
@@ -1563,7 +1564,8 @@ class RAGService:
             f"{emphasis}\n\n"
             f"If the provided context does not contain the information needed to answer the "
             f"question, respond with exactly the text `{self.NO_ANSWER_SENTINEL}` and nothing else "
-            f"— no partial answer, no apology, no explanation."
+            f"— no partial answer, no apology, no explanation.\n\n"
+            f"{SECURITY_RULES}"
         )
 
     def _rewrite_query(self, question: str, lang: str) -> str:

@@ -62,7 +62,7 @@ def test_has_profile_false_and_logged_when_query_fails(monkeypatch, caplog):
 
 
 def _fake_auth_client():
-    session = SimpleNamespace(access_token="token123")
+    session = SimpleNamespace(access_token="token123", refresh_token="refresh123")
     user = SimpleNamespace(id=USER_ID, email="ffasti.iot01@gmail.com")
     auth = SimpleNamespace(sign_in_with_password=lambda _creds: SimpleNamespace(user=user, session=session))
     return SimpleNamespace(auth=auth)
@@ -82,3 +82,4 @@ def test_login_includes_profile_complete(monkeypatch, profiles, expected):
     result = asyncio.run(AuthService.login("ffasti.iot01@gmail.com", "senha"))
     assert result["profile_complete"] is expected
     assert result["access_token"] == "token123"
+    assert result["refresh_token"] == "refresh123"

@@ -7,13 +7,14 @@ import os
 import tempfile
 from fastapi import FastAPI, HTTPException, UploadFile, File, Depends, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional, Dict, Any
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from app.database import supabase_admin, get_user_scoped_client
 from app.utils.rate_limit import client_ip, EmailRateLimiter
 from app.utils.log_safety import mask_email
+from app.utils.prompt_safety import MAX_MESSAGE_CHARS, sanitize_history
 from app.services.vector_admin_service import vector_admin_service
 from app.services.rag_service import rag_service
 from app.auth.auth_service import auth_service, AuthError
@@ -165,8 +166,18 @@ class ResetPasswordRequest(BaseModel):
     new_password: str = Field(min_length=MIN_PASSWORD_LENGTH, max_length=MAX_PASSWORD_LENGTH)
 
 class ChatRequest(BaseModel):
-    message: str
+    message: str = Field(min_length=1, max_length=MAX_MESSAGE_CHARS)
     history: List[List[str]] = []
+
+    @field_validator("history", mode="before")
+    @classmethod
+    def _sanitize_history(cls, value):
+        # Corta (não rejeita) o excesso: só os últimos pares, com tamanho limitado.
+        return sanitize_history(value if isinstance(value, list) else [])
+
+# Limite de mensagens por usuário autenticado no chat (custo de LLM / abuso).
+CHAT_RATE_LIMIT_MAX = int(os.getenv("CHAT_RATE_LIMIT_MAX", "20"))
+_chat_calls = EmailRateLimiter(max_events=CHAT_RATE_LIMIT_MAX, window_seconds=60)
 
 app = FastAPI(
     docs_url="/docs" if _DOCS_ENABLED else None,
@@ -338,6 +349,9 @@ async def update_profile(data: ProfileUpsertRequest, current_user: dict = Depend
 
 @app.post("/consultoria/chat")
 async def chat(data: ChatRequest, current_user: dict = Depends(get_current_user)):
+    if _chat_calls.is_limited(current_user["id"]):
+        raise HTTPException(status_code=429, detail="Muitas mensagens. Aguarde um instante e tente de novo.")
+    _chat_calls.hit(current_user["id"])
     try:
         result = rag_service.get_answer(data.message, data.history)
         return {"answer": result.answer, "sources": result.sources}
