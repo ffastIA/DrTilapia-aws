@@ -17,8 +17,8 @@ pymupdf>=1.24.0
 slowapi>=0.1.9
 pytesseract>=0.3.10
 pydantic>=2.11.0
-pypdf==4.1.0
-python-dotenv==1.0.1
+pypdf==6.21.4
+python-dotenv==1.2.2
 python-multipart>=0.0.18
 supabase>=2.29.0
 typing-extensions>=4.14.0

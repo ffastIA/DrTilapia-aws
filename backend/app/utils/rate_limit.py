@@ -49,7 +49,7 @@ class EmailRateLimiter:
             q.popleft()
 
     def is_limited(self, email: str) -> bool:
-        key = (email or "").strip().lower()
+        key = str(email or "").strip().lower()
         now = time.monotonic()
         with self._lock:
             q = self._events.get(key)
@@ -62,7 +62,7 @@ class EmailRateLimiter:
             return len(q) >= self.max_events
 
     def hit(self, email: str) -> None:
-        key = (email or "").strip().lower()
+        key = str(email or "").strip().lower()
         now = time.monotonic()
         with self._lock:
             q = self._events[key]
