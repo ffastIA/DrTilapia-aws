@@ -65,3 +65,6 @@ backend/*.pem.bak
 
 # Cache incremental do compilador TypeScript (regenerado a cada build)
 frontend/tsconfig.tsbuildinfo
+
+# Arquivo local com credencial do Supabase — nunca versionar
+/Supabase
