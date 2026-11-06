@@ -278,10 +278,12 @@ async def signup(request: Request, data: SignupRequest):
     masked = mask_email(data.email)
     if _email_sends.is_limited("signup:" + data.email):
         return MessageResponse(message=generic_message)
-    _email_sends.hit("signup:" + data.email)
     try:
         email_redirect_to = f"{FRONTEND_URL}/auth/callback"
         user = auth_service.signup(data.email, data.password, email_redirect_to)
+        # Só conta como "e-mail enviado" depois de sucesso: se o Supabase falhar,
+        # o usuário pode tentar de novo (o limite por IP continua valendo).
+        _email_sends.hit("signup:" + data.email)
         supabase_admin.table("users").upsert(
             {"id": user["id"], "email": user["email"], "role": "user"}
         ).execute()

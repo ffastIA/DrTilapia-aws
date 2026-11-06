@@ -13,6 +13,11 @@ from typing import Optional
 from fastapi import UploadFile
 
 try:
+    # No Windows o libmagic normalmente não existe e `import magic` pode travar o
+    # processo; lá (só desenvolvimento local) vale o fallback por assinatura de
+    # bytes abaixo. Produção roda em Linux (ver backend.Dockerfile, libmagic1).
+    if os.name == "nt":
+        raise ImportError("libmagic indisponível no Windows")
     import magic  # python-magic (binding para libmagic)
 except ImportError:  # pragma: no cover - ambiente sem libmagic instalado
     magic = None
