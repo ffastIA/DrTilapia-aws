@@ -68,3 +68,41 @@ export async function refreshTokens(
     return null;
   }
 }
+
+/**
+ * Defesa contra CSRF: a sessão vai em cookie, então requisições que alteram dados
+ * só valem se partirem do próprio site.
+ *
+ * - `Sec-Fetch-Site` (enviado por todos os navegadores atuais) deve ser
+ *   `same-origin` (ou `none`, ação direta do usuário). `cross-site`/`same-site`
+ *   (inclui subdomínios irmãos) são recusados.
+ * - Sem esse header, vale o `Origin`: precisa estar em ALLOWED_ORIGINS (lista
+ *   separada por vírgulas, variável de runtime) ou coincidir com o host da requisição.
+ * - Sem nenhum dos dois não há navegador envolvido (curl etc.): sem risco de CSRF.
+ */
+export function isSameOriginRequest(req: NextRequest): boolean {
+  const safeMethods = ['GET', 'HEAD', 'OPTIONS'];
+  if (safeMethods.includes(req.method)) return true;
+
+  const fetchSite = req.headers.get('sec-fetch-site');
+  if (fetchSite) return fetchSite === 'same-origin' || fetchSite === 'none';
+
+  const origin = req.headers.get('origin');
+  if (!origin) return true;
+
+  const allowed = (process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map((o) => o.trim().replace(/\/$/, ''))
+    .filter(Boolean);
+  if (allowed.length > 0) return allowed.includes(origin.replace(/\/$/, ''));
+
+  try {
+    const host = req.headers.get('x-forwarded-host') || req.headers.get('host');
+    return new URL(origin).host === host;
+  } catch {
+    return false;
+  }
+}
+
+export const forbiddenCrossOrigin = () =>
+  Response.json({ detail: 'Origem não permitida' }, { status: 403 });

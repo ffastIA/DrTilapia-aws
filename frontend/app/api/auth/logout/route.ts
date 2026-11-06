@@ -2,11 +2,12 @@
 // Logout: revoga a sessão no Supabase (via backend) e remove os cookies.
 
 import { NextRequest, NextResponse } from 'next/server';
-import { ACCESS_COOKIE, backendUrl, clearSessionCookies } from '@/lib/serverSession';
+import { ACCESS_COOKIE, backendUrl, clearSessionCookies, forbiddenCrossOrigin, isSameOriginRequest } from '@/lib/serverSession';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
+  if (!isSameOriginRequest(req)) return forbiddenCrossOrigin();
   const token = req.cookies.get(ACCESS_COOKIE)?.value;
   if (token) {
     try {

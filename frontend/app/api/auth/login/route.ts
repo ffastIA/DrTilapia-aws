@@ -2,11 +2,12 @@
 // Login no servidor: o token vai para cookies HttpOnly e NÃO é devolvido ao browser.
 
 import { NextRequest, NextResponse } from 'next/server';
-import { backendUrl, setSessionCookies } from '@/lib/serverSession';
+import { backendUrl, forbiddenCrossOrigin, isSameOriginRequest, setSessionCookies } from '@/lib/serverSession';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
+  if (!isSameOriginRequest(req)) return forbiddenCrossOrigin();
   const body = await req.text();
   const forwarded = req.headers.get('x-forwarded-for');
 

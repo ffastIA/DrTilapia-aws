@@ -8,7 +8,9 @@ import {
   ACCESS_COOKIE,
   REFRESH_COOKIE,
   backendUrl,
+  forbiddenCrossOrigin,
   isExpiring,
+  isSameOriginRequest,
   refreshTokens,
   setSessionCookies,
 } from '@/lib/serverSession';
@@ -19,6 +21,8 @@ export const dynamic = 'force-dynamic';
 const HOP_BY_HOP = ['connection', 'keep-alive', 'transfer-encoding', 'upgrade', 'host', 'content-length'];
 
 async function proxy(req: NextRequest, { params }: { params: { path: string[] } }) {
+  if (!isSameOriginRequest(req)) return forbiddenCrossOrigin();
+
   let accessToken = req.cookies.get(ACCESS_COOKIE)?.value;
   const refreshToken = req.cookies.get(REFRESH_COOKIE)?.value;
   let renewed: { access_token: string; refresh_token: string } | null = null;
