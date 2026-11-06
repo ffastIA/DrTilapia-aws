@@ -137,6 +137,9 @@ class AuthService:
             )
         except AuthApiError as e:
             logger.warning("[signup] AuthApiError para %s: %s", mask_email(email), e)
+            # Falha do lado do Supabase (ex.: SMTP) não revela nada sobre a conta.
+            if (getattr(e, "status", None) or 0) >= 500:
+                raise AuthError(code="email_delivery_failed", message="Falha ao enviar e-mail.")
             raise AuthError(code="signup_failed", message=str(e))
 
         user = auth_response.user

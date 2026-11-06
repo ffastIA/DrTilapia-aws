@@ -288,6 +288,12 @@ async def signup(request: Request, data: SignupRequest):
             {"id": user["id"], "email": user["email"], "role": "user"}
         ).execute()
     except AuthError as e:
+        if e.code == "email_delivery_failed":
+            logger.error("[main.signup] Supabase não conseguiu enviar o e-mail para %s", masked)
+            raise HTTPException(
+                status_code=503,
+                detail="Não foi possível enviar o e-mail de confirmação agora. Tente novamente mais tarde.",
+            )
         logger.info("[main.signup] AuthError code=%s para %s (resposta genérica mantida)", e.code, masked)
     except Exception:
         logger.exception("[main.signup] erro inesperado para %s (resposta genérica mantida)", masked)
